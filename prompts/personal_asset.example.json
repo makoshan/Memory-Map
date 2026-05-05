@@ -1,0 +1,47 @@
+{
+  "user_id": "alex-chen",
+  "asset_id": "alex-office-walk",
+  "kind": "character_animation",
+  "layer1": {
+    "place_profile_id": "hangzhou-office",
+    "role": "work",
+    "semantic_tags": ["work-dense", "recovery", "damp-fatigue-zone"],
+    "summary": "Alex spends most weekday mornings in the Hangzhou office. The place has high work intensity, steady recovery, and mild damp fatigue risk."
+  },
+  "character": {
+    "name": "Alex Chen",
+    "archetype": "focused founder",
+    "style": "isometric pixel art, bright personal AI company world",
+    "identity_markers": [
+      "navy jacket",
+      "short black hair",
+      "calm focused expression",
+      "small tech badge"
+    ]
+  },
+  "animation": {
+    "name": "walk",
+    "frame_count": 12,
+    "fps": 12,
+    "prompt": "Use the uploaded image as the exact first frame. Animate a tiny isometric pixel-art founder walking in place. Keep the same right-facing view, same scale, same outfit, same face, and same colors. Only the feet alternate a few pixels, knees bend slightly, and arms bob gently. Locked camera. Character stays centered. Flat #00FF00 background stays unchanged. No shadows, no floor, no blur, no text, no watermark, no redesign."
+  },
+  "generation": {
+    "provider": "dreamina_cli",
+    "mode": "image2video",
+    "first_frame_provider": "codex_image2",
+    "first_frame_image": "source_images/alex-office-walk-first-frame.png",
+    "model_version": "seedance2.0fast",
+    "duration": 5,
+    "video_resolution": "720p",
+    "initial_poll_seconds": 0
+  },
+  "pipeline": {
+    "frame_size": 256,
+    "background_mode": "chroma",
+    "chroma_key": "#00FF00",
+    "layout_mode": "preserve-canvas",
+    "frame_indices": [],
+    "promote_to_final_sprites": true,
+    "copy_to_godot": true
+  }
+}

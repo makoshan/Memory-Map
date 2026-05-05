@@ -1,0 +1,223 @@
+{
+  "version": 1,
+  "goal": "MVP animation scope for personalized Layer 3 worlds",
+  "rules": {
+    "character_motion": "Only player, AI employees, robots, and important NPCs need walk animations.",
+    "static_world": "Buildings, islands, bridges, props, and UI do not walk.",
+    "state_animation": "Buildings and environment assets receive unlock, upgrade, recovery, damp-fatigue, or ambient state animations.",
+    "mvp_directions": "Generate down and right directions only. Left can be mirrored in Godot. Up is deferred until navigation needs it.",
+    "excluded_action_types": "Run, jump, attack, block, die, climb, and swim are not part of the MVP because Memory Map is exploration and interaction, not an action RPG.",
+    "first_frame": "Codex image2 generates animation-safe first frames with exact #00FF00 background.",
+    "video": "Dreamina CLI image2video generates motion source video.",
+    "postprocess": "tools/personal_asset_pipeline.py converts video into final_sprites and Godot manifest entries."
+  },
+  "animation_profiles": {
+    "idle": {
+      "frame_count": 8,
+      "fps": 8,
+      "loop": true,
+      "directions": ["down", "right"],
+      "prompt_template": "idle_breathing"
+    },
+    "walk": {
+      "frame_count": 12,
+      "fps": 12,
+      "loop": true,
+      "directions": ["down", "right"],
+      "prompt_template": "walk_in_place"
+    },
+    "interact": {
+      "frame_count": 10,
+      "fps": 10,
+      "loop": false,
+      "directions": ["down", "right"],
+      "prompt_template": "interact_point_tap"
+    },
+    "work": {
+      "frame_count": 12,
+      "fps": 10,
+      "loop": true,
+      "directions": ["down", "right"],
+      "prompt_template": "work_typing_or_scanning"
+    },
+    "react": {
+      "frame_count": 8,
+      "fps": 10,
+      "loop": false,
+      "directions": ["down"],
+      "prompt_template": "small_reaction"
+    },
+    "celebrate": {
+      "frame_count": 10,
+      "fps": 10,
+      "loop": false,
+      "directions": ["down"],
+      "prompt_template": "task_complete_celebrate"
+    }
+  },
+  "character_jobs": [
+    {
+      "asset_id": "player-founder",
+      "source_asset": "public/assets/generated/v2/sprites/char-male.png",
+      "animations": ["idle", "walk", "interact", "celebrate"],
+      "priority": "p0",
+      "semantic_use": "default player avatar"
+    },
+    {
+      "asset_id": "ai-researcher",
+      "source_asset": "public/assets/generated/v2/sprites/char-researcher.png",
+      "animations": ["idle", "walk", "work", "react"],
+      "priority": "p0",
+      "semantic_use": "research and learning room NPC"
+    },
+    {
+      "asset_id": "ai-analyst",
+      "source_asset": "public/assets/generated/v2/sprites/char-analyst.png",
+      "animations": ["idle", "walk", "work", "react"],
+      "priority": "p0",
+      "semantic_use": "finance and data analysis NPC"
+    },
+    {
+      "asset_id": "ai-assistant",
+      "source_asset": "public/assets/generated/v2/sprites/char-assistant.png",
+      "animations": ["idle", "walk", "interact", "react"],
+      "priority": "p0",
+      "semantic_use": "task and schedule NPC"
+    },
+    {
+      "asset_id": "ai-bot",
+      "source_asset": "public/assets/generated/v2/sprites/char-bot.png",
+      "animations": ["idle", "walk", "work", "react"],
+      "priority": "p0",
+      "semantic_use": "automation helper NPC"
+    },
+    {
+      "asset_id": "alternate-avatar",
+      "source_asset": "public/assets/generated/v2/sprites/char-female.png",
+      "animations": ["idle", "walk", "interact"],
+      "priority": "p1",
+      "semantic_use": "alternate player avatar"
+    }
+  ],
+  "building_jobs": [
+    {
+      "asset_id": "home-base",
+      "source_assets": [
+        "public/assets/generated/v2/sprites/home-lv1.png",
+        "public/assets/generated/v2/sprites/home-lv2.png",
+        "public/assets/generated/v2/sprites/home-lv3.png"
+      ],
+      "animations": ["unlock", "upgrade"],
+      "priority": "p0",
+      "semantic_use": "home node grows as daily records accumulate"
+    },
+    {
+      "asset_id": "office-zone",
+      "source_assets": [
+        "public/assets/generated/v2/sprites/office-lv1.png",
+        "public/assets/generated/v2/sprites/office-lv2.png",
+        "public/assets/generated/v2/sprites/office-lv3.png"
+      ],
+      "animations": ["unlock", "upgrade", "work-dense-active"],
+      "priority": "p0",
+      "semantic_use": "work-heavy places light up and expand"
+    },
+    {
+      "asset_id": "memory-museum",
+      "source_assets": [
+        "public/assets/generated/v2/sprites/memory-lv1.png",
+        "public/assets/generated/v2/sprites/memory-lv2.png",
+        "public/assets/generated/v2/sprites/memory-lv3.png"
+      ],
+      "animations": ["unlock", "upgrade", "memory-rich-active"],
+      "priority": "p0",
+      "semantic_use": "media and notes expand shelves, albums, and lights"
+    },
+    {
+      "asset_id": "finance-tower",
+      "source_assets": [
+        "public/assets/generated/v2/sprites/finance-lv1.png",
+        "public/assets/generated/v2/sprites/finance-lv2.png",
+        "public/assets/generated/v2/sprites/finance-lv3.png"
+      ],
+      "animations": ["unlock", "upgrade", "finance-active"],
+      "priority": "p1",
+      "semantic_use": "finance-weighted places animate charts and lights"
+    },
+    {
+      "asset_id": "ai-lab",
+      "source_assets": [
+        "public/assets/generated/v2/sprites/ai-lab-lv1.png",
+        "public/assets/generated/v2/sprites/ai-lab-lv2.png",
+        "public/assets/generated/v2/sprites/ai-lab-lv3.png"
+      ],
+      "animations": ["unlock", "upgrade", "research-active"],
+      "priority": "p1",
+      "semantic_use": "AI learning and automation node"
+    }
+  ],
+  "environment_jobs": [
+    {
+      "asset_id": "life-recovery-zone",
+      "source_assets": [
+        "public/assets/generated/v2/sprites/life-lv1.png",
+        "public/assets/generated/v2/sprites/life-lv2.png",
+        "public/assets/generated/v2/sprites/life-lv3.png"
+      ],
+      "animations": ["recovery-state", "damp-fatigue-state"],
+      "priority": "p0",
+      "semantic_use": "health, sleep, steps, and humidity expression"
+    },
+    {
+      "asset_id": "island-water-state",
+      "source_assets": [
+        "public/assets/generated/v2/sprites/island-small.png",
+        "public/assets/generated/v2/sprites/island-medium.png",
+        "public/assets/generated/v2/sprites/island-large.png",
+        "public/assets/generated/v2/sprites/island-lake.png"
+      ],
+      "animations": ["ambient-water", "damp-fatigue-state", "recovery-state"],
+      "priority": "p1",
+      "semantic_use": "water level, reeds, brightness, and fog"
+    },
+    {
+      "asset_id": "ambient-props",
+      "source_assets": [
+        "public/assets/generated/v2/sprites/reed-patch.png",
+        "public/assets/generated/v2/sprites/flower-bed.png",
+        "public/assets/generated/v2/sprites/tree.png",
+        "public/assets/generated/v2/sprites/spruce.png"
+      ],
+      "animations": ["sway", "bloom"],
+      "priority": "p2",
+      "semantic_use": "ambient micro motion only after core character/building animations"
+    }
+  ],
+  "no_animation_needed": [
+    "badge-lv1.png",
+    "badge-lv2.png",
+    "badge-lv3.png",
+    "badge-lv4.png",
+    "badge-lv5.png",
+    "badge-lv6.png",
+    "badge-lv7.png",
+    "card-agent.png",
+    "card-energy.png",
+    "card-health.png",
+    "card-mood.png",
+    "card-progress.png",
+    "card-task.png",
+    "icon-ai.png",
+    "icon-calendar.png",
+    "icon-camera.png",
+    "icon-finance.png",
+    "icon-home.png",
+    "icon-life.png",
+    "icon-map-pin.png",
+    "icon-memory.png",
+    "icon-menu.png",
+    "icon-office.png",
+    "icon-settings.png",
+    "world-map-panel.png"
+  ]
+}

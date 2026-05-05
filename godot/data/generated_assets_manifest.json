@@ -1,0 +1,22 @@
+{
+  "updated_at": "2026-05-05T11:30:34",
+  "assets": [
+    {
+      "asset_id": "alex-office-walk",
+      "user_id": "alex-chen",
+      "kind": "character_animation",
+      "animation": "walk",
+      "frame_count": 12,
+      "frame_size": 256,
+      "fps": 12,
+      "sheet": "res://assets/generated/alex-chen/alex-office-walk/walk/alex-office-walk_walk_12f_256.png",
+      "final_sheet": "final_sprites/alex-chen/alex-office-walk/walk/sheets/alex-office-walk_walk_12f_256.png",
+      "semantic_tags": [
+        "work-dense",
+        "recovery",
+        "damp-fatigue-zone"
+      ],
+      "created_at": "2026-05-05T11:30:34"
+    }
+  ]
+}

@@ -1,0 +1,794 @@
+{
+  "home-lv1": {
+    "src": "/assets/imported/user-atlas/sprites/home-lv1.png",
+    "width": 92,
+    "height": 98,
+    "sourceBox": [
+      0,
+      107,
+      96,
+      213
+    ]
+  },
+  "home-lv2": {
+    "src": "/assets/imported/user-atlas/sprites/home-lv2.png",
+    "width": 102,
+    "height": 107,
+    "sourceBox": [
+      86,
+      99,
+      188,
+      214
+    ]
+  },
+  "home-lv3": {
+    "src": "/assets/imported/user-atlas/sprites/home-lv3.png",
+    "width": 93,
+    "height": 110,
+    "sourceBox": [
+      178,
+      88,
+      279,
+      214
+    ]
+  },
+  "office-lv1": {
+    "src": "/assets/imported/user-atlas/sprites/office-lv1.png",
+    "width": 88,
+    "height": 119,
+    "sourceBox": [
+      278,
+      94,
+      367,
+      213
+    ]
+  },
+  "office-lv2": {
+    "src": "/assets/imported/user-atlas/sprites/office-lv2.png",
+    "width": 92,
+    "height": 118,
+    "sourceBox": [
+      355,
+      79,
+      447,
+      213
+    ]
+  },
+  "office-lv3": {
+    "src": "/assets/imported/user-atlas/sprites/office-lv3.png",
+    "width": 91,
+    "height": 144,
+    "sourceBox": [
+      434,
+      70,
+      526,
+      214
+    ]
+  },
+  "memory-lv1": {
+    "src": "/assets/imported/user-atlas/sprites/memory-lv1.png",
+    "width": 94,
+    "height": 106,
+    "sourceBox": [
+      525,
+      92,
+      627,
+      214
+    ]
+  },
+  "memory-lv2": {
+    "src": "/assets/imported/user-atlas/sprites/memory-lv2.png",
+    "width": 90,
+    "height": 107,
+    "sourceBox": [
+      614,
+      91,
+      704,
+      214
+    ]
+  },
+  "memory-lv3": {
+    "src": "/assets/imported/user-atlas/sprites/memory-lv3.png",
+    "width": 88,
+    "height": 142,
+    "sourceBox": [
+      691,
+      72,
+      780,
+      214
+    ]
+  },
+  "finance-lv1": {
+    "src": "/assets/imported/user-atlas/sprites/finance-lv1.png",
+    "width": 84,
+    "height": 143,
+    "sourceBox": [
+      777,
+      70,
+      862,
+      213
+    ]
+  },
+  "finance-lv2": {
+    "src": "/assets/imported/user-atlas/sprites/finance-lv2.png",
+    "width": 80,
+    "height": 105,
+    "sourceBox": [
+      849,
+      92,
+      929,
+      213
+    ]
+  },
+  "finance-lv3": {
+    "src": "/assets/imported/user-atlas/sprites/finance-lv3.png",
+    "width": 95,
+    "height": 124,
+    "sourceBox": [
+      916,
+      74,
+      1019,
+      214
+    ]
+  },
+  "ai-lab-lv1": {
+    "src": "/assets/imported/user-atlas/sprites/ai-lab-lv1.png",
+    "width": 87,
+    "height": 122,
+    "sourceBox": [
+      1018,
+      91,
+      1107,
+      213
+    ]
+  },
+  "ai-lab-lv2": {
+    "src": "/assets/imported/user-atlas/sprites/ai-lab-lv2.png",
+    "width": 92,
+    "height": 101,
+    "sourceBox": [
+      1096,
+      97,
+      1188,
+      214
+    ]
+  },
+  "ai-lab-lv3": {
+    "src": "/assets/imported/user-atlas/sprites/ai-lab-lv3.png",
+    "width": 97,
+    "height": 135,
+    "sourceBox": [
+      1175,
+      79,
+      1273,
+      214
+    ]
+  },
+  "life-lv1": {
+    "src": "/assets/imported/user-atlas/sprites/life-lv1.png",
+    "width": 91,
+    "height": 104,
+    "sourceBox": [
+      1270,
+      109,
+      1361,
+      213
+    ]
+  },
+  "life-lv2": {
+    "src": "/assets/imported/user-atlas/sprites/life-lv2.png",
+    "width": 94,
+    "height": 105,
+    "sourceBox": [
+      1348,
+      92,
+      1442,
+      213
+    ]
+  },
+  "life-lv3": {
+    "src": "/assets/imported/user-atlas/sprites/life-lv3.png",
+    "width": 99,
+    "height": 116,
+    "sourceBox": [
+      1428,
+      82,
+      1535,
+      214
+    ]
+  },
+  "island-small": {
+    "src": "/assets/imported/user-atlas/sprites/island-small.png",
+    "width": 104,
+    "height": 83,
+    "sourceBox": [
+      3,
+      305,
+      123,
+      404
+    ]
+  },
+  "island-medium": {
+    "src": "/assets/imported/user-atlas/sprites/island-medium.png",
+    "width": 142,
+    "height": 117,
+    "sourceBox": [
+      124,
+      291,
+      282,
+      424
+    ]
+  },
+  "island-large": {
+    "src": "/assets/imported/user-atlas/sprites/island-large.png",
+    "width": 183,
+    "height": 149,
+    "sourceBox": [
+      277,
+      264,
+      476,
+      429
+    ]
+  },
+  "island-lake": {
+    "src": "/assets/imported/user-atlas/sprites/island-lake.png",
+    "width": 228,
+    "height": 171,
+    "sourceBox": [
+      471,
+      254,
+      715,
+      441
+    ]
+  },
+  "bridge-wood": {
+    "src": "/assets/imported/user-atlas/sprites/bridge-wood.png",
+    "width": 103,
+    "height": 98,
+    "sourceBox": [
+      734,
+      300,
+      845,
+      406
+    ]
+  },
+  "bridge-stone": {
+    "src": "/assets/imported/user-atlas/sprites/bridge-stone.png",
+    "width": 113,
+    "height": 97,
+    "sourceBox": [
+      817,
+      316,
+      930,
+      425
+    ]
+  },
+  "dock-small": {
+    "src": "/assets/imported/user-atlas/sprites/dock-small.png",
+    "width": 81,
+    "height": 65,
+    "sourceBox": [
+      915,
+      349,
+      996,
+      422
+    ]
+  },
+  "dock-large": {
+    "src": "/assets/imported/user-atlas/sprites/dock-large.png",
+    "width": 97,
+    "height": 84,
+    "sourceBox": [
+      960,
+      294,
+      1065,
+      386
+    ]
+  },
+  "boat-row": {
+    "src": "/assets/imported/user-atlas/sprites/boat-row.png",
+    "width": 57,
+    "height": 66,
+    "sourceBox": [
+      997,
+      370,
+      1070,
+      444
+    ]
+  },
+  "pine-tree": {
+    "src": "/assets/imported/user-atlas/sprites/pine-tree.png",
+    "width": 32,
+    "height": 54,
+    "sourceBox": [
+      1089,
+      294,
+      1137,
+      365
+    ]
+  },
+  "spruce-tree": {
+    "src": "/assets/imported/user-atlas/sprites/spruce-tree.png",
+    "width": 33,
+    "height": 54,
+    "sourceBox": [
+      1139,
+      294,
+      1188,
+      364
+    ]
+  },
+  "cherry-tree": {
+    "src": "/assets/imported/user-atlas/sprites/cherry-tree.png",
+    "width": 57,
+    "height": 64,
+    "sourceBox": [
+      1194,
+      284,
+      1267,
+      365
+    ]
+  },
+  "bush": {
+    "src": "/assets/imported/user-atlas/sprites/bush.png",
+    "width": 45,
+    "height": 36,
+    "sourceBox": [
+      1273,
+      302,
+      1335,
+      355
+    ]
+  },
+  "flower-bed": {
+    "src": "/assets/imported/user-atlas/sprites/flower-bed.png",
+    "width": 47,
+    "height": 40,
+    "sourceBox": [
+      1335,
+      300,
+      1398,
+      356
+    ]
+  },
+  "well": {
+    "src": "/assets/imported/user-atlas/sprites/well.png",
+    "width": 34,
+    "height": 39,
+    "sourceBox": [
+      1400,
+      299,
+      1450,
+      354
+    ]
+  },
+  "bench": {
+    "src": "/assets/imported/user-atlas/sprites/bench.png",
+    "width": 56,
+    "height": 40,
+    "sourceBox": [
+      1449,
+      298,
+      1521,
+      354
+    ]
+  },
+  "streetlamp-1": {
+    "src": "/assets/imported/user-atlas/sprites/streetlamp-1.png",
+    "width": 20,
+    "height": 57,
+    "sourceBox": [
+      1102,
+      368,
+      1138,
+      441
+    ]
+  },
+  "streetlamp-2": {
+    "src": "/assets/imported/user-atlas/sprites/streetlamp-2.png",
+    "width": 19,
+    "height": 50,
+    "sourceBox": [
+      1157,
+      375,
+      1193,
+      441
+    ]
+  },
+  "streetlamp-3": {
+    "src": "/assets/imported/user-atlas/sprites/streetlamp-3.png",
+    "width": 18,
+    "height": 54,
+    "sourceBox": [
+      1204,
+      371,
+      1239,
+      441
+    ]
+  },
+  "streetlamp-4": {
+    "src": "/assets/imported/user-atlas/sprites/streetlamp-4.png",
+    "width": 19,
+    "height": 53,
+    "sourceBox": [
+      1253,
+      372,
+      1288,
+      441
+    ]
+  },
+  "signpost": {
+    "src": "/assets/imported/user-atlas/sprites/signpost.png",
+    "width": 22,
+    "height": 47,
+    "sourceBox": [
+      1393,
+      378,
+      1431,
+      441
+    ]
+  },
+  "sailboat": {
+    "src": "/assets/imported/user-atlas/sprites/sailboat.png",
+    "width": 60,
+    "height": 81,
+    "sourceBox": [
+      12,
+      503,
+      89,
+      600
+    ]
+  },
+  "small-boat": {
+    "src": "/assets/imported/user-atlas/sprites/small-boat.png",
+    "width": 71,
+    "height": 76,
+    "sourceBox": [
+      95,
+      507,
+      182,
+      599
+    ]
+  },
+  "yacht": {
+    "src": "/assets/imported/user-atlas/sprites/yacht.png",
+    "width": 80,
+    "height": 73,
+    "sourceBox": [
+      185,
+      507,
+      281,
+      596
+    ]
+  },
+  "lighthouse": {
+    "src": "/assets/imported/user-atlas/sprites/lighthouse.png",
+    "width": 86,
+    "height": 129,
+    "sourceBox": [
+      278,
+      463,
+      380,
+      608
+    ]
+  },
+  "city-hangzhou": {
+    "src": "/assets/imported/user-atlas/sprites/city-hangzhou.png",
+    "width": 80,
+    "height": 58,
+    "sourceBox": [
+      408,
+      507,
+      504,
+      582
+    ]
+  },
+  "city-shenzhen": {
+    "src": "/assets/imported/user-atlas/sprites/city-shenzhen.png",
+    "width": 80,
+    "height": 59,
+    "sourceBox": [
+      513,
+      507,
+      609,
+      582
+    ]
+  },
+  "city-shanghai": {
+    "src": "/assets/imported/user-atlas/sprites/city-shanghai.png",
+    "width": 78,
+    "height": 59,
+    "sourceBox": [
+      616,
+      507,
+      710,
+      582
+    ]
+  },
+  "city-beijing": {
+    "src": "/assets/imported/user-atlas/sprites/city-beijing.png",
+    "width": 78,
+    "height": 59,
+    "sourceBox": [
+      717,
+      507,
+      811,
+      582
+    ]
+  },
+  "city-tokyo": {
+    "src": "/assets/imported/user-atlas/sprites/city-tokyo.png",
+    "width": 77,
+    "height": 58,
+    "sourceBox": [
+      820,
+      508,
+      913,
+      582
+    ]
+  },
+  "icon-home": {
+    "src": "/assets/imported/user-atlas/sprites/icon-home.png",
+    "width": 43,
+    "height": 43,
+    "sourceBox": [
+      965,
+      514,
+      1024,
+      573
+    ]
+  },
+  "icon-office": {
+    "src": "/assets/imported/user-atlas/sprites/icon-office.png",
+    "width": 44,
+    "height": 43,
+    "sourceBox": [
+      1056,
+      514,
+      1116,
+      573
+    ]
+  },
+  "icon-memory": {
+    "src": "/assets/imported/user-atlas/sprites/icon-memory.png",
+    "width": 47,
+    "height": 38,
+    "sourceBox": [
+      1146,
+      518,
+      1209,
+      572
+    ]
+  },
+  "icon-finance": {
+    "src": "/assets/imported/user-atlas/sprites/icon-finance.png",
+    "width": 34,
+    "height": 43,
+    "sourceBox": [
+      1245,
+      514,
+      1295,
+      573
+    ]
+  },
+  "icon-ai": {
+    "src": "/assets/imported/user-atlas/sprites/icon-ai.png",
+    "width": 36,
+    "height": 39,
+    "sourceBox": [
+      1336,
+      514,
+      1388,
+      569
+    ]
+  },
+  "icon-life": {
+    "src": "/assets/imported/user-atlas/sprites/icon-life.png",
+    "width": 40,
+    "height": 37,
+    "sourceBox": [
+      1426,
+      518,
+      1482,
+      571
+    ]
+  },
+  "tile-grass": {
+    "src": "/assets/imported/user-atlas/sprites/tile-grass.png",
+    "width": 82,
+    "height": 84,
+    "sourceBox": [
+      939,
+      905,
+      1035,
+      1003
+    ]
+  },
+  "tile-path": {
+    "src": "/assets/imported/user-atlas/sprites/tile-path.png",
+    "width": 81,
+    "height": 84,
+    "sourceBox": [
+      1033,
+      905,
+      1128,
+      1003
+    ]
+  },
+  "tile-stone": {
+    "src": "/assets/imported/user-atlas/sprites/tile-stone.png",
+    "width": 81,
+    "height": 84,
+    "sourceBox": [
+      1129,
+      905,
+      1225,
+      1003
+    ]
+  },
+  "tile-wood": {
+    "src": "/assets/imported/user-atlas/sprites/tile-wood.png",
+    "width": 81,
+    "height": 84,
+    "sourceBox": [
+      1222,
+      905,
+      1318,
+      1003
+    ]
+  },
+  "tile-water": {
+    "src": "/assets/imported/user-atlas/sprites/tile-water.png",
+    "width": 82,
+    "height": 84,
+    "sourceBox": [
+      1319,
+      905,
+      1415,
+      1003
+    ]
+  },
+  "tile-cliff": {
+    "src": "/assets/imported/user-atlas/sprites/tile-cliff.png",
+    "width": 82,
+    "height": 84,
+    "sourceBox": [
+      1416,
+      905,
+      1512,
+      1003
+    ]
+  },
+  "char-male": {
+    "src": "/assets/imported/user-atlas/sprites/char-male.png",
+    "width": 58,
+    "height": 105,
+    "sourceBox": [
+      9,
+      895,
+      86,
+      1015
+    ]
+  },
+  "char-female": {
+    "src": "/assets/imported/user-atlas/sprites/char-female.png",
+    "width": 58,
+    "height": 102,
+    "sourceBox": [
+      104,
+      895,
+      182,
+      1015
+    ]
+  },
+  "char-emma": {
+    "src": "/assets/imported/user-atlas/sprites/char-emma.png",
+    "width": 68,
+    "height": 109,
+    "sourceBox": [
+      197,
+      895,
+      278,
+      1015
+    ]
+  },
+  "char-max": {
+    "src": "/assets/imported/user-atlas/sprites/char-max.png",
+    "width": 59,
+    "height": 109,
+    "sourceBox": [
+      289,
+      895,
+      370,
+      1015
+    ]
+  },
+  "char-kate": {
+    "src": "/assets/imported/user-atlas/sprites/char-kate.png",
+    "width": 82,
+    "height": 105,
+    "sourceBox": [
+      380,
+      895,
+      462,
+      1015
+    ]
+  },
+  "char-bot": {
+    "src": "/assets/imported/user-atlas/sprites/char-bot.png",
+    "width": 46,
+    "height": 95,
+    "sourceBox": [
+      480,
+      895,
+      558,
+      1015
+    ]
+  },
+  "prop-tree": {
+    "src": "/assets/imported/user-atlas/sprites/prop-tree.png",
+    "width": 83,
+    "height": 82,
+    "sourceBox": [
+      557,
+      907,
+      643,
+      1008
+    ]
+  },
+  "prop-palm": {
+    "src": "/assets/imported/user-atlas/sprites/prop-palm.png",
+    "width": 85,
+    "height": 78,
+    "sourceBox": [
+      644,
+      907,
+      729,
+      1008
+    ]
+  },
+  "prop-fountain": {
+    "src": "/assets/imported/user-atlas/sprites/prop-fountain.png",
+    "width": 90,
+    "height": 69,
+    "sourceBox": [
+      730,
+      907,
+      825,
+      1008
+    ]
+  },
+  "prop-flower": {
+    "src": "/assets/imported/user-atlas/sprites/prop-flower.png",
+    "width": 70,
+    "height": 80,
+    "sourceBox": [
+      827,
+      907,
+      912,
+      1008
+    ]
+  },
+  "prop-lamp": {
+    "src": "/assets/imported/user-atlas/sprites/prop-lamp.png",
+    "width": 38,
+    "height": 84,
+    "sourceBox": [
+      915,
+      907,
+      983,
+      1008
+    ]
+  },
+  "prop-mailbox": {
+    "src": "/assets/imported/user-atlas/sprites/prop-mailbox.png",
+    "width": 73,
+    "height": 84,
+    "sourceBox": [
+      980,
+      907,
+      1053,
+      1008
+    ]
+  }
+}

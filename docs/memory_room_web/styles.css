@@ -1,0 +1,15 @@
+body{margin:0;font-family:sans-serif;background:#f6f7fb}
+.app{display:grid;grid-template-columns:160px 1fr 200px;grid-template-rows:60px 1fr;height:100vh}
+.top{grid-column:1/4;display:flex;justify-content:space-between;align-items:center;padding:10px;background:#fff}
+.side{background:#fff;padding:10px;display:flex;flex-direction:column;gap:10px}
+.side button{border:0;background:#eee;padding:10px;border-radius:8px}
+.side .active{background:#4b9cff;color:#fff}
+.main{padding:10px}
+.hero{position:relative}
+.hero img{width:100%;border-radius:12px}
+.panel{position:absolute;left:20px;top:20px;background:#fff;padding:10px;border-radius:10px}
+.bar{height:6px;background:#ddd;border-radius:99px}
+.bar i{display:block;width:60%;height:100%;background:#4b9cff}
+.grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:10px}
+.card{background:#fff;padding:10px;border-radius:10px}
+.right{padding:10px;display:flex;flex-direction:column;gap:10px}

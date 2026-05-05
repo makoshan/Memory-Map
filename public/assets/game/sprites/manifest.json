@@ -1,0 +1,189 @@
+{
+  "office-island": {
+    "src": "/assets/game/sprites/office-island.png",
+    "width": 372,
+    "height": 373,
+    "atlasBox": [
+      28,
+      51,
+      380,
+      404
+    ]
+  },
+  "memory-museum-island": {
+    "src": "/assets/game/sprites/memory-museum-island.png",
+    "width": 381,
+    "height": 349,
+    "atlasBox": [
+      399,
+      74,
+      760,
+      403
+    ]
+  },
+  "finance-tower-island": {
+    "src": "/assets/game/sprites/finance-tower-island.png",
+    "width": 333,
+    "height": 361,
+    "atlasBox": [
+      790,
+      63,
+      1103,
+      404
+    ]
+  },
+  "recovery-garden-island": {
+    "src": "/assets/game/sprites/recovery-garden-island.png",
+    "width": 402,
+    "height": 327,
+    "atlasBox": [
+      1128,
+      97,
+      1510,
+      404
+    ]
+  },
+  "home-base-island": {
+    "src": "/assets/game/sprites/home-base-island.png",
+    "width": 365,
+    "height": 320,
+    "atlasBox": [
+      29,
+      446,
+      374,
+      746
+    ]
+  },
+  "ai-research-lab-island": {
+    "src": "/assets/game/sprites/ai-research-lab-island.png",
+    "width": 344,
+    "height": 323,
+    "atlasBox": [
+      411,
+      445,
+      735,
+      748
+    ]
+  },
+  "lighthouse-island": {
+    "src": "/assets/game/sprites/lighthouse-island.png",
+    "width": 243,
+    "height": 295,
+    "atlasBox": [
+      769,
+      463,
+      992,
+      738
+    ]
+  },
+  "wood-bridge": {
+    "src": "/assets/game/sprites/wood-bridge.png",
+    "width": 212,
+    "height": 228,
+    "atlasBox": [
+      1024,
+      515,
+      1216,
+      723
+    ]
+  },
+  "reed-patch": {
+    "src": "/assets/game/sprites/reed-patch.png",
+    "width": 149,
+    "height": 190,
+    "atlasBox": [
+      1244,
+      536,
+      1373,
+      706
+    ]
+  },
+  "flower-patch": {
+    "src": "/assets/game/sprites/flower-patch.png",
+    "width": 142,
+    "height": 132,
+    "atlasBox": [
+      1390,
+      591,
+      1512,
+      703
+    ]
+  },
+  "player-alex": {
+    "src": "/assets/game/sprites/player-alex.png",
+    "width": 99,
+    "height": 156,
+    "atlasBox": [
+      220,
+      807,
+      299,
+      943
+    ]
+  },
+  "agent-researcher": {
+    "src": "/assets/game/sprites/agent-researcher.png",
+    "width": 102,
+    "height": 151,
+    "atlasBox": [
+      347,
+      812,
+      429,
+      943
+    ]
+  },
+  "agent-assistant": {
+    "src": "/assets/game/sprites/agent-assistant.png",
+    "width": 113,
+    "height": 151,
+    "atlasBox": [
+      473,
+      812,
+      566,
+      943
+    ]
+  },
+  "agent-analyst": {
+    "src": "/assets/game/sprites/agent-analyst.png",
+    "width": 116,
+    "height": 147,
+    "atlasBox": [
+      621,
+      816,
+      717,
+      943
+    ]
+  },
+  "agent-designer": {
+    "src": "/assets/game/sprites/agent-designer.png",
+    "width": 105,
+    "height": 147,
+    "atlasBox": [
+      770,
+      816,
+      855,
+      943
+    ]
+  },
+  "agent-bot": {
+    "src": "/assets/game/sprites/agent-bot.png",
+    "width": 111,
+    "height": 137,
+    "atlasBox": [
+      903,
+      824,
+      994,
+      941
+    ]
+  },
+  "agent-data": {
+    "src": "/assets/game/sprites/agent-data.png",
+    "width": 105,
+    "height": 141,
+    "atlasBox": [
+      1054,
+      821,
+      1139,
+      942
+    ]
+  }
+}

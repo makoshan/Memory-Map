@@ -1,0 +1,728 @@
+{
+  "card-blank-status": {
+    "src": "/assets/generated/v2/addon-sprites/card-blank-status.png",
+    "width": 158,
+    "height": 240,
+    "box": [
+      24,
+      21,
+      194,
+      268
+    ]
+  },
+  "card-blank-task": {
+    "src": "/assets/generated/v2/addon-sprites/card-blank-task.png",
+    "width": 184,
+    "height": 237,
+    "box": [
+      214,
+      23,
+      412,
+      268
+    ]
+  },
+  "card-blank-progress": {
+    "src": "/assets/generated/v2/addon-sprites/card-blank-progress.png",
+    "width": 340,
+    "height": 235,
+    "box": [
+      438,
+      24,
+      789,
+      268
+    ]
+  },
+  "card-blank-agent": {
+    "src": "/assets/generated/v2/addon-sprites/card-blank-agent.png",
+    "width": 234,
+    "height": 239,
+    "box": [
+      821,
+      24,
+      1084,
+      268
+    ]
+  },
+  "panel-world-map": {
+    "src": "/assets/generated/v2/addon-sprites/panel-world-map.png",
+    "width": 428,
+    "height": 238,
+    "box": [
+      1086,
+      22,
+      1516,
+      268
+    ]
+  },
+  "icon-plus": {
+    "src": "/assets/generated/v2/addon-sprites/icon-plus.png",
+    "width": 59,
+    "height": 58,
+    "box": [
+      27,
+      294,
+      97,
+      360
+    ]
+  },
+  "icon-search": {
+    "src": "/assets/generated/v2/addon-sprites/icon-search.png",
+    "width": 58,
+    "height": 58,
+    "box": [
+      99,
+      294,
+      168,
+      360
+    ]
+  },
+  "icon-user": {
+    "src": "/assets/generated/v2/addon-sprites/icon-user.png",
+    "width": 60,
+    "height": 58,
+    "box": [
+      172,
+      294,
+      240,
+      360
+    ]
+  },
+  "icon-bell": {
+    "src": "/assets/generated/v2/addon-sprites/icon-bell.png",
+    "width": 68,
+    "height": 57,
+    "box": [
+      243,
+      294,
+      311,
+      360
+    ]
+  },
+  "icon-mail": {
+    "src": "/assets/generated/v2/addon-sprites/icon-mail.png",
+    "width": 69,
+    "height": 57,
+    "box": [
+      312,
+      294,
+      381,
+      360
+    ]
+  },
+  "icon-star": {
+    "src": "/assets/generated/v2/addon-sprites/icon-star.png",
+    "width": 68,
+    "height": 57,
+    "box": [
+      384,
+      294,
+      452,
+      360
+    ]
+  },
+  "icon-flag": {
+    "src": "/assets/generated/v2/addon-sprites/icon-flag.png",
+    "width": 68,
+    "height": 57,
+    "box": [
+      455,
+      294,
+      523,
+      360
+    ]
+  },
+  "icon-gift": {
+    "src": "/assets/generated/v2/addon-sprites/icon-gift.png",
+    "width": 69,
+    "height": 57,
+    "box": [
+      524,
+      294,
+      593,
+      360
+    ]
+  },
+  "icon-trophy": {
+    "src": "/assets/generated/v2/addon-sprites/icon-trophy.png",
+    "width": 68,
+    "height": 58,
+    "box": [
+      596,
+      294,
+      664,
+      360
+    ]
+  },
+  "icon-chart-bars": {
+    "src": "/assets/generated/v2/addon-sprites/icon-chart-bars.png",
+    "width": 69,
+    "height": 59,
+    "box": [
+      670,
+      294,
+      739,
+      360
+    ]
+  },
+  "icon-line-chart": {
+    "src": "/assets/generated/v2/addon-sprites/icon-line-chart.png",
+    "width": 69,
+    "height": 59,
+    "box": [
+      740,
+      294,
+      809,
+      360
+    ]
+  },
+  "icon-hourglass": {
+    "src": "/assets/generated/v2/addon-sprites/icon-hourglass.png",
+    "width": 68,
+    "height": 58,
+    "box": [
+      813,
+      294,
+      881,
+      360
+    ]
+  },
+  "icon-energy": {
+    "src": "/assets/generated/v2/addon-sprites/icon-energy.png",
+    "width": 69,
+    "height": 59,
+    "box": [
+      885,
+      294,
+      954,
+      360
+    ]
+  },
+  "icon-water-drop": {
+    "src": "/assets/generated/v2/addon-sprites/icon-water-drop.png",
+    "width": 69,
+    "height": 58,
+    "box": [
+      957,
+      294,
+      1026,
+      360
+    ]
+  },
+  "icon-droplet": {
+    "src": "/assets/generated/v2/addon-sprites/icon-droplet.png",
+    "width": 49,
+    "height": 58,
+    "box": [
+      1028,
+      294,
+      1096,
+      360
+    ]
+  },
+  "button-blue": {
+    "src": "/assets/generated/v2/addon-sprites/button-blue.png",
+    "width": 152,
+    "height": 62,
+    "box": [
+      28,
+      379,
+      191,
+      447
+    ]
+  },
+  "button-white": {
+    "src": "/assets/generated/v2/addon-sprites/button-white.png",
+    "width": 124,
+    "height": 61,
+    "box": [
+      203,
+      379,
+      339,
+      447
+    ]
+  },
+  "button-green": {
+    "src": "/assets/generated/v2/addon-sprites/button-green.png",
+    "width": 108,
+    "height": 61,
+    "box": [
+      355,
+      379,
+      471,
+      447
+    ]
+  },
+  "checkbox-empty": {
+    "src": "/assets/generated/v2/addon-sprites/checkbox-empty.png",
+    "width": 49,
+    "height": 49,
+    "box": [
+      478,
+      379,
+      538,
+      447
+    ]
+  },
+  "checkbox-checked": {
+    "src": "/assets/generated/v2/addon-sprites/checkbox-checked.png",
+    "width": 48,
+    "height": 49,
+    "box": [
+      544,
+      379,
+      605,
+      447
+    ]
+  },
+  "icon-calendar": {
+    "src": "/assets/generated/v2/addon-sprites/icon-calendar.png",
+    "width": 55,
+    "height": 58,
+    "box": [
+      620,
+      379,
+      689,
+      447
+    ]
+  },
+  "pin-blue": {
+    "src": "/assets/generated/v2/addon-sprites/pin-blue.png",
+    "width": 45,
+    "height": 61,
+    "box": [
+      689,
+      370,
+      763,
+      447
+    ]
+  },
+  "pin-green": {
+    "src": "/assets/generated/v2/addon-sprites/pin-green.png",
+    "width": 69,
+    "height": 61,
+    "box": [
+      761,
+      370,
+      835,
+      447
+    ]
+  },
+  "pin-black": {
+    "src": "/assets/generated/v2/addon-sprites/pin-black.png",
+    "width": 74,
+    "height": 61,
+    "box": [
+      832,
+      370,
+      906,
+      447
+    ]
+  },
+  "pin-yellow": {
+    "src": "/assets/generated/v2/addon-sprites/pin-yellow.png",
+    "width": 74,
+    "height": 60,
+    "box": [
+      903,
+      370,
+      977,
+      447
+    ]
+  },
+  "pin-red": {
+    "src": "/assets/generated/v2/addon-sprites/pin-red.png",
+    "width": 74,
+    "height": 66,
+    "box": [
+      974,
+      370,
+      1048,
+      447
+    ]
+  },
+  "icon-camera": {
+    "src": "/assets/generated/v2/addon-sprites/icon-camera.png",
+    "width": 59,
+    "height": 65,
+    "box": [
+      1049,
+      379,
+      1119,
+      447
+    ]
+  },
+  "icon-heart": {
+    "src": "/assets/generated/v2/addon-sprites/icon-heart.png",
+    "width": 66,
+    "height": 65,
+    "box": [
+      1126,
+      379,
+      1195,
+      447
+    ]
+  },
+  "icon-coin": {
+    "src": "/assets/generated/v2/addon-sprites/icon-coin.png",
+    "width": 59,
+    "height": 64,
+    "box": [
+      1200,
+      379,
+      1269,
+      447
+    ]
+  },
+  "icon-ai-node": {
+    "src": "/assets/generated/v2/addon-sprites/icon-ai-node.png",
+    "width": 70,
+    "height": 63,
+    "box": [
+      1271,
+      379,
+      1341,
+      447
+    ]
+  },
+  "icon-settings": {
+    "src": "/assets/generated/v2/addon-sprites/icon-settings.png",
+    "width": 69,
+    "height": 63,
+    "box": [
+      1343,
+      379,
+      1412,
+      447
+    ]
+  },
+  "icon-menu": {
+    "src": "/assets/generated/v2/addon-sprites/icon-menu.png",
+    "width": 69,
+    "height": 64,
+    "box": [
+      1415,
+      379,
+      1484,
+      447
+    ]
+  },
+  "badge-energy": {
+    "src": "/assets/generated/v2/addon-sprites/badge-energy.png",
+    "width": 115,
+    "height": 115,
+    "box": [
+      19,
+      464,
+      156,
+      596
+    ]
+  },
+  "badge-heart": {
+    "src": "/assets/generated/v2/addon-sprites/badge-heart.png",
+    "width": 104,
+    "height": 115,
+    "box": [
+      176,
+      464,
+      312,
+      596
+    ]
+  },
+  "badge-memory": {
+    "src": "/assets/generated/v2/addon-sprites/badge-memory.png",
+    "width": 105,
+    "height": 117,
+    "box": [
+      326,
+      464,
+      464,
+      596
+    ]
+  },
+  "badge-finance": {
+    "src": "/assets/generated/v2/addon-sprites/badge-finance.png",
+    "width": 138,
+    "height": 117,
+    "box": [
+      479,
+      464,
+      617,
+      596
+    ]
+  },
+  "badge-ai": {
+    "src": "/assets/generated/v2/addon-sprites/badge-ai.png",
+    "width": 139,
+    "height": 117,
+    "box": [
+      631,
+      464,
+      770,
+      596
+    ]
+  },
+  "badge-node": {
+    "src": "/assets/generated/v2/addon-sprites/badge-node.png",
+    "width": 139,
+    "height": 117,
+    "box": [
+      785,
+      464,
+      924,
+      596
+    ]
+  },
+  "tile-grass": {
+    "src": "/assets/generated/v2/addon-sprites/tile-grass.png",
+    "width": 87,
+    "height": 103,
+    "box": [
+      904,
+      487,
+      1003,
+      596
+    ]
+  },
+  "tile-path": {
+    "src": "/assets/generated/v2/addon-sprites/tile-path.png",
+    "width": 91,
+    "height": 101,
+    "box": [
+      1005,
+      487,
+      1104,
+      596
+    ]
+  },
+  "tile-stone": {
+    "src": "/assets/generated/v2/addon-sprites/tile-stone.png",
+    "width": 94,
+    "height": 101,
+    "box": [
+      1106,
+      487,
+      1206,
+      596
+    ]
+  },
+  "tile-wood": {
+    "src": "/assets/generated/v2/addon-sprites/tile-wood.png",
+    "width": 91,
+    "height": 102,
+    "box": [
+      1208,
+      487,
+      1308,
+      596
+    ]
+  },
+  "tile-water": {
+    "src": "/assets/generated/v2/addon-sprites/tile-water.png",
+    "width": 84,
+    "height": 100,
+    "box": [
+      1311,
+      487,
+      1410,
+      596
+    ]
+  },
+  "tile-cliff": {
+    "src": "/assets/generated/v2/addon-sprites/tile-cliff.png",
+    "width": 90,
+    "height": 101,
+    "box": [
+      1412,
+      487,
+      1511,
+      596
+    ]
+  },
+  "dock-square": {
+    "src": "/assets/generated/v2/addon-sprites/dock-square.png",
+    "width": 148,
+    "height": 135,
+    "box": [
+      24,
+      639,
+      176,
+      776
+    ]
+  },
+  "bridge-wood": {
+    "src": "/assets/generated/v2/addon-sprites/bridge-wood.png",
+    "width": 136,
+    "height": 142,
+    "box": [
+      200,
+      634,
+      371,
+      776
+    ]
+  },
+  "bridge-stone": {
+    "src": "/assets/generated/v2/addon-sprites/bridge-stone.png",
+    "width": 186,
+    "height": 138,
+    "box": [
+      452,
+      624,
+      638,
+      776
+    ]
+  },
+  "boat-motor": {
+    "src": "/assets/generated/v2/addon-sprites/boat-motor.png",
+    "width": 128,
+    "height": 108,
+    "box": [
+      698,
+      636,
+      851,
+      776
+    ]
+  },
+  "boat-sail": {
+    "src": "/assets/generated/v2/addon-sprites/boat-sail.png",
+    "width": 130,
+    "height": 165,
+    "box": [
+      899,
+      611,
+      1056,
+      776
+    ]
+  },
+  "boat-yacht": {
+    "src": "/assets/generated/v2/addon-sprites/boat-yacht.png",
+    "width": 194,
+    "height": 144,
+    "box": [
+      1112,
+      630,
+      1306,
+      776
+    ]
+  },
+  "lighthouse": {
+    "src": "/assets/generated/v2/addon-sprites/lighthouse.png",
+    "width": 151,
+    "height": 188,
+    "box": [
+      1340,
+      588,
+      1491,
+      776
+    ]
+  },
+  "tree-green": {
+    "src": "/assets/generated/v2/addon-sprites/tree-green.png",
+    "width": 134,
+    "height": 166,
+    "box": [
+      24,
+      806,
+      166,
+      1011
+    ]
+  },
+  "tree-palm": {
+    "src": "/assets/generated/v2/addon-sprites/tree-palm.png",
+    "width": 115,
+    "height": 153,
+    "box": [
+      189,
+      814,
+      316,
+      1011
+    ]
+  },
+  "tree-white": {
+    "src": "/assets/generated/v2/addon-sprites/tree-white.png",
+    "width": 127,
+    "height": 155,
+    "box": [
+      342,
+      814,
+      482,
+      1011
+    ]
+  },
+  "reed-patch": {
+    "src": "/assets/generated/v2/addon-sprites/reed-patch.png",
+    "width": 104,
+    "height": 160,
+    "box": [
+      514,
+      814,
+      651,
+      1011
+    ]
+  },
+  "flower-bed": {
+    "src": "/assets/generated/v2/addon-sprites/flower-bed.png",
+    "width": 123,
+    "height": 133,
+    "box": [
+      682,
+      829,
+      816,
+      1011
+    ]
+  },
+  "bench": {
+    "src": "/assets/generated/v2/addon-sprites/bench.png",
+    "width": 117,
+    "height": 128,
+    "box": [
+      844,
+      844,
+      976,
+      1011
+    ]
+  },
+  "lamp-black": {
+    "src": "/assets/generated/v2/addon-sprites/lamp-black.png",
+    "width": 46,
+    "height": 130,
+    "box": [
+      1009,
+      844,
+      1086,
+      1011
+    ]
+  },
+  "lamp-gold": {
+    "src": "/assets/generated/v2/addon-sprites/lamp-gold.png",
+    "width": 39,
+    "height": 130,
+    "box": [
+      1106,
+      844,
+      1184,
+      1011
+    ]
+  },
+  "lamp-blue": {
+    "src": "/assets/generated/v2/addon-sprites/lamp-blue.png",
+    "width": 25,
+    "height": 125,
+    "box": [
+      1204,
+      844,
+      1281,
+      1011
+    ]
+  },
+  "signpost": {
+    "src": "/assets/generated/v2/addon-sprites/signpost.png",
+    "width": 79,
+    "height": 138,
+    "box": [
+      1339,
+      832,
+      1491,
+      1011
+    ]
+  }
+}

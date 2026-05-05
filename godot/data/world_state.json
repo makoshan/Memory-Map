@@ -1,0 +1,193 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-05-04T10:00:00+08:00",
+  "source": "memory-map-layer1",
+  "bridge": {
+    "appShell": "tauri-react",
+    "gameLayer": "godot-4.6",
+    "contract": "Layer 1 semantic summary -> Layer 3 world state"
+  },
+  "user": {
+    "id": "alex",
+    "displayName": "Alex Chen",
+    "day": 10532,
+    "level": 42
+  },
+  "world": {
+    "id": "world-xixi-wetland",
+    "title": "西溪湿地",
+    "baseMap": "Mapbox / Hangzhou semantic cluster",
+    "weather": "24C sunny, AQI 28",
+    "theme": "wetland-pixel"
+  },
+  "nodes": [
+    {
+      "id": "world-place-office",
+      "placeId": "place-office",
+      "name": "办公室",
+      "role": "work",
+      "room": "办公室",
+      "assetKey": "office-lv3",
+      "position": {
+        "x": -330,
+        "y": -110
+      },
+      "visual": {
+        "sizeScale": 1.49,
+        "brightness": 0.61,
+        "vegetationDensity": 0.48,
+        "waterLevel": 0.32,
+        "fogDensity": 0.05,
+        "unlockLevel": 3
+      },
+      "unlocks": [
+        "place-node",
+        "building-upgrade"
+      ],
+      "rooms": [
+        "办公室"
+      ]
+    },
+    {
+      "id": "world-place-memory",
+      "placeId": "place-memory",
+      "name": "记忆馆",
+      "role": "memory",
+      "room": "记忆馆",
+      "assetKey": "memory-lv3",
+      "position": {
+        "x": 0,
+        "y": -125
+      },
+      "visual": {
+        "sizeScale": 1.44,
+        "brightness": 0.65,
+        "vegetationDensity": 0.5,
+        "waterLevel": 0.32,
+        "fogDensity": 0.03,
+        "unlockLevel": 3
+      },
+      "unlocks": [
+        "place-node",
+        "memory-shelf"
+      ],
+      "rooms": [
+        "记忆馆",
+        "记忆物件"
+      ]
+    },
+    {
+      "id": "world-place-finance",
+      "placeId": "place-finance",
+      "name": "财务楼",
+      "role": "finance",
+      "room": "财务楼",
+      "assetKey": "finance-lv2",
+      "position": {
+        "x": 330,
+        "y": -105
+      },
+      "visual": {
+        "sizeScale": 1.34,
+        "brightness": 0.62,
+        "vegetationDensity": 0.46,
+        "waterLevel": 0.32,
+        "fogDensity": 0.03,
+        "unlockLevel": 2
+      },
+      "unlocks": [
+        "place-node"
+      ],
+      "rooms": [
+        "财务楼"
+      ]
+    },
+    {
+      "id": "world-place-xixi",
+      "placeId": "place-xixi",
+      "name": "生活区",
+      "role": "life",
+      "room": "生活区",
+      "assetKey": "life-lv2",
+      "position": {
+        "x": -300,
+        "y": 180
+      },
+      "visual": {
+        "sizeScale": 1.59,
+        "brightness": 0.85,
+        "vegetationDensity": 0.87,
+        "waterLevel": 0.52,
+        "fogDensity": 0.18,
+        "unlockLevel": 3
+      },
+      "unlocks": [
+        "place-node",
+        "building-upgrade",
+        "memory-shelf",
+        "recovery-garden"
+      ],
+      "rooms": [
+        "生活区",
+        "记忆物件"
+      ]
+    },
+    {
+      "id": "world-place-home",
+      "placeId": "place-home",
+      "name": "家",
+      "role": "home",
+      "room": "家",
+      "assetKey": "home-lv2",
+      "position": {
+        "x": 20,
+        "y": 225
+      },
+      "visual": {
+        "sizeScale": 1.28,
+        "brightness": 0.62,
+        "vegetationDensity": 0.45,
+        "waterLevel": 0.32,
+        "fogDensity": 0.03,
+        "unlockLevel": 2
+      },
+      "unlocks": [
+        "place-node"
+      ],
+      "rooms": [
+        "家"
+      ]
+    }
+  ],
+  "ai": {
+    "conclusion": "生活区 现在是主导节点，life 权重最高，世界等级 Lv.3。",
+    "suggestion": "优先推进 生活区 的一个关键任务，再补充一条事件记录。",
+    "risk": "生活区 恢复状态较好，当前风险较低。"
+  },
+  "tasks": [
+    "在 生活区 安排一次低负荷恢复或散步记录。"
+  ],
+  "opportunities": [],
+  "timeline": [
+    {
+      "year": "2018",
+      "title": "学生时代",
+      "note": "0 - 7,300 天"
+    },
+    {
+      "year": "2021",
+      "title": "职场初期",
+      "note": "7,301 - 10,000 天"
+    },
+    {
+      "year": "2024",
+      "title": "创业阶段",
+      "note": "10,001 - 12,500 天"
+    },
+    {
+      "year": "2026",
+      "title": "世界生成",
+      "note": "Layer 3 解锁中"
+    }
+  ]
+}

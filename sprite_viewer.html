@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Memory Map Sprite Viewer</title>
+    <style>
+      body { margin: 0; font-family: system-ui, sans-serif; background: #101820; color: #eef7ff; }
+      main { display: grid; grid-template-columns: 320px 1fr; min-height: 100vh; }
+      aside { border-right: 1px solid #2d4353; padding: 16px; overflow: auto; }
+      button, select { font: inherit; }
+      .sheet-list { display: grid; gap: 8px; margin-top: 12px; }
+      .sheet-list button { text-align: left; border: 1px solid #2d4353; border-radius: 8px; background: #172633; color: #eef7ff; padding: 10px; }
+      .sheet-list button.active { border-color: #55b8ff; background: #1f3b50; }
+      section { padding: 18px; overflow: auto; }
+      .stage { min-height: 280px; border-radius: 10px; background-color: #233443; background-image: linear-gradient(45deg, #2c4355 25%, transparent 25%), linear-gradient(-45deg, #2c4355 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #2c4355 75%), linear-gradient(-45deg, transparent 75%, #2c4355 75%); background-size: 24px 24px; background-position: 0 0, 0 12px, 12px -12px, -12px 0; display: grid; place-items: center; }
+      #frame { width: 256px; height: 256px; image-rendering: auto; background-repeat: no-repeat; transform: scale(2); }
+      #sheet { max-width: 100%; margin-top: 24px; background: #233443; }
+      .controls { display: flex; gap: 10px; align-items: center; margin: 14px 0; }
+      code { color: #8bd1ff; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <aside>
+        <h1>Sprite Viewer</h1>
+        <label>FPS <select id="fps"><option>8</option><option selected>12</option><option>16</option><option>24</option></select></label>
+        <div class="sheet-list" id="list"></div>
+      </aside>
+      <section>
+        <h2 id="title">No sheet selected</h2>
+        <p id="meta"></p>
+        <div class="controls"><button id="play">Pause</button><code id="path"></code></div>
+        <div class="stage"><div id="frame"></div></div>
+        <img id="sheet" alt="" />
+      </section>
+    </main>
+    <script src="sprite_gallery_manifest.js"></script>
+    <script>
+      const sheets = window.SPRITE_SHEETS || [];
+      const list = document.querySelector("#list");
+      const frame = document.querySelector("#frame");
+      const sheet = document.querySelector("#sheet");
+      const title = document.querySelector("#title");
+      const meta = document.querySelector("#meta");
+      const path = document.querySelector("#path");
+      const fps = document.querySelector("#fps");
+      const play = document.querySelector("#play");
+      let selected = sheets[0];
+      let frameIndex = 0;
+      let paused = false;
+      let buttons = [];
+
+      function renderList() {
+        list.innerHTML = "";
+        buttons = sheets.map((item) => {
+          const button = document.createElement("button");
+          button.textContent = `${item.character} / ${item.animation} / ${item.label}`;
+          button.onclick = () => select(item);
+          list.appendChild(button);
+          return button;
+        });
+      }
+
+      function select(item) {
+        selected = item;
+        frameIndex = 0;
+        const frames = Math.max(1, Math.floor(item.width / 256));
+        title.textContent = item.label;
+        meta.textContent = `${frames} frames · ${item.width}x${item.height}`;
+        path.textContent = item.path;
+        sheet.src = item.path;
+        frame.style.backgroundImage = `url("${item.path}")`;
+        frame.style.backgroundSize = `${item.width}px ${item.height}px`;
+        updateFrame();
+        buttons.forEach((button, index) => button.classList.toggle("active", sheets[index] === item));
+      }
+
+      function updateFrame() {
+        if (!selected) return;
+        const frames = Math.max(1, Math.floor(selected.width / 256));
+        frame.style.backgroundPosition = `${-frameIndex * 256}px 0`;
+        frameIndex = (frameIndex + 1) % frames;
+      }
+
+      play.onclick = () => {
+        paused = !paused;
+        play.textContent = paused ? "Play" : "Pause";
+      };
+
+      renderList();
+      if (selected) select(selected);
+      setInterval(() => {
+        if (!paused) updateFrame();
+      }, 1000 / Number(fps.value || 12));
+    </script>
+  </body>
+</html>

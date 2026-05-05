@@ -1,0 +1,783 @@
+{
+  "home-lv1": {
+    "src": "/assets/generated/v2/sprites/home-lv1.png",
+    "width": 158,
+    "height": 157,
+    "box": [
+      0,
+      62,
+      192,
+      233
+    ]
+  },
+  "home-lv2": {
+    "src": "/assets/generated/v2/sprites/home-lv2.png",
+    "width": 199,
+    "height": 173,
+    "box": [
+      197,
+      46,
+      396,
+      234
+    ]
+  },
+  "home-lv3": {
+    "src": "/assets/generated/v2/sprites/home-lv3.png",
+    "width": 195,
+    "height": 217,
+    "box": [
+      397,
+      16,
+      592,
+      234
+    ]
+  },
+  "office-lv1": {
+    "src": "/assets/generated/v2/sprites/office-lv1.png",
+    "width": 162,
+    "height": 163,
+    "box": [
+      602,
+      71,
+      764,
+      234
+    ]
+  },
+  "office-lv2": {
+    "src": "/assets/generated/v2/sprites/office-lv2.png",
+    "width": 199,
+    "height": 194,
+    "box": [
+      767,
+      40,
+      966,
+      234
+    ]
+  },
+  "office-lv3": {
+    "src": "/assets/generated/v2/sprites/office-lv3.png",
+    "width": 206,
+    "height": 166,
+    "box": [
+      962,
+      12,
+      1168,
+      234
+    ]
+  },
+  "memory-lv1": {
+    "src": "/assets/generated/v2/sprites/memory-lv1.png",
+    "width": 190,
+    "height": 181,
+    "box": [
+      1170,
+      46,
+      1360,
+      234
+    ]
+  },
+  "memory-lv2": {
+    "src": "/assets/generated/v2/sprites/memory-lv2.png",
+    "width": 170,
+    "height": 191,
+    "box": [
+      1352,
+      27,
+      1536,
+      234
+    ]
+  },
+  "memory-lv3": {
+    "src": "/assets/generated/v2/sprites/memory-lv3.png",
+    "width": 165,
+    "height": 175,
+    "box": [
+      0,
+      248,
+      188,
+      456
+    ]
+  },
+  "finance-lv1": {
+    "src": "/assets/generated/v2/sprites/finance-lv1.png",
+    "width": 190,
+    "height": 178,
+    "box": [
+      184,
+      242,
+      374,
+      456
+    ]
+  },
+  "finance-lv2": {
+    "src": "/assets/generated/v2/sprites/finance-lv2.png",
+    "width": 199,
+    "height": 240,
+    "box": [
+      369,
+      216,
+      568,
+      456
+    ]
+  },
+  "ai-lab-lv1": {
+    "src": "/assets/generated/v2/sprites/ai-lab-lv1.png",
+    "width": 194,
+    "height": 159,
+    "box": [
+      582,
+      262,
+      776,
+      456
+    ]
+  },
+  "ai-lab-lv2": {
+    "src": "/assets/generated/v2/sprites/ai-lab-lv2.png",
+    "width": 199,
+    "height": 229,
+    "box": [
+      767,
+      227,
+      966,
+      456
+    ]
+  },
+  "ai-lab-lv3": {
+    "src": "/assets/generated/v2/sprites/ai-lab-lv3.png",
+    "width": 209,
+    "height": 242,
+    "box": [
+      947,
+      214,
+      1156,
+      456
+    ]
+  },
+  "life-lv1": {
+    "src": "/assets/generated/v2/sprites/life-lv1.png",
+    "width": 160,
+    "height": 176,
+    "box": [
+      0,
+      517,
+      198,
+      713
+    ]
+  },
+  "life-lv2": {
+    "src": "/assets/generated/v2/sprites/life-lv2.png",
+    "width": 219,
+    "height": 156,
+    "box": [
+      182,
+      492,
+      423,
+      713
+    ]
+  },
+  "life-lv3": {
+    "src": "/assets/generated/v2/sprites/life-lv3.png",
+    "width": 259,
+    "height": 166,
+    "box": [
+      402,
+      478,
+      673,
+      713
+    ]
+  },
+  "island-small": {
+    "src": "/assets/generated/v2/sprites/island-small.png",
+    "width": 179,
+    "height": 164,
+    "box": [
+      697,
+      549,
+      876,
+      713
+    ]
+  },
+  "island-medium": {
+    "src": "/assets/generated/v2/sprites/island-medium.png",
+    "width": 261,
+    "height": 187,
+    "box": [
+      857,
+      512,
+      1118,
+      713
+    ]
+  },
+  "island-large": {
+    "src": "/assets/generated/v2/sprites/island-large.png",
+    "width": 280,
+    "height": 206,
+    "box": [
+      1100,
+      492,
+      1380,
+      713
+    ]
+  },
+  "island-lake": {
+    "src": "/assets/generated/v2/sprites/island-lake.png",
+    "width": 141,
+    "height": 206,
+    "box": [
+      1362,
+      484,
+      1536,
+      713
+    ]
+  },
+  "bridge-wood": {
+    "src": "/assets/generated/v2/sprites/bridge-wood.png",
+    "width": 144,
+    "height": 102,
+    "box": [
+      0,
+      732,
+      178,
+      858
+    ]
+  },
+  "bridge-stone": {
+    "src": "/assets/generated/v2/sprites/bridge-stone.png",
+    "width": 182,
+    "height": 141,
+    "box": [
+      172,
+      717,
+      358,
+      858
+    ]
+  },
+  "dock-small": {
+    "src": "/assets/generated/v2/sprites/dock-small.png",
+    "width": 129,
+    "height": 111,
+    "box": [
+      362,
+      747,
+      543,
+      858
+    ]
+  },
+  "boat-row": {
+    "src": "/assets/generated/v2/sprites/boat-row.png",
+    "width": 156,
+    "height": 104,
+    "box": [
+      557,
+      752,
+      713,
+      856
+    ]
+  },
+  "lighthouse": {
+    "src": "/assets/generated/v2/sprites/lighthouse.png",
+    "width": 156,
+    "height": 186,
+    "box": [
+      727,
+      672,
+      883,
+      858
+    ]
+  },
+  "tree": {
+    "src": "/assets/generated/v2/sprites/tree.png",
+    "width": 91,
+    "height": 141,
+    "box": [
+      887,
+      717,
+      978,
+      858
+    ]
+  },
+  "spruce": {
+    "src": "/assets/generated/v2/sprites/spruce.png",
+    "width": 84,
+    "height": 99,
+    "box": [
+      972,
+      717,
+      1056,
+      858
+    ]
+  },
+  "gray-tree": {
+    "src": "/assets/generated/v2/sprites/gray-tree.png",
+    "width": 88,
+    "height": 97,
+    "box": [
+      1050,
+      717,
+      1138,
+      858
+    ]
+  },
+  "reed-patch": {
+    "src": "/assets/generated/v2/sprites/reed-patch.png",
+    "width": 101,
+    "height": 96,
+    "box": [
+      1132,
+      720,
+      1233,
+      858
+    ]
+  },
+  "flower-bed": {
+    "src": "/assets/generated/v2/sprites/flower-bed.png",
+    "width": 101,
+    "height": 82,
+    "box": [
+      1227,
+      732,
+      1328,
+      858
+    ]
+  },
+  "bench": {
+    "src": "/assets/generated/v2/sprites/bench.png",
+    "width": 95,
+    "height": 62,
+    "box": [
+      1322,
+      752,
+      1423,
+      858
+    ]
+  },
+  "streetlamp": {
+    "src": "/assets/generated/v2/sprites/streetlamp.png",
+    "width": 34,
+    "height": 71,
+    "box": [
+      1420,
+      747,
+      1480,
+      858
+    ]
+  },
+  "signpost": {
+    "src": "/assets/generated/v2/sprites/signpost.png",
+    "width": 29,
+    "height": 70,
+    "box": [
+      1474,
+      747,
+      1536,
+      858
+    ]
+  },
+  "char-male": {
+    "src": "/assets/generated/v2/sprites/char-male.png",
+    "width": 70,
+    "height": 111,
+    "box": [
+      142,
+      862,
+      246,
+      1023
+    ]
+  },
+  "char-female": {
+    "src": "/assets/generated/v2/sprites/char-female.png",
+    "width": 73,
+    "height": 120,
+    "box": [
+      272,
+      852,
+      378,
+      1023
+    ]
+  },
+  "char-researcher": {
+    "src": "/assets/generated/v2/sprites/char-researcher.png",
+    "width": 64,
+    "height": 116,
+    "box": [
+      437,
+      857,
+      548,
+      1023
+    ]
+  },
+  "char-analyst": {
+    "src": "/assets/generated/v2/sprites/char-analyst.png",
+    "width": 72,
+    "height": 120,
+    "box": [
+      607,
+      854,
+      718,
+      1023
+    ]
+  },
+  "char-assistant": {
+    "src": "/assets/generated/v2/sprites/char-assistant.png",
+    "width": 62,
+    "height": 118,
+    "box": [
+      767,
+      854,
+      873,
+      1023
+    ]
+  },
+  "char-bot": {
+    "src": "/assets/generated/v2/sprites/char-bot.png",
+    "width": 39,
+    "height": 101,
+    "box": [
+      937,
+      854,
+      1050,
+      1023
+    ]
+  },
+  "finance-lv3": {
+    "src": "/assets/generated/v2/sprites/finance-lv3.png",
+    "width": 199,
+    "height": 240,
+    "box": [
+      369,
+      216,
+      568,
+      456
+    ]
+  },
+  "room-office": {
+    "src": "/assets/generated/v2/sprites/room-office.png",
+    "width": 327,
+    "height": 244,
+    "box": [
+      32,
+      62,
+      368,
+      323
+    ]
+  },
+  "room-memory": {
+    "src": "/assets/generated/v2/sprites/room-memory.png",
+    "width": 326,
+    "height": 252,
+    "box": [
+      407,
+      62,
+      743,
+      323
+    ]
+  },
+  "room-finance": {
+    "src": "/assets/generated/v2/sprites/room-finance.png",
+    "width": 341,
+    "height": 261,
+    "box": [
+      777,
+      62,
+      1118,
+      323
+    ]
+  },
+  "room-life": {
+    "src": "/assets/generated/v2/sprites/room-life.png",
+    "width": 302,
+    "height": 257,
+    "box": [
+      1137,
+      62,
+      1518,
+      323
+    ]
+  },
+  "room-ai-lab": {
+    "src": "/assets/generated/v2/sprites/room-ai-lab.png",
+    "width": 323,
+    "height": 236,
+    "box": [
+      27,
+      372,
+      368,
+      633
+    ]
+  },
+  "world-map-panel": {
+    "src": "/assets/generated/v2/sprites/world-map-panel.png",
+    "width": 347,
+    "height": 186,
+    "box": [
+      402,
+      407,
+      768,
+      633
+    ]
+  },
+  "card-energy": {
+    "src": "/assets/generated/v2/sprites/card-energy.png",
+    "width": 196,
+    "height": 76,
+    "box": [
+      812,
+      397,
+      1008,
+      473
+    ]
+  },
+  "card-health": {
+    "src": "/assets/generated/v2/sprites/card-health.png",
+    "width": 176,
+    "height": 76,
+    "box": [
+      1007,
+      397,
+      1183,
+      473
+    ]
+  },
+  "card-mood": {
+    "src": "/assets/generated/v2/sprites/card-mood.png",
+    "width": 96,
+    "height": 76,
+    "box": [
+      1182,
+      397,
+      1278,
+      473
+    ]
+  },
+  "card-agent": {
+    "src": "/assets/generated/v2/sprites/card-agent.png",
+    "width": 185,
+    "height": 226,
+    "box": [
+      1282,
+      387,
+      1513,
+      633
+    ]
+  },
+  "card-task": {
+    "src": "/assets/generated/v2/sprites/card-task.png",
+    "width": 191,
+    "height": 123,
+    "box": [
+      817,
+      487,
+      1008,
+      633
+    ]
+  },
+  "card-progress": {
+    "src": "/assets/generated/v2/sprites/card-progress.png",
+    "width": 215,
+    "height": 123,
+    "box": [
+      1007,
+      487,
+      1238,
+      633
+    ]
+  },
+  "icon-home": {
+    "src": "/assets/generated/v2/sprites/icon-home.png",
+    "width": 93,
+    "height": 99,
+    "box": [
+      87,
+      672,
+      183,
+      778
+    ]
+  },
+  "icon-office": {
+    "src": "/assets/generated/v2/sprites/icon-office.png",
+    "width": 92,
+    "height": 99,
+    "box": [
+      217,
+      672,
+      313,
+      778
+    ]
+  },
+  "icon-memory": {
+    "src": "/assets/generated/v2/sprites/icon-memory.png",
+    "width": 96,
+    "height": 99,
+    "box": [
+      347,
+      672,
+      443,
+      778
+    ]
+  },
+  "icon-finance": {
+    "src": "/assets/generated/v2/sprites/icon-finance.png",
+    "width": 96,
+    "height": 99,
+    "box": [
+      477,
+      672,
+      573,
+      778
+    ]
+  },
+  "icon-ai": {
+    "src": "/assets/generated/v2/sprites/icon-ai.png",
+    "width": 92,
+    "height": 99,
+    "box": [
+      607,
+      672,
+      703,
+      778
+    ]
+  },
+  "icon-life": {
+    "src": "/assets/generated/v2/sprites/icon-life.png",
+    "width": 87,
+    "height": 99,
+    "box": [
+      737,
+      672,
+      833,
+      778
+    ]
+  },
+  "icon-map-pin": {
+    "src": "/assets/generated/v2/sprites/icon-map-pin.png",
+    "width": 82,
+    "height": 99,
+    "box": [
+      867,
+      672,
+      963,
+      778
+    ]
+  },
+  "icon-calendar": {
+    "src": "/assets/generated/v2/sprites/icon-calendar.png",
+    "width": 79,
+    "height": 99,
+    "box": [
+      997,
+      672,
+      1093,
+      778
+    ]
+  },
+  "icon-camera": {
+    "src": "/assets/generated/v2/sprites/icon-camera.png",
+    "width": 96,
+    "height": 99,
+    "box": [
+      1127,
+      672,
+      1223,
+      778
+    ]
+  },
+  "icon-settings": {
+    "src": "/assets/generated/v2/sprites/icon-settings.png",
+    "width": 72,
+    "height": 99,
+    "box": [
+      1257,
+      672,
+      1353,
+      778
+    ]
+  },
+  "icon-menu": {
+    "src": "/assets/generated/v2/sprites/icon-menu.png",
+    "width": 78,
+    "height": 99,
+    "box": [
+      1387,
+      672,
+      1483,
+      778
+    ]
+  },
+  "badge-lv1": {
+    "src": "/assets/generated/v2/sprites/badge-lv1.png",
+    "width": 96,
+    "height": 121,
+    "box": [
+      182,
+      817,
+      303,
+      993
+    ]
+  },
+  "badge-lv2": {
+    "src": "/assets/generated/v2/sprites/badge-lv2.png",
+    "width": 101,
+    "height": 123,
+    "box": [
+      357,
+      817,
+      478,
+      993
+    ]
+  },
+  "badge-lv3": {
+    "src": "/assets/generated/v2/sprites/badge-lv3.png",
+    "width": 103,
+    "height": 123,
+    "box": [
+      532,
+      817,
+      653,
+      993
+    ]
+  },
+  "badge-lv4": {
+    "src": "/assets/generated/v2/sprites/badge-lv4.png",
+    "width": 97,
+    "height": 121,
+    "box": [
+      707,
+      817,
+      828,
+      993
+    ]
+  },
+  "badge-lv5": {
+    "src": "/assets/generated/v2/sprites/badge-lv5.png",
+    "width": 98,
+    "height": 124,
+    "box": [
+      887,
+      817,
+      1018,
+      993
+    ]
+  },
+  "badge-lv6": {
+    "src": "/assets/generated/v2/sprites/badge-lv6.png",
+    "width": 80,
+    "height": 124,
+    "box": [
+      1102,
+      817,
+      1233,
+      993
+    ]
+  },
+  "badge-lv7": {
+    "src": "/assets/generated/v2/sprites/badge-lv7.png",
+    "width": 82,
+    "height": 130,
+    "box": [
+      1272,
+      817,
+      1418,
+      993
+    ]
+  }
+}

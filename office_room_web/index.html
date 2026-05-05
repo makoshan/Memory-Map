@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>办公室 · 一个人的 AI 公司</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="profile">
+        <img src="./assets/avatar.png" alt="avatar" />
+        <div>
+          <strong>Alex Chen</strong>
+          <span>Lv.42</span>
+          <div class="xp"><i></i></div>
+        </div>
+        <em>68%</em>
+      </div>
+
+      <div class="pill location">📍 杭州&nbsp;&nbsp;Hangzhou⌄</div>
+      <div class="pill weather">☀️ 24°C&nbsp;&nbsp;晴 · 空气优 28</div>
+
+      <div class="resources">
+        <span>🪙 12,450</span>
+        <span>💎 1,280</span>
+        <span>⚡ 120/120</span>
+        <button>＋</button>
+      </div>
+
+      <div class="actions">
+        <button>📅</button>
+        <button class="badge">✉️<b>3</b></button>
+        <button>☑️</button>
+        <button>⚙️</button>
+        <button>⛶</button>
+      </div>
+    </header>
+
+    <aside class="sidebar">
+      <nav>
+        <button>🌍<span>世界地图</span></button>
+        <button class="active">💼<span>办公室</span></button>
+        <button>🖼️<span>记忆馆</span></button>
+        <button>💰<span>财务楼</span></button>
+        <button>❤️<span>生活区</span></button>
+        <button>🤖<span>AI 研究所</span></button>
+        <button>✅<span>任务</span></button>
+        <button>⚙️<span>设置</span></button>
+      </nav>
+      <button class="back">← 返回岛屿</button>
+    </aside>
+
+    <main class="content">
+      <section class="hero card">
+        <img src="./assets/office_scene.jpg" alt="office scene" />
+        <div class="intro">
+          <h1>办公室 <small>Lv.8</small> <em>ⓘ</em></h1>
+          <p class="num">6,500 / 10,000</p>
+          <div class="bar"><i></i></div>
+          <p>这是你的创造与工作中心，AI 员工与你一起推动项目进展。</p>
+        </div>
+      </section>
+
+      <section class="grid">
+        <article class="card tasks">
+          <h2>今日任务</h2>
+          <ul>
+            <li><time>10:00</time><span>产品设计评审</span><b>✓</b></li>
+            <li><time>14:00</time><span>AI 研究进展同步</span><b>✓</b></li>
+            <li><time>16:00</time><span>财务月度分析</span><i></i></li>
+            <li><time>19:00</time><span>运动 · 跑步 5km</span><i></i></li>
+          </ul>
+          <button class="ghost">查看全部任务</button>
+        </article>
+
+        <article class="card agents">
+          <div class="title-row"><h2>AI 员工</h2><span>6 / 6</span></div>
+          <div class="agent-grid">
+            <div><span>👨🏻‍💻</span><strong>Emma</strong><small>研究员</small></div>
+            <div><span>🧑🏻‍🎨</span><strong>Lily</strong><small>设计师</small></div>
+            <div><span>👨🏻‍💼</span><strong>Max</strong><small>分析师</small></div>
+            <div><span>🧑🏻‍🔬</span><strong>David</strong><small>数据师</small></div>
+            <div><span>👩🏻‍💻</span><strong>Kate</strong><small>助理</small></div>
+            <div><span>🤖</span><strong>Bot-01</strong><small>执行中</small></div>
+          </div>
+          <button class="ghost">管理 AI 员工</button>
+        </article>
+
+        <article class="card projects">
+          <div class="title-row"><h2>项目进度</h2><span>4 / 6</span></div>
+          <div class="project"><p>AI 产品优化项目 <b>72%</b></p><div><i style="width:72%"></i></div></div>
+          <div class="project"><p>用户研究分析 <b>58%</b></p><div><i style="width:58%"></i></div></div>
+          <div class="project"><p>数据模型训练 <b>45%</b></p><div><i style="width:45%"></i></div></div>
+          <div class="project"><p>市场调研报告 <b>28%</b></p><div><i style="width:28%"></i></div></div>
+          <button class="ghost">查看详情</button>
+        </article>
+
+        <article class="card finance">
+          <div class="title-row"><h2>本月数据</h2><button class="select">本月⌄</button></div>
+          <div class="stats">
+            <div><small>收入（CNY）</small><strong>¥ 2,568,700</strong><em>+12.5%</em></div>
+            <div><small>项目完成</small><strong>18</strong><em>+20%</em></div>
+            <div><small>专注时长</small><strong>136h</strong><em>+15%</em></div>
+          </div>
+          <svg class="chart" viewBox="0 0 520 160" preserveAspectRatio="none">
+            <polyline points="0,140 45,120 90,88 135,108 180,64 225,38 270,52 315,78 360,20 405,42 455,58 520,40" fill="none" stroke="#68b7ff" stroke-width="5" stroke-linecap="round"/>
+            <path d="M0 140 L45 120 L90 88 L135 108 L180 64 L225 38 L270 52 L315 78 L360 20 L405 42 L455 58 L520 40 L520 160 L0 160Z" fill="rgba(104,183,255,.12)"/>
+          </svg>
+          <button class="ghost">查看财务楼</button>
+        </article>
+      </section>
+    </main>
+
+    <aside class="rightbar">
+      <section class="card compact">
+        <h2>建筑属性</h2>
+        <p><span>面积</span><b>850 m²</b></p>
+        <p><span>员工</span><b>6 / 6</b></p>
+        <p><span>效率</span><b class="green">125%</b></p>
+        <p><span>维护费用</span><b>320 / 天</b></p>
+      </section>
+      <section class="card compact upgrade">
+        <h2>升级效果</h2>
+        <p>下一等级：Lv.9</p>
+        <p><span>🏢 面积</span><b class="green">+100</b></p>
+        <p><span>🌿 效率</span><b class="green">+15%</b></p>
+        <p><span>🤖 员工上限</span><b class="green">+1</b></p>
+        <button>升级</button>
+        <small>🪙 12,000　💎 180</small>
+      </section>
+    </aside>
+  </div>
+</body>
+</html>
