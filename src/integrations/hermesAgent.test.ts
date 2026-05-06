@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 import type { AgentContextSnapshot, MediaAsset } from "../domain/types";
-import { createHermesAnalysisJob, createHermesMediaAnalysisPayload } from "./hermesAgent";
+import {
+  createHermesAnalysisJob,
+  createHermesImageMeaningRequest,
+  createHermesMediaAnalysisPayload,
+  parseHermesImageMeaningResponse
+} from "./hermesAgent";
 
 const context: AgentContextSnapshot = {
   id: "agent-context-alex",
@@ -62,5 +67,61 @@ describe("hermesAgent", () => {
     expect(job.inputSummary).toContain("note");
     expect(job.inputSummary).not.toContain("filePath");
     expect(job.status).toBe("pending");
+  });
+
+  it("builds an OpenAI-compatible image meaning request with inline image and place evidence", () => {
+    const request = createHermesImageMeaningRequest({
+      fileName: "IMG_9128.HEIC",
+      imageDataUrl: "data:image/heic;base64,AAA",
+      gps: {
+        longitude: 120.1285694444,
+        latitude: 30.2777888889,
+        altitude: 11.18,
+        horizontalError: 21.3
+      },
+      address: {
+        formattedAddress: "浙江省杭州市西湖区翠苑街道黄姑山路39号颐高创业",
+        roads: ["黄姑山路", "黄姑山横路"],
+        pois: ["颐高广场A座", "颐高创业大厦"]
+      }
+    });
+
+    expect(request.model).toBe("hermes-agent");
+    expect(request.messages[0].role).toBe("system");
+    expect(request.messages[1].content).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ type: "text" }),
+        expect.objectContaining({
+          type: "image_url",
+          image_url: expect.objectContaining({ url: "data:image/heic;base64,AAA" })
+        })
+      ])
+    );
+    expect(JSON.stringify(request)).toContain("黄姑山路39号颐高创业");
+    expect(JSON.stringify(request)).toContain("Return strict JSON");
+  });
+
+  it("parses a Hermes image meaning response into a stable local summary", () => {
+    const meaning = parseHermesImageMeaningResponse({
+      choices: [
+        {
+          message: {
+            content: JSON.stringify({
+              sceneSummary: "一张杭州黄姑山路附近的街区照片。",
+              memoryMeaning: "记录一次现实地点停留，可用于补强杭州生活地图。",
+              topics: ["place", "city"],
+              placeRoleHint: "life",
+              confidence: 0.82
+            })
+          }
+        }
+      ]
+    });
+
+    expect(meaning.sceneSummary).toContain("杭州");
+    expect(meaning.memoryMeaning).toContain("地点停留");
+    expect(meaning.topics).toEqual(["place", "city"]);
+    expect(meaning.placeRoleHint).toBe("life");
+    expect(meaning.confidence).toBe(0.82);
   });
 });

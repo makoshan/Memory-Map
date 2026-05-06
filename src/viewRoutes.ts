@@ -1,4 +1,4 @@
-export type ViewKey = "world" | "office" | "memory";
+export type ViewKey = "world" | "office" | "memory" | "memoryImport";
 
 export function getPathForView(view: ViewKey) {
   if (view === "office") {
@@ -7,6 +7,10 @@ export function getPathForView(view: ViewKey) {
 
   if (view === "memory") {
     return "/memory";
+  }
+
+  if (view === "memoryImport") {
+    return "/memory/import";
   }
 
   return "/";
@@ -21,6 +25,10 @@ export function getViewFromPathname(pathname: string): ViewKey {
 
   if (normalized === "/memory") {
     return "memory";
+  }
+
+  if (normalized === "/memory/import") {
+    return "memoryImport";
   }
 
   return "world";

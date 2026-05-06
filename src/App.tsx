@@ -1,10 +1,45 @@
-import { useEffect, useMemo, useState } from "react";
-import type { ReactNode } from "react";
-import productDesign from "../docs/产品设计图.png";
+import { useEffect, useMemo, useRef, useState } from "react";
+import type { ChangeEvent, DragEvent, ReactNode } from "react";
 import { AppShell, DesignCard, type NavigateHandler } from "./components/AppShell";
-import { MemoryRoomDashboard } from "./components/MemoryRoom";
+import { fileToProcessingFile, MemoryLibraryDashboard } from "./components/MemoryRoom";
 import { gameAssets } from "./data/gameAssets";
-import { robotExhibitionMeaning } from "./data/sampleData";
+import {
+  buildAgentContext,
+  buildMediaAsset,
+  buildMemoryItem,
+  detectCity,
+  findDuplicateMemoryItem,
+  type MemoryItem,
+  type ProcessingFile
+} from "./domain/memoryRoom";
+import type { HermesAnalysisJob } from "./domain/types";
+import {
+  createGpsWorldSyncEvidence,
+  evaluateWorldSyncPipeline,
+  summarizeWorldSyncEvidence,
+  type WorldSyncEvidence
+} from "./domain/worldSyncPipeline";
+import {
+  buildAmapConvertUrl,
+  buildAmapRegeoUrl,
+  parseAmapConvert,
+  parseAmapRegeo,
+  type AmapConvertedLocation,
+  type AmapParsedRegeo
+} from "./integrations/amapGeocoder";
+import { parseExifGpsFromArrayBuffer, type ExifGpsEvidence } from "./integrations/exifGps";
+import {
+  type HermesImageMeaning,
+  requestHermesImageMeaning,
+  sendMediaAssetToHermes
+} from "./integrations/hermesAgent";
+import { prepareHermesInlineImageDataUrl } from "./integrations/imageInlineData";
+import {
+  loadStoredHermesJobs,
+  loadStoredMemoryItems,
+  saveStoredHermesJobs,
+  saveStoredMemoryItems
+} from "./integrations/localStore";
 import { getPathForView, getViewFromPathname, type ViewKey } from "./viewRoutes";
 
 export { getPathForView, getViewFromPathname } from "./viewRoutes";
@@ -64,24 +99,6 @@ const projects = [
 ] as const;
 
 const chartPoints = [10, 24, 44, 36, 64, 78, 72, 58, 92, 82, 70, 68, 78];
-
-const exifGps = {
-  latitude: "30.2777888889",
-  longitude: "120.1285694444",
-  altitude: "11.18 m",
-  horizontalError: "21.30 m",
-  capturedAt: "2026-05-03 16:13:13",
-  device: "Apple iPhone 16 Pro"
-};
-
-const amapEvidence = {
-  converted: "120.133333062066, 30.275500488282",
-  address: "浙江省杭州市西湖区翠苑街道黄姑山路39号颐高创业",
-  pois: ["颐高广场A座", "颐高创业大厦", "昌地·火炬大厦"],
-  road: "黄姑山路"
-};
-
-const visualHints = ["robot", "smart hardware", "exhibition display"];
 
 function EvidenceCard({
   title,
@@ -375,26 +392,780 @@ function MonthlyPanel() {
   );
 }
 
-function MediaMeaningWorkbench() {
-  const [note, setNote] = useState("杭州刘小龙展会，拍了很多机器人");
-  const [title, setTitle] = useState(robotExhibitionMeaning.title);
-  const [topics, setTopics] = useState(robotExhibitionMeaning.topics.join(", "));
-  const meaningSummary = useMemo(
-    () => ({
-      ...robotExhibitionMeaning,
-      title,
-      topics: topics.split(",").map((topic) => topic.trim()).filter(Boolean)
-    }),
-    [title, topics]
-  );
+type SelectedImageFact = {
+  name: string;
+  type: string;
+  size: number;
+  lastModified: number;
+  dataUrl?: string;
+  previewUrl?: string;
+};
 
+export function createArchiveProcessingFile(image: SelectedImageFact): ProcessingFile {
+  return {
+    name: image.name,
+    size: image.size,
+    type: "image",
+    lastModified: image.lastModified,
+    previewUrl: image.dataUrl ?? image.previewUrl
+  };
+}
+
+export type ExifReadStatus = "empty" | "reading" | "found" | "missing" | "unsupported" | "failed";
+
+type ImportProgressStepState = "done" | "active" | "warning" | "pending";
+
+export type ImageImportProgressStep = {
+  label: string;
+  detail: string;
+  state: ImportProgressStepState;
+};
+
+export function buildImageImportProgressSteps(input: {
+  hasImage: boolean;
+  hasGpsEvidence: boolean;
+  exifStatus: ExifReadStatus;
+  meaningGenerated: boolean;
+}): ImageImportProgressStep[] {
+  return [
+    {
+      label: "选择图片",
+      detail: input.hasImage ? "图片已载入本地工作台" : "等待单张 HEIC / JPEG 图片",
+      state: input.hasImage ? "done" : "active"
+    },
+    {
+      label: "读取证据",
+      detail: input.hasGpsEvidence
+        ? "EXIF GPS 已确认"
+        : input.exifStatus === "reading"
+        ? "正在读取 EXIF"
+        : input.hasImage
+        ? "未得到可用 GPS，等待补充证据"
+        : "等待图片后读取 EXIF",
+      state: input.hasGpsEvidence ? "done" : input.exifStatus === "reading" ? "active" : input.hasImage ? "warning" : "pending"
+    },
+    {
+      label: "生成信息",
+      detail: input.meaningGenerated
+        ? "已生成事件草稿"
+        : input.hasImage && !input.hasGpsEvidence
+        ? "等待补充证据后生成"
+        : input.hasImage
+        ? "根据文件名和证据生成"
+        : "等待图片信息",
+      state: input.meaningGenerated ? "done" : input.hasImage && input.hasGpsEvidence ? "active" : "pending"
+    },
+    {
+      label: "同步世界",
+      detail: input.meaningGenerated ? "等待地点画像达到 10 张阈值" : "等待 EventMeaning 生成后进入聚合",
+      state: "pending"
+    }
+  ];
+}
+
+type AddressLookupState =
+  | { status: "blocked" }
+  | { status: "not_configured" }
+  | { status: "loading" }
+  | { status: "ready"; converted: AmapConvertedLocation; regeo: AmapParsedRegeo }
+  | { status: "failed"; error: string };
+
+type ImageMeaningLookupState =
+  | { status: "idle" }
+  | { status: "loading" }
+  | { status: "ready"; meaning: HermesImageMeaning }
+  | { status: "offline" }
+  | { status: "failed"; error: string };
+
+function createImportWorldSyncEvidence(input: {
+  image: SelectedImageFact;
+  gps: ExifGpsEvidence;
+  address: AddressLookupState;
+  hermesSucceeded: boolean;
+}): WorldSyncEvidence {
+  const gpsEvidence = createGpsWorldSyncEvidence({
+    longitude: input.gps.longitude,
+    latitude: input.gps.latitude,
+    capturedAt: new Date(input.image.lastModified).toISOString(),
+    hermesSucceeded: input.hermesSucceeded
+  });
+
+  if (input.address.status === "ready") {
+    const placeName =
+      input.address.regeo.pois[0]?.name ||
+      input.address.regeo.formattedAddress;
+    return {
+      ...gpsEvidence,
+      placeName
+    };
+  }
+
+  return gpsEvidence;
+}
+
+function fileStem(name: string) {
+  return name.replace(/\.[^.]+$/, "").replace(/[-_]+/g, " ").trim();
+}
+
+function inferImageTopics(name: string) {
+  const stem = fileStem(name).toLowerCase();
+  const topics = ["memory", "photo"];
+  if (/travel|trip|city|hangzhou|shenzhen|shanghai|beijing|tokyo|杭州|深圳|上海|北京|东京/.test(stem)) {
+    topics.push("place");
+  }
+  if (/work|office|meeting|expo|展会|会议|办公室/.test(stem)) {
+    topics.push("work");
+  }
+  return Array.from(new Set(topics));
+}
+
+function formatBytes(size: number) {
+  if (size < 1024) return `${size} B`;
+  if (size < 1024 * 1024) return `${(size / 1024).toFixed(1)} KB`;
+  return `${(size / 1024 / 1024).toFixed(1)} MB`;
+}
+
+function formatLocalDateTime(ms: number) {
+  return new Intl.DateTimeFormat("zh-CN", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false
+  }).format(new Date(ms));
+}
+
+function isSupportedImageFile(file: File) {
+  return file.type.startsWith("image/") || /\.(heic|heif|jpe?g|png)$/i.test(file.name);
+}
+
+async function lookupAmapAddress(gps: ExifGpsEvidence): Promise<AddressLookupState> {
+  const key = import.meta.env.VITE_AMAP_KEY as string | undefined;
+  if (!key) return { status: "not_configured" };
+
+  const convertedResponse = await fetch(buildAmapConvertUrl({
+    key,
+    longitude: gps.longitude,
+    latitude: gps.latitude
+  }));
+  const converted = parseAmapConvert(await convertedResponse.json());
+  const regeoResponse = await fetch(buildAmapRegeoUrl({
+    key,
+    amapLocation: converted.rawLocation
+  }));
+  const regeo = parseAmapRegeo(await regeoResponse.json());
+  return { status: "ready", converted, regeo };
+}
+
+type HermesJobView = HermesAnalysisJob & {
+  gatewayStatus: "offline" | "sent" | "failed";
+  payloadPreview: string;
+};
+
+type ArchiveState =
+  | { status: "idle" }
+  | { status: "archiving" }
+  | { status: "duplicate"; item: MemoryItem }
+  | { status: "archived"; item: MemoryItem; job: HermesJobView }
+  | { status: "failed"; error: string };
+
+type BatchImportStatus = "queued" | "processing" | "done" | "failed";
+
+type BatchImportItem = {
+  id: string;
+  name: string;
+  size: number;
+  status: BatchImportStatus;
+  detail: string;
+  previewUrl?: string;
+  error?: string;
+};
+
+function yieldToBrowser() {
+  return new Promise<void>((resolve) => {
+    if (typeof window === "undefined") {
+      resolve();
+      return;
+    }
+    window.setTimeout(resolve, 0);
+  });
+}
+
+function MediaMeaningWorkbench() {
+  const [image, setImage] = useState<SelectedImageFact>();
+  const [gpsEvidence, setGpsEvidence] = useState<ExifGpsEvidence>();
+  const [exifStatus, setExifStatus] = useState<ExifReadStatus>("empty");
+  const [addressState, setAddressState] = useState<AddressLookupState>({ status: "blocked" });
+  const [imageMeaningState, setImageMeaningState] = useState<ImageMeaningLookupState>({ status: "idle" });
+  const [archiveState, setArchiveState] = useState<ArchiveState>({ status: "idle" });
+  const [storedMemoryItems, setStoredMemoryItems] = useState<MemoryItem[]>(() => loadStoredMemoryItems([]));
+  const [batchItems, setBatchItems] = useState<BatchImportItem[]>([]);
+  const [batchProcessing, setBatchProcessing] = useState(false);
+  const [dragOver, setDragOver] = useState(false);
+  const [importError, setImportError] = useState("");
+  const archiveTokenRef = useRef(0);
+  const imageMeaningTokenRef = useRef(0);
+
+  const archived = archiveState.status === "archived" || archiveState.status === "duplicate";
+  const duplicateArchive = archiveState.status === "duplicate";
+  const archiving = archiveState.status === "archiving";
+  const archiveFailed = archiveState.status === "failed";
+  const archivedItem = archived ? archiveState.item : undefined;
+  const archivedJob = archiveState.status === "archived" ? archiveState.job : undefined;
+  const hermesMeaning = imageMeaningState.status === "ready" ? imageMeaningState.meaning : undefined;
+
+  const inferredTopics = useMemo(() => (image ? inferImageTopics(image.name) : []), [image]);
+  const meaningSummary = useMemo(
+    () => {
+      if (!image) return undefined;
+      return {
+        title: archivedItem?.title ?? hermesMeaning?.sceneSummary ?? fileStem(image.name) ?? "未命名图片记忆",
+        activity: "image_memory_import",
+        topics: archivedItem?.topics ?? hermesMeaning?.topics ?? (inferredTopics.length > 0 ? inferredTopics : ["memory", "photo"]),
+        placeMeaning: hermesMeaning?.memoryMeaning ?? (
+          archivedItem?.city
+            ? `archived_at_${archivedItem.city}`
+            : gpsEvidence
+            ? "confirmed_location_memory"
+            : addressState.status === "ready"
+            ? "address_suggested_memory"
+            : "awaiting_location_evidence"
+        )
+      };
+    },
+    [addressState.status, archivedItem, gpsEvidence, hermesMeaning, image, inferredTopics]
+  );
+  const fileConfidence = image ? 100 : 0;
+  const hasUsableLocationEvidence = Boolean(gpsEvidence);
+  const meaningGenerated = Boolean(image && meaningSummary && hasUsableLocationEvidence);
+  const visibleMeaningSummary = meaningGenerated ? meaningSummary : undefined;
+  const currentWorldSyncEvidence = useMemo(() => {
+    if (!image || !gpsEvidence || !meaningGenerated) return undefined;
+    return createImportWorldSyncEvidence({
+      image,
+      gps: gpsEvidence,
+      address: addressState,
+      hermesSucceeded: imageMeaningState.status === "ready"
+    });
+  }, [addressState, gpsEvidence, image, imageMeaningState.status, meaningGenerated]);
+  const worldSyncStatus = useMemo(() => {
+    const targetEvidence = archivedItem?.syncEvidence ?? currentWorldSyncEvidence;
+    return evaluateWorldSyncPipeline(
+      targetEvidence
+        ? summarizeWorldSyncEvidence({
+            stored: storedMemoryItems.flatMap((item) => item.syncEvidence ? [item.syncEvidence] : []),
+            current: targetEvidence
+          })
+        : summarizeWorldSyncEvidence({ stored: [] })
+    );
+  }, [archivedItem?.syncEvidence, currentWorldSyncEvidence, storedMemoryItems]);
+
+  const handleArchiveMemory = async () => {
+    if (!image || !meaningSummary || archiving || archived) return;
+
+    const token = archiveTokenRef.current + 1;
+    archiveTokenRef.current = token;
+    setArchiveState({ status: "archiving" });
+
+    try {
+      const storedItems = loadStoredMemoryItems([]);
+      const processingFile = createArchiveProcessingFile(image);
+      const duplicateItem = findDuplicateMemoryItem(storedItems, processingFile);
+      if (duplicateItem) {
+        if (archiveTokenRef.current === token) {
+          setArchiveState({ status: "duplicate", item: duplicateItem });
+        }
+        return;
+      }
+      const built = buildMemoryItem(processingFile, { sequence: storedItems.length });
+
+      let resolvedCity = built.city;
+      if (addressState.status === "ready") {
+        const rawCity = addressState.regeo.address.city?.replace(/(市|省)$/u, "").trim();
+        if (rawCity) {
+          resolvedCity = detectCity(rawCity) ?? rawCity;
+        }
+      }
+      const syncEvidence = currentWorldSyncEvidence;
+      const item: MemoryItem = hermesMeaning
+        ? {
+            ...built,
+            city: resolvedCity,
+            title: hermesMeaning.sceneSummary?.trim() || built.title,
+            summary: hermesMeaning.memoryMeaning?.trim() || built.summary,
+            topics: hermesMeaning.topics?.length ? hermesMeaning.topics : built.topics,
+            syncEvidence
+          }
+        : { ...built, city: resolvedCity, syncEvidence };
+
+      const importedAt = new Date().toISOString();
+      const asset = buildMediaAsset(processingFile, item, importedAt);
+      const context = buildAgentContext(item, importedAt);
+      const result = await sendMediaAssetToHermes(asset, context);
+      const jobView: HermesJobView = {
+        ...result.job,
+        gatewayStatus: result.status,
+        payloadPreview: JSON.stringify({
+          assetId: asset.id,
+          type: asset.type,
+          source: asset.source,
+          contentPreview: item.summary,
+          messageCount: result.payload.messages.length,
+          privacy: result.payload.metadata.privacy
+        })
+      };
+
+      const nextStoredItems = [item, ...storedItems];
+      saveStoredMemoryItems(nextStoredItems);
+      saveStoredHermesJobs([jobView, ...loadStoredHermesJobs([])]);
+      if (archiveTokenRef.current === token) {
+        setStoredMemoryItems(nextStoredItems);
+        setArchiveState({ status: "archived", item, job: jobView });
+      }
+    } catch (error) {
+      if (archiveTokenRef.current === token) {
+        setArchiveState({
+          status: "failed",
+          error: error instanceof Error ? error.message : String(error)
+        });
+      }
+    }
+  };
+
+  const requestImageMeaning = async (
+    imageFact: SelectedImageFact,
+    gps: ExifGpsEvidence,
+    address: AddressLookupState,
+    token: number
+  ) => {
+    if (!imageFact.dataUrl) {
+      setImageMeaningState({ status: "failed", error: "图片无法转换为 Hermes inline image" });
+      return;
+    }
+
+    setImageMeaningState({ status: "loading" });
+    try {
+      const result = await requestHermesImageMeaning({
+        fileName: imageFact.name,
+        imageDataUrl: imageFact.dataUrl,
+        capturedAt: formatLocalDateTime(imageFact.lastModified),
+        gps: {
+          longitude: gps.longitude,
+          latitude: gps.latitude,
+          altitude: gps.altitude,
+          horizontalError: gps.horizontalError
+        },
+        address: address.status === "ready"
+          ? {
+              formattedAddress: address.regeo.formattedAddress,
+              roads: address.regeo.roads.map((road) => road.name).slice(0, 4),
+              pois: address.regeo.pois.map((poi) => poi.name).slice(0, 6)
+            }
+          : undefined
+      });
+      if (imageMeaningTokenRef.current !== token) return;
+      setImageMeaningState(result.status === "sent" ? { status: "ready", meaning: result.meaning } : { status: "offline" });
+    } catch (error) {
+      if (imageMeaningTokenRef.current !== token) return;
+      setImageMeaningState({
+        status: "failed",
+        error: error instanceof Error ? error.message : String(error)
+      });
+    }
+  };
+
+  useEffect(() => {
+    if (!meaningGenerated || archiveState.status !== "idle") return;
+    if (imageMeaningState.status === "loading" || imageMeaningState.status === "idle") return;
+    void handleArchiveMemory();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [archiveState.status, meaningGenerated, imageMeaningState.status]);
+
+  useEffect(() => {
+    return () => {
+      if (image?.previewUrl) URL.revokeObjectURL(image.previewUrl);
+    };
+  }, [image]);
+
+  const importImageFile = async (file: File) => {
+    if (!isSupportedImageFile(file)) {
+      setImportError("请拖入 HEIC / JPEG / PNG 图片文件。");
+      return;
+    }
+
+    setImportError("");
+    setStoredMemoryItems(loadStoredMemoryItems([]));
+    setArchiveState({ status: "idle" });
+    setGpsEvidence(undefined);
+    setExifStatus("reading");
+    setAddressState({ status: "blocked" });
+    setImageMeaningState({ status: "idle" });
+    const imageMeaningToken = imageMeaningTokenRef.current + 1;
+    imageMeaningTokenRef.current = imageMeaningToken;
+    let selectedImage: SelectedImageFact = {
+      name: file.name,
+      type: file.type || "unknown",
+      size: file.size,
+      lastModified: file.lastModified,
+      dataUrl: undefined,
+      previewUrl: file.type.startsWith("image/") ? URL.createObjectURL(file) : undefined
+    };
+    const duplicateItem = findDuplicateMemoryItem(loadStoredMemoryItems([]), {
+      name: selectedImage.name,
+      size: selectedImage.size,
+      type: "image"
+    });
+    setImage((current) => {
+      if (current?.previewUrl) URL.revokeObjectURL(current.previewUrl);
+      return selectedImage;
+    });
+    if (duplicateItem) {
+      setArchiveState({ status: "duplicate", item: duplicateItem });
+    }
+    try {
+      const arrayBuffer = await file.arrayBuffer();
+      const dataUrl = duplicateItem ? undefined : await prepareHermesInlineImageDataUrl(file).catch(() => undefined);
+      selectedImage = { ...selectedImage, dataUrl };
+      setImage(selectedImage);
+      const gps = parseExifGpsFromArrayBuffer(arrayBuffer);
+      if (!gps) {
+        setExifStatus("missing");
+        setAddressState({ status: "blocked" });
+        return;
+      }
+
+      setGpsEvidence(gps);
+      setExifStatus("found");
+      setAddressState({ status: "loading" });
+      lookupAmapAddress(gps)
+        .then((nextAddressState) => {
+          setAddressState(nextAddressState);
+          if (!duplicateItem) void requestImageMeaning(selectedImage, gps, nextAddressState, imageMeaningToken);
+        })
+        .catch((error) => {
+          const failedAddressState: AddressLookupState = {
+            status: "failed",
+            error: error instanceof Error ? error.message : String(error)
+          };
+          setAddressState(failedAddressState);
+          if (!duplicateItem) void requestImageMeaning(selectedImage, gps, failedAddressState, imageMeaningToken);
+        });
+    } catch {
+      setExifStatus("failed");
+      setAddressState({ status: "blocked" });
+      setImageMeaningState({ status: "idle" });
+    }
+  };
+
+  const updateBatchItem = (id: string, patch: Partial<BatchImportItem>) => {
+    setBatchItems((current) => current.map((item) => item.id === id ? { ...item, ...patch } : item));
+  };
+
+  const showBatchFileInWorkbench = async (file: File, processingFile?: ProcessingFile) => {
+    const previewUrl =
+      processingFile?.previewUrl ??
+      (file.type.startsWith("image/") ? URL.createObjectURL(file) : undefined);
+    const selectedImage: SelectedImageFact = {
+      name: file.name,
+      type: file.type || "unknown",
+      size: file.size,
+      lastModified: file.lastModified,
+      dataUrl: undefined,
+      previewUrl
+    };
+
+    setImage((current) => {
+      if (current?.previewUrl?.startsWith("blob:")) URL.revokeObjectURL(current.previewUrl);
+      return selectedImage;
+    });
+    setArchiveState({ status: "idle" });
+    setImageMeaningState({ status: "idle" });
+    setGpsEvidence(undefined);
+    setExifStatus("reading");
+    setAddressState({ status: "blocked" });
+
+    if (!processingFile?.syncEvidence) {
+      setExifStatus("missing");
+      return;
+    }
+
+    const gps = parseExifGpsFromArrayBuffer(await file.arrayBuffer());
+    if (!gps) {
+      setExifStatus("missing");
+      return;
+    }
+
+    setGpsEvidence(gps);
+    setExifStatus("found");
+    setAddressState({ status: "loading" });
+    try {
+      const nextAddressState = await lookupAmapAddress(gps);
+      setAddressState(nextAddressState);
+    } catch (error) {
+      setAddressState({
+        status: "failed",
+        error: error instanceof Error ? error.message : String(error)
+      });
+    }
+  };
+
+  const importBatchImageFiles = async (files: File[]) => {
+    if (files.length === 0) return;
+
+    const queue = files.map((file, index) => ({
+      id: `batch-${file.name}-${file.lastModified}-${file.size}-${index}`,
+      name: file.name,
+      size: file.size,
+      status: "queued" as const,
+      detail: "等待处理"
+    }));
+    setBatchItems(queue);
+    setBatchProcessing(true);
+    setImportError("");
+    setArchiveState({ status: "idle" });
+    setImageMeaningState({ status: "idle" });
+    setGpsEvidence(undefined);
+    setExifStatus("empty");
+    setAddressState({ status: "blocked" });
+    await yieldToBrowser();
+
+    try {
+      for (let index = 0; index < files.length; index += 1) {
+        const file = files[index];
+        const queued = queue[index];
+        updateBatchItem(queued.id, { status: "processing", detail: `正在处理第 ${index + 1} / ${files.length} 张：读取预览和 EXIF GPS` });
+        await yieldToBrowser();
+
+        if (!isSupportedImageFile(file)) {
+          updateBatchItem(queued.id, {
+            status: "failed",
+            detail: "文件类型不支持",
+            error: "只支持 HEIC / JPEG / PNG 图片"
+          });
+          continue;
+        }
+
+        try {
+          const processingFile = await fileToProcessingFile(file);
+          await showBatchFileInWorkbench(file, processingFile);
+          updateBatchItem(queued.id, {
+            previewUrl: processingFile.previewUrl,
+            detail: processingFile.syncEvidence ? "EXIF GPS 已确认，正在写入记忆库" : "未读取到 GPS，仍保留预览并等待补充证据"
+          });
+          await yieldToBrowser();
+
+          const storedItems = loadStoredMemoryItems([]);
+          const duplicateItem = findDuplicateMemoryItem(storedItems, processingFile);
+          if (duplicateItem) {
+            setArchiveState({ status: "duplicate", item: duplicateItem });
+            updateBatchItem(queued.id, {
+              status: "done",
+              detail: "已存在，跳过重复写入"
+            });
+            continue;
+          }
+
+          const item = buildMemoryItem(processingFile, { sequence: storedItems.length });
+          const nextStoredItems = [item, ...storedItems];
+          const importedAt = new Date().toISOString();
+          saveStoredMemoryItems(nextStoredItems);
+          setStoredMemoryItems(nextStoredItems);
+          setArchiveState({
+            status: "archived",
+            item,
+            job: {
+              id: `local-${item.id}`,
+              mediaAssetId: item.id,
+              jobType: "media-analysis",
+              inputSummary: item.summary,
+              status: "pending",
+              createdAt: importedAt,
+              gatewayStatus: "offline",
+              payloadPreview: JSON.stringify({
+                assetId: item.id,
+                type: item.type,
+                source: "file_import",
+                contentPreview: item.summary,
+                messageCount: 0,
+                privacy: "local-batch-import"
+              })
+            }
+          });
+
+          const asset = buildMediaAsset(processingFile, item, importedAt);
+          const context = buildAgentContext(item, importedAt);
+          try {
+            const result = await sendMediaAssetToHermes(asset, context);
+            const jobView: HermesJobView = {
+              ...result.job,
+              gatewayStatus: result.status,
+              payloadPreview: JSON.stringify({
+                assetId: asset.id,
+                type: asset.type,
+                source: asset.source,
+                contentPreview: item.summary,
+                messageCount: result.payload.messages.length,
+                privacy: result.payload.metadata.privacy
+              })
+            };
+            saveStoredHermesJobs([jobView, ...loadStoredHermesJobs([])]);
+            updateBatchItem(queued.id, {
+              status: "done",
+              detail: item.syncEvidence ? "已写入记忆库 · 参与 10 张地点匹配" : "已写入记忆库 · 等待补充地点证据"
+            });
+          } catch (error) {
+            updateBatchItem(queued.id, {
+              status: "done",
+              detail: "已写入记忆库 · Hermes payload 稍后重试",
+              error: error instanceof Error ? error.message : String(error)
+            });
+          }
+        } catch (error) {
+          updateBatchItem(queued.id, {
+            status: "failed",
+            detail: "处理失败",
+            error: error instanceof Error ? error.message : String(error)
+          });
+        }
+      }
+    } finally {
+      setBatchProcessing(false);
+    }
+  };
+
+  const handleImageChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(event.target.files ?? []);
+    if (files.length === 0) return;
+    if (files.length > 1) {
+      void importBatchImageFiles(files);
+    } else {
+      void importImageFile(files[0]);
+    }
+    event.target.value = "";
+  };
+
+  useEffect(() => {
+    const handlePaste = (event: ClipboardEvent) => {
+      const files = Array.from(event.clipboardData?.files ?? []);
+      const pastedImage = files.find(isSupportedImageFile);
+      if (!pastedImage) return;
+
+      event.preventDefault();
+      void importImageFile(pastedImage);
+    };
+
+    window.addEventListener("paste", handlePaste);
+    return () => window.removeEventListener("paste", handlePaste);
+  }, []);
+
+  const handlePageDragEnter = (event: DragEvent<HTMLElement>) => {
+    if (event.dataTransfer.types.includes("Files")) {
+      event.preventDefault();
+      setDragOver(true);
+    }
+  };
+
+  const handlePageDragOver = (event: DragEvent<HTMLElement>) => {
+    if (event.dataTransfer.types.includes("Files")) {
+      event.preventDefault();
+      event.dataTransfer.dropEffect = "copy";
+      setDragOver(true);
+    }
+  };
+
+  const handlePageDragLeave = (event: DragEvent<HTMLElement>) => {
+    if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
+      setDragOver(false);
+    }
+  };
+
+  const handlePageDrop = (event: DragEvent<HTMLElement>) => {
+    if (event.dataTransfer.files.length === 0) return;
+    event.preventDefault();
+    setDragOver(false);
+    const files = Array.from(event.dataTransfer.files);
+    if (files.length > 1) {
+      void importBatchImageFiles(files);
+    } else {
+      void importImageFile(files[0]);
+    }
+  };
+
+  const exifStatusLabel =
+    exifStatus === "reading"
+      ? "reading · local exif"
+      : exifStatus === "found"
+      ? "confirmed · confidence 1.0"
+      : exifStatus === "missing"
+      ? "missing · no gps"
+      : exifStatus === "unsupported"
+      ? "unsupported · heic parser pending"
+      : exifStatus === "failed"
+      ? "failed · exif read error"
+      : "missing · no file";
+
+  const addressStatusLabel =
+    addressState.status === "ready"
+      ? "address_evidence · suggested"
+      : addressState.status === "loading"
+      ? "loading · amap"
+      : addressState.status === "not_configured"
+      ? "not configured · VITE_AMAP_KEY"
+      : addressState.status === "failed"
+      ? "failed · amap"
+      : "blocked · needs confirmed coordinates";
+  const imageMeaningStatusLabel =
+    imageMeaningState.status === "ready"
+      ? `hermes vision · confidence ${imageMeaningState.meaning.confidence.toFixed(2)}`
+      : imageMeaningState.status === "loading"
+      ? "loading · hermes vision"
+      : imageMeaningState.status === "failed"
+      ? "failed · hermes vision"
+      : imageMeaningState.status === "offline"
+      ? "offline · local fallback"
+      : "waiting · hermes vision";
+  const importProgressSteps = buildImageImportProgressSteps({
+    hasImage: Boolean(image),
+    hasGpsEvidence: hasUsableLocationEvidence,
+    exifStatus,
+    meaningGenerated
+  }).map((step) =>
+    step.label === "同步世界"
+      ? {
+          ...step,
+          detail: duplicateArchive
+            ? "已存在，继续等待地点画像阈值"
+            : archived
+            ? worldSyncStatus.placeProfile
+            : archiving
+            ? "正在生成记忆事件"
+            : step.detail,
+          state: worldSyncStatus.readyForPlaceProfile ? "active" as const : step.state
+        }
+      : step
+  );
+  const batchDoneCount = batchItems.filter((item) => item.status === "done").length;
+  const batchFailedCount = batchItems.filter((item) => item.status === "failed").length;
+  const batchProgressLabel = batchItems.length
+    ? `${batchDoneCount + batchFailedCount} / ${batchItems.length}`
+    : "等待批量选择图片";
   return (
-    <section className="meaning-workbench" aria-label="图片导入工作台">
+    <section
+      className={`meaning-workbench${dragOver ? " is-dragging-image" : ""}`}
+      aria-label="图片导入工作台"
+      data-drop-state={dragOver ? "dragging" : "idle"}
+      onDragEnter={handlePageDragEnter}
+      onDragLeave={handlePageDragLeave}
+      onDragOver={handlePageDragOver}
+      onDrop={handlePageDrop}
+    >
       <section className="workbench-hero">
         <div>
-          <span>Memory Map Production Console</span>
+          <span>自动导入模式</span>
           <h1>图片导入工作台</h1>
-          <p>把图片硬坐标、地址证据、视觉线索和笔记合成为一个可解释的意义事件。</p>
+          <p>把图片硬坐标、地址证据和视觉线索自动合成为一个可解释的意义事件，不需要再填写内容或点击确认。</p>
         </div>
         <div className="system-strip" aria-label="系统状态">
           <strong>SQLite ready</strong>
@@ -404,27 +1175,97 @@ function MediaMeaningWorkbench() {
         </div>
       </section>
 
+      <section className="image-import-progress" aria-label="导入进度">
+        <div className="image-import-progress-header">
+          <strong>导入进度</strong>
+          <span>
+            {archived
+              ? "已生成 EventMeaning，等待证据聚合"
+              : archiving
+              ? "正在生成记忆事件"
+              : meaningGenerated
+              ? "信息已生成，等待地点画像阈值"
+              : image && !hasUsableLocationEvidence && exifStatus !== "reading"
+              ? "读取证据未完成，等待补充证据"
+              : image
+              ? "图片已进入处理流"
+              : "从单张图片开始"}
+          </span>
+        </div>
+        <ol>
+          {importProgressSteps.map((step, index) => (
+            <li data-state={step.state} key={step.label}>
+              <span className="progress-index">{index + 1}</span>
+              <div>
+                <strong>{step.label}</strong>
+                <small>{step.detail}</small>
+              </div>
+            </li>
+          ))}
+        </ol>
+      </section>
+
       <section className="workbench-grid">
         <aside className="import-panel workbench-panel">
           <header>
             <span>Step 1</span>
-            <h2>导入媒体</h2>
+            <h2>导入图片</h2>
           </header>
           <label className="file-drop">
-            <input type="file" accept="image/heic,image/heif,image/jpeg,image/png" />
-            <strong>选择 HEIC / JPEG 图片</strong>
-            <span>当前样例：IMG_9128.HEIC</span>
+            <input type="file" multiple accept="image/heic,image/heif,image/jpeg,image/png" onChange={handleImageChange} />
+            <strong>拖入 / 粘贴 / 选择图片后自动生成事件</strong>
+            <span>{image ? image.name : "未选择图片"}</span>
           </label>
+          <p className="image-import-drop-hint">无需填写标题、主题或笔记；图片进入页面后会自动读取 EXIF、生成意义事件并准备同步。</p>
+          {importError && <p className="image-import-error">{importError}</p>}
+          {!image && <p className="image-import-empty">等待图片进入页面后自动生成</p>}
+          {image?.previewUrl && <img className="image-import-preview" src={image.previewUrl} alt={image.name} />}
           <dl className="file-facts">
-            <div><dt>设备</dt><dd>{exifGps.device}</dd></div>
-            <div><dt>拍摄时间</dt><dd>{exifGps.capturedAt}</dd></div>
-            <div><dt>视觉线索</dt><dd>{visualHints.join(" / ")}</dd></div>
+            <div><dt>文件名</dt><dd>{image?.name ?? "未选择"}</dd></div>
+            <div><dt>文件类型</dt><dd>{image?.type ?? "未选择"}</dd></div>
+            <div><dt>文件大小</dt><dd>{image ? formatBytes(image.size) : "未选择"}</dd></div>
+            <div><dt>修改时间</dt><dd>{image ? formatLocalDateTime(image.lastModified) : "未选择"}</dd></div>
           </dl>
-          <label className="note-box">
-            <span>用户笔记</span>
-            <textarea value={note} onChange={(event) => setNote(event.target.value)} />
-          </label>
-          <img className="design-miniature" src={productDesign} alt="Memory Map 产品设计图" />
+          <section className="batch-import-panel" aria-label="批量上传">
+            <header>
+              <div>
+                <span>批量上传</span>
+                <h3>上传进度</h3>
+              </div>
+              <strong>{batchProcessing ? "处理中" : batchProgressLabel}</strong>
+            </header>
+            <div className="batch-import-stats">
+              <span>预览结果</span>
+              <span>{batchItems.length ? `${batchItems.length} 张图片` : "等待批量选择图片"}</span>
+              <span>错误 {batchFailedCount}</span>
+            </div>
+            <ul className="batch-import-list">
+              {batchItems.map((item) => (
+                <li key={item.id} data-state={item.status}>
+                  {item.previewUrl ? (
+                    <img src={item.previewUrl} alt={item.name} />
+                  ) : (
+                    <div className="batch-import-placeholder">预览</div>
+                  )}
+                  <div>
+                    <strong>{item.name}</strong>
+                    <span>{formatBytes(item.size)} · {item.detail}</span>
+                    {item.error && <em>错误：{item.error}</em>}
+                  </div>
+                </li>
+              ))}
+              {batchItems.length === 0 && (
+                <li data-state="queued">
+                  <div className="batch-import-placeholder">预览</div>
+                  <div>
+                    <strong>等待批量选择图片</strong>
+                    <span>可以一次选择多张 HEIC / JPEG / PNG，并在这里查看进度和错误。</span>
+                    <em>错误：暂无</em>
+                  </div>
+                </li>
+              )}
+            </ul>
+          </section>
         </aside>
 
         <section className="evidence-panel workbench-panel">
@@ -432,21 +1273,51 @@ function MediaMeaningWorkbench() {
             <span>Step 2</span>
             <h2>坐标与地址证据</h2>
           </header>
-          <EvidenceCard title="EXIF GPS" status="confirmed · confidence 1.0">
-            <p>硬事实不会被笔记覆盖。</p>
+          <EvidenceCard title="EXIF GPS" status={exifStatusLabel}>
+            <p>
+              {gpsEvidence
+                ? "已从图片 EXIF 读取真实 WGS84 坐标。"
+                : exifStatus === "reading"
+                ? "正在本地读取图片 EXIF GPS。"
+                : exifStatus === "unsupported"
+                ? "当前浏览器端暂未解析 HEIC EXIF；请先用 JPEG 测试，或后续接入原生/服务端 HEIC 解析。"
+                : "未读取到真实 EXIF GPS 前，不生成硬事实点位。"}
+            </p>
             <dl>
-              <div><dt>WGS84</dt><dd>{exifGps.longitude}, {exifGps.latitude}</dd></div>
-              <div><dt>海拔</dt><dd>{exifGps.altitude}</dd></div>
-              <div><dt>水平误差</dt><dd>{exifGps.horizontalError}</dd></div>
-              <div><dt>evidence</dt><dd>gps_exif</dd></div>
+              <div>
+                <dt>WGS84</dt>
+                <dd>{gpsEvidence ? `${gpsEvidence.longitude.toFixed(10)}, ${gpsEvidence.latitude.toFixed(10)}` : "暂无坐标证据"}</dd>
+              </div>
+              <div><dt>海拔</dt><dd>{gpsEvidence?.altitude === undefined ? "暂无真实数据" : `${gpsEvidence.altitude.toFixed(2)} m`}</dd></div>
+              <div><dt>水平误差</dt><dd>{gpsEvidence?.horizontalError === undefined ? "暂无真实数据" : `${gpsEvidence.horizontalError.toFixed(2)} m`}</dd></div>
+              <div><dt>evidence</dt><dd>{gpsEvidence ? "gps_exif" : "none"}</dd></div>
             </dl>
           </EvidenceCard>
-          <EvidenceCard title="高德地址" status="address_evidence · suggested">
-            <p>{amapEvidence.address}</p>
+          <EvidenceCard title={addressState.status === "ready" ? "高德地址" : "地址证据"} status={addressStatusLabel}>
+            <p>
+              {addressState.status === "ready"
+                ? addressState.regeo.formattedAddress
+                : addressState.status === "loading"
+                ? "已获取 EXIF GPS，正在请求高德地址候选。"
+                : addressState.status === "not_configured"
+                ? "已获取 EXIF GPS；配置 VITE_AMAP_KEY 后可自动生成地址证据。"
+                : addressState.status === "failed"
+                ? `地址请求失败：${addressState.error}`
+                : "等待真实坐标后再请求地址候选。"}
+            </p>
             <dl>
-              <div><dt>GCJ-02</dt><dd>{amapEvidence.converted}</dd></div>
-              <div><dt>道路</dt><dd>{amapEvidence.road}</dd></div>
-              <div><dt>POI</dt><dd>{amapEvidence.pois.join(" / ")}</dd></div>
+              <div>
+                <dt>GCJ-02</dt>
+                <dd>{addressState.status === "ready" ? `${addressState.converted.longitude}, ${addressState.converted.latitude}` : "未请求"}</dd>
+              </div>
+              <div>
+                <dt>道路</dt>
+                <dd>{addressState.status === "ready" ? addressState.regeo.roads.map((road) => road.name).slice(0, 2).join(" / ") || "无道路候选" : "未请求"}</dd>
+              </div>
+              <div>
+                <dt>POI</dt>
+                <dd>{addressState.status === "ready" ? addressState.regeo.pois.map((poi) => poi.name).slice(0, 3).join(" / ") || "无 POI 候选" : "未请求"}</dd>
+              </div>
             </dl>
           </EvidenceCard>
           <div className="mapbox-preview" aria-label="Mapbox 预览">
@@ -455,41 +1326,94 @@ function MediaMeaningWorkbench() {
               <span />
               Mapbox
             </button>
-            <p>Mapbox 使用 EXIF WGS84 坐标显示硬事实点位；高德地址只作为地址证据。</p>
+            <p>{gpsEvidence ? "Mapbox 使用 EXIF WGS84 坐标显示硬事实点位；地址只作为候选证据。" : "Mapbox 将在出现真实 WGS84 坐标后显示硬事实点位；地址只作为候选证据。"}</p>
           </div>
         </section>
 
         <section className="meaning-panel workbench-panel">
           <header>
             <span>Step 3</span>
-            <h2>意义确认</h2>
+            <h2>意义自动生成</h2>
           </header>
-          <label>
+          <div className="auto-meaning-card" aria-live="polite">
             <span>事件标题</span>
-            <input value={title} onChange={(event) => setTitle(event.target.value)} />
-          </label>
-          <label>
-            <span>主题</span>
-            <input value={topics} onChange={(event) => setTopics(event.target.value)} />
-          </label>
-          <div className="meaning-output">
-            <strong>{meaningSummary.title}</strong>
-            <span>{meaningSummary.activity}</span>
-            <p>{meaningSummary.topics.join(" / ")}</p>
-            <em>{meaningSummary.placeMeaning}</em>
+            <strong>{visibleMeaningSummary?.title ?? "等待文件生成事件标题"}</strong>
+            <small>
+              {meaningGenerated
+                ? "已由文件名和图片证据生成"
+                : image
+                ? "等待补充证据"
+                : "等待图片"}
+            </small>
           </div>
+          <div className="meaning-output">
+            <strong>{visibleMeaningSummary?.title ?? "等待文件生成事件标题"}</strong>
+            <span>{visibleMeaningSummary?.activity ?? "自动等待"}</span>
+            <p>{visibleMeaningSummary?.topics.join(" / ") ?? "暂无主题"}</p>
+            <em>{visibleMeaningSummary?.placeMeaning ?? "awaiting_location_evidence"}</em>
+          </div>
+          <EvidenceCard title="图片意义" status={imageMeaningStatusLabel}>
+            <p>
+              {imageMeaningState.status === "ready"
+                ? imageMeaningState.meaning.memoryMeaning
+                : imageMeaningState.status === "loading"
+                ? "正在把图片、EXIF GPS 和高德地址交给本地 Hermes 生成意义总结。"
+                : imageMeaningState.status === "failed"
+                ? `Hermes 总结失败：${imageMeaningState.error}`
+                : imageMeaningState.status === "offline"
+                ? "Hermes 未配置或未返回结果，当前使用本地文件名与证据生成摘要。"
+                : "等待图片和坐标证据后请求 Hermes 视觉总结。"}
+            </p>
+            <dl>
+              <div><dt>场景</dt><dd>{imageMeaningState.status === "ready" ? imageMeaningState.meaning.sceneSummary : "待生成"}</dd></div>
+              <div><dt>主题</dt><dd>{imageMeaningState.status === "ready" ? imageMeaningState.meaning.topics.join(" / ") : "待生成"}</dd></div>
+              <div><dt>地点角色</dt><dd>{imageMeaningState.status === "ready" ? imageMeaningState.meaning.placeRoleHint : "待生成"}</dd></div>
+            </dl>
+          </EvidenceCard>
           <div className="confidence-grid">
-            <article><span>坐标</span><strong>100%</strong><small>gps_exif</small></article>
-            <article><span>地址</span><strong>86%</strong><small>amap</small></article>
-            <article><span>图片</span><strong>72%</strong><small>image_scene</small></article>
-            <article><span>笔记</span><strong>95%</strong><small>user_note</small></article>
+            <article><span>坐标</span><strong>{gpsEvidence ? "100%" : "0%"}</strong><small>{gpsEvidence ? "gps_exif" : "no_gps"}</small></article>
+            <article><span>地址</span><strong>{addressState.status === "ready" ? "86%" : "0%"}</strong><small>{addressState.status === "ready" ? "amap" : addressState.status}</small></article>
+            <article><span>图片</span><strong>{fileConfidence}%</strong><small>{image ? "file_selected" : "no_file"}</small></article>
+            <article><span>意义</span><strong>{meaningGenerated ? (imageMeaningState.status === "ready" ? `${Math.round(imageMeaningState.meaning.confidence * 100)}%` : "100%") : "0%"}</strong><small>{imageMeaningState.status === "ready" ? "hermes" : meaningGenerated ? "auto_generated" : "waiting"}</small></article>
           </div>
           <section className="review-queue">
             <h3>证据审查</h3>
-            <label><input type="checkbox" defaultChecked readOnly /> EXIF GPS 已确认</label>
-            <label><input type="checkbox" defaultChecked readOnly /> 高德 POI 作为候选地址</label>
-            <label><input type="checkbox" /> 笔记推理地点需要用户确认</label>
+            <label><input type="checkbox" readOnly checked={Boolean(image)} /> 图片文件已选择</label>
+            <label><input type="checkbox" readOnly checked={Boolean(gpsEvidence)} /> {gpsEvidence ? "EXIF GPS 已确认" : "等待真实 EXIF GPS"}</label>
+            <label><input type="checkbox" readOnly checked={addressState.status === "ready"} /> {addressState.status === "ready" ? "地址候选已生成" : "等待地址候选"}</label>
+            <label><input type="checkbox" readOnly checked={imageMeaningState.status === "ready"} /> {imageMeaningState.status === "ready" ? "Hermes 图片意义已生成" : "等待 Hermes 图片意义"}</label>
+            <label><input type="checkbox" readOnly checked={meaningGenerated} /> 意义事件已生成</label>
+            <label><input type="checkbox" readOnly checked={archived} /> {duplicateArchive ? "已存在，跳过重复写入" : "记忆事件已写入本地库，等待聚合"}</label>
           </section>
+          {archiveFailed && <p className="image-import-error">同步失败：{archiveState.error}</p>}
+          {duplicateArchive && <p className="image-import-drop-hint">已存在 · {archiveState.item.fileName} · 未重复上传</p>}
+          {archivedJob && <p className="image-import-drop-hint">最近 payload · {archivedJob.payloadPreview}</p>}
+          <div className="image-import-actions">
+            <div>
+              <strong>生成记忆事件</strong>
+              <span>
+	                {duplicateArchive
+	                  ? "本地记忆库已有这张图片，未重复写入"
+	                  : archived
+	                  ? "已写入本地记忆库，等待同地点证据达到阈值"
+	                  : archiving
+	                  ? "正在生成 Hermes payload"
+	                  : meaningGenerated
+	                  ? "点击下一步生成记忆事件"
+	                  : image
+	                  ? "等待补充证据后继续"
+	                  : "先选择图片后继续"}
+              </span>
+            </div>
+            <button
+              className="button-primary"
+              type="button"
+              disabled={!meaningGenerated || archiving}
+              onClick={() => void handleArchiveMemory()}
+            >
+              {archiving ? "正在生成..." : duplicateArchive ? "已存在，未重复上传" : archived ? "已生成记忆事件" : "下一步：生成记忆事件"}
+            </button>
+          </div>
         </section>
 
         <section className="sync-panel workbench-panel">
@@ -498,10 +1422,10 @@ function MediaMeaningWorkbench() {
             <h2>世界同步</h2>
           </header>
           <div className="sync-flow">
-            <article><strong>EventMeaning</strong><span>{meaningSummary.title}</span></article>
-            <article><strong>PlaceProfile</strong><span>robotics / AI hardware 权重上升</span></article>
-            <article><strong>Layer 3</strong><span>AI 研究所与机器人展厅线索</span></article>
-            <article><strong>Godot world_state.json</strong><span>只导出语义世界状态</span></article>
+            <article><strong>EventMeaning</strong><span>{worldSyncStatus.eventMeaning}</span></article>
+            <article><strong>PlaceProfile</strong><span>{worldSyncStatus.placeProfile}</span></article>
+            <article><strong>Layer 3</strong><span>{worldSyncStatus.layer3}</span></article>
+            <article><strong>Godot world_state.json</strong><span>{worldSyncStatus.godotWorldState}</span></article>
           </div>
         </section>
       </section>
@@ -536,11 +1460,35 @@ export function MemoryImportPage({ onNavigate }: { onNavigate: NavigateHandler }
       contentClassName="memory-child-stage"
       onNavigate={onNavigate}
     >
-      <MemoryRoomDashboard />
-      <details className="memory-deep-import">
-        <summary>详细导入工作台</summary>
+      <MemoryLibraryDashboard onNavigate={onNavigate} />
+    </AppShell>
+  );
+}
+
+export function MemoryCreatePage({ onNavigate }: { onNavigate: NavigateHandler }) {
+  return (
+    <AppShell
+      active="导入记忆"
+      className="office-dashboard memory-import-dashboard"
+      contentClassName="memory-child-stage"
+      onNavigate={onNavigate}
+    >
+      <section className="image-import-page" aria-label="导入图片记忆">
+        <header className="memory-import-header">
+          <div>
+            <h1>导入图片记忆</h1>
+            <p>先从单张 HEIC / JPEG 图片开始，确认 EXIF、地址证据和意义事件，再同步到世界状态。</p>
+          </div>
+          <a
+            href="/memory"
+            className="button-secondary memory-return-link"
+            onClick={(event) => onNavigate("memory", event)}
+          >
+            ← 返回记忆库
+          </a>
+        </header>
         <MediaMeaningWorkbench />
-      </details>
+      </section>
     </AppShell>
   );
 }
@@ -581,6 +1529,10 @@ export default function App() {
 
   if (view === "memory") {
     return <MemoryImportPage onNavigate={navigate} />;
+  }
+
+  if (view === "memoryImport") {
+    return <MemoryCreatePage onNavigate={navigate} />;
   }
 
   return <IslandHomePage onNavigate={navigate} />;

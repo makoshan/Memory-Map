@@ -1,4 +1,6 @@
 import { createEventMeaning } from "./eventMeaning";
+import type { AgentContextSnapshot, MediaAsset } from "./types";
+import type { WorldSyncEvidence } from "./worldSyncPipeline";
 
 export type MemoryItemType = "image" | "audio" | "note";
 
@@ -9,6 +11,7 @@ export type ProcessingFile = {
   lastModified: number;
   previewUrl?: string;
   noteText?: string;
+  syncEvidence?: WorldSyncEvidence;
 };
 
 export type MemoryItem = {
@@ -23,6 +26,7 @@ export type MemoryItem = {
   topics: string[];
   fileName: string;
   fileSize: number;
+  syncEvidence?: WorldSyncEvidence;
 };
 
 export type CityShare = {
@@ -72,7 +76,7 @@ function shortPreview(text: string) {
 
 export function buildMemoryItem(
   file: ProcessingFile,
-  options: { sequence: number; userNoteOverride?: string } = { sequence: 0 }
+  options: { sequence: number; userNoteOverride?: string; syncEvidence?: WorldSyncEvidence } = { sequence: 0 }
 ): MemoryItem {
   const capturedAt = new Date(file.lastModified).toISOString();
   const userNote = file.noteText ?? options.userNoteOverride ?? file.name;
@@ -116,7 +120,52 @@ export function buildMemoryItem(
     thumbnailUrl: file.previewUrl,
     topics: meaning.topics,
     fileName: file.name,
-    fileSize: file.size
+    fileSize: file.size,
+    syncEvidence: options.syncEvidence ?? file.syncEvidence
+  };
+}
+
+export function buildMediaAsset(file: ProcessingFile, item: MemoryItem, importedAt = new Date().toISOString()): MediaAsset {
+  return {
+    id: item.id,
+    type: item.type,
+    source: "file_import",
+    fileName: file.name,
+    text: file.noteText,
+    capturedAt: item.capturedAt,
+    importedAt,
+    placeHint: item.city ? { placeId: item.city } : undefined,
+    analysisStatus: "pending"
+  };
+}
+
+function normalizedFileName(name: string) {
+  return name.trim().toLowerCase();
+}
+
+export function findDuplicateMemoryItem(items: MemoryItem[], file: Pick<ProcessingFile, "name" | "size" | "type">) {
+  const name = normalizedFileName(file.name);
+  return items.find((item) =>
+    item.type === file.type &&
+    normalizedFileName(item.fileName) === name &&
+    item.fileSize === file.size
+  );
+}
+
+export function buildAgentContext(item: MemoryItem, importedAt = new Date().toISOString()): AgentContextSnapshot {
+  return {
+    id: `ctx-${item.id}`,
+    userId: "alex-chen",
+    createdAt: importedAt,
+    timeRange: item.capturedDate,
+    eventSummary: item.summary,
+    mediaAssetSummary: `1 ${item.type} · ${item.fileName}`,
+    placeProfileDiff: item.city ? `${item.city} memory weight +1` : "unbound location",
+    activeRisks: [],
+    activeOpportunities: item.topics,
+    todayTasks: [],
+    layer3Changes: item.city ? `${item.city} memory node refresh` : "memory_room update",
+    sentToHermes: false
   };
 }
 

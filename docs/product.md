@@ -203,6 +203,12 @@ type MediaAsset = {
   type: "image" | "note" | "audio"
   source: "file_import" | "drag_drop" | "share_sheet" | "camera" | "recorder" | "manual"
   file_path?: string
+  thumbnail_path?: string
+  mime_type?: string
+  file_size?: number
+  sha256?: string
+  exif_json?: string
+  sync_evidence_json?: string
   text?: string
   transcript?: string
   captured_at?: string
@@ -225,6 +231,15 @@ type MediaAsset = {
 - 所有导入材料先形成 MediaAsset，再由 Layer 1 判断是否生成或更新 Event。
 - Hermes Agent 只接收摘要、转写、标签和必要上下文，不默认读取原始文件全文或原始媒体。
 
+Tauri + SQLite 原生导入规则：
+
+- Mac 原生版以 SQLite 作为权威数据源，React 只负责选择文件、展示进度、预览结果和错误状态。
+- Tauri 导入命令负责复制原图、读取 EXIF、生成缩略图、计算 sha256 去重，并把元数据写入 SQLite。
+- 原图存本地文件系统，例如 App Data 下的 `media-assets/YYYY/MM/`；缩略图存 `thumbnails/`。
+- SQLite 只保存文件路径、缩略图路径、EXIF JSON、地址证据、Hermes 状态、世界同步证据和索引字段，不保存原图 base64。
+- 浏览器开发模式可以保留 localStorage 兜底，但只用于轻量预览和测试，不能作为生产存储方案。
+- 批量上传时，每个文件独立形成导入任务；单个失败不阻塞其他文件，错误写入 `hermes_analysis_jobs` 或导入任务记录。
+
 导入后的语义流程：
 
 ```text
@@ -235,6 +250,33 @@ type MediaAsset = {
 -> PlaceProfile / Opportunity / 今日任务
 -> Layer 3 世界变化
 ```
+
+图片导入不直接生成世界。单张图片只生成 `EventMeaning` 并进入“待聚合”状态，世界层只消费稳定后的地点画像。
+
+第一版世界同步阈值：
+
+- 同一地点至少 `10` 张图片或图片事件。
+- 至少 `2` 次不同时间访问，或事件时间间隔超过 `1` 小时。
+- 地址 / GPS 综合置信度 >= `0.8`。
+- Hermes 图片意义至少 `2` 条成功。
+
+同步流水线：
+
+```text
+EventMeaning
+已生成 1 / 10，等待更多图片
+
+PlaceProfile
+证据不足，同地点还需 9 张
+
+Layer 3
+等待地点画像稳定
+
+Godot world_state.json
+未导出
+```
+
+满足阈值后才生成或更新 `PlaceProfile`，再由 Layer 2 映射成 Layer 3 的建筑、区域、房间和解锁。`world_state.json` 只导出稳定语义结果，不导出每张原图。
 
 ### 5.2 PlaceProfile：地点画像
 
@@ -980,10 +1022,60 @@ Godot 不直接读取原始 GPS、照片、健康和财务明细。它只读取 
 
 ### 13.4 本地数据
 
-- SQLite 作为 MVP 主数据库。
-- 存储 Place、Trace、Event、MediaAsset、PlaceProfile、world_nodes、game_unlocks、opportunities 和 hermes_analysis_jobs。
-- 照片、音频和附件存本地文件系统，SQLite 保存索引和元数据。
-- 后期如需要多设备同步，再引入云端同步层。
+- Mac 原生版采用 Tauri + SQLite。SQLite 是 MVP 主数据库，也是记忆、地点画像、世界同步状态和 Hermes 分析任务的权威来源。
+- React 不直接把记忆写入 localStorage。React 通过 Tauri command 读写 SQLite，并订阅导入任务、分析任务和世界同步状态。
+- localStorage 只允许作为浏览器开发模式、单元测试或离线 UI demo 的轻量兜底；不得存储原图、音频、完整附件或长期记忆。
+- 照片、音频和附件存本地文件系统，SQLite 保存路径、sha256、缩略图路径、EXIF、地址证据、分析状态和同步证据。
+- 后期如需要多设备同步，再引入云端同步层；同步层消费 SQLite 中的结构化记录，不直接扫描 UI 状态。
+
+核心表：
+
+```text
+places
+traces
+events
+media_assets
+event_meanings
+place_profiles
+world_sync_evidence
+world_nodes
+game_unlocks
+opportunities
+hermes_analysis_jobs
+```
+
+`media_assets` 最小字段：
+
+```text
+id
+type
+source
+file_path
+thumbnail_path
+mime_type
+file_size
+sha256
+captured_at
+imported_at
+place_hint_json
+exif_json
+analysis_status
+```
+
+`event_meanings` 保存单张图片或单条材料生成的语义结果；`place_profiles` 保存同一地点达到阈值后的稳定画像；`world_sync_evidence` 保存 `EventMeaning -> PlaceProfile -> Layer 3 -> world_state.json` 的进度和置信度。
+
+Tauri command 边界：
+
+```text
+import_media_files(paths[])       复制文件、去重、读 EXIF、生成缩略图、写 SQLite
+list_memory_items(filter)         返回记忆页列表和缩略图引用
+get_media_preview(asset_id)       返回缩略图或安全的本地 asset URL
+enqueue_hermes_analysis(asset_id) 创建 Hermes 分析任务
+recompute_world_sync(place_id?)   按阈值重算 PlaceProfile 和世界同步状态
+export_world_state()              从稳定画像导出 godot/data/world_state.json
+```
+
+这条路线解决浏览器存储配额问题：批量上传 10 张或更多图片时，UI 只保存进度状态，原图和缩略图由 Tauri 文件系统管理，长期索引由 SQLite 管理。
 
 ### 13.5 AI
 
@@ -1000,7 +1092,7 @@ Godot 不直接读取原始 GPS、照片、健康和财务明细。它只读取 
 
 MVP 分三步集成：
 
-1. Tauri / React 生成 `world_state.json`，Godot 从 `godot/data/world_state.json` 读取。
+1. Tauri 从 SQLite 中读取稳定后的 `PlaceProfile` 和 `world_sync_evidence`，生成 `world_state.json`；Godot 从 `godot/data/world_state.json` 读取。
 2. Godot 原型独立运行，验证 Layer 3 的移动、点击、房间、解锁和环境表达。
 3. 通过 Godot Web export 嵌入 Tauri WebView，或通过 Tauri sidecar 启动 Godot native 运行时。
 

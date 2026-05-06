@@ -14,6 +14,49 @@ export type HermesPayload = {
   };
 };
 
+export type HermesImageMeaning = {
+  sceneSummary: string;
+  memoryMeaning: string;
+  topics: string[];
+  placeRoleHint: string;
+  confidence: number;
+};
+
+export type HermesImageMeaningInput = {
+  fileName: string;
+  imageDataUrl: string;
+  capturedAt?: string;
+  gps?: {
+    longitude: number;
+    latitude: number;
+    altitude?: number;
+    horizontalError?: number;
+  };
+  address?: {
+    formattedAddress?: string;
+    roads?: string[];
+    pois?: string[];
+  };
+};
+
+export type HermesImageMeaningRequest = {
+  model: "hermes-agent";
+  stream: false;
+  messages: Array<
+    | {
+        role: "system";
+        content: string;
+      }
+    | {
+        role: "user";
+        content: Array<
+          | { type: "text"; text: string }
+          | { type: "image_url"; image_url: { url: string; detail: "high" } }
+        >;
+      }
+  >;
+};
+
 export function createHermesPayload(context: AgentContextSnapshot): HermesPayload {
   return {
     sessionId: `memory-map-${context.userId}`,
@@ -89,6 +132,132 @@ export function createHermesMediaAnalysisPayload(asset: MediaAsset, context: Age
       analysisType: "media-analysis",
       mediaAssetType: asset.type
     }
+  };
+}
+
+export function createHermesImageMeaningRequest(input: HermesImageMeaningInput): HermesImageMeaningRequest {
+  const gpsLine = input.gps
+    ? [
+        `WGS84: ${input.gps.longitude}, ${input.gps.latitude}`,
+        input.gps.altitude === undefined ? undefined : `Altitude: ${input.gps.altitude} m`,
+        input.gps.horizontalError === undefined ? undefined : `Horizontal error: ${input.gps.horizontalError} m`
+      ].filter(Boolean).join("\n")
+    : "WGS84: unavailable";
+  const addressLine = input.address?.formattedAddress
+    ? [
+        `Amap address: ${input.address.formattedAddress}`,
+        `Roads: ${input.address.roads?.join(" / ") || "unknown"}`,
+        `POIs: ${input.address.pois?.join(" / ") || "unknown"}`
+      ].join("\n")
+    : "Amap address: unavailable";
+
+  return {
+    model: "hermes-agent",
+    stream: false,
+    messages: [
+      {
+        role: "system",
+        content: [
+          "You summarize image meaning for Memory Map.",
+          "Use the visual content as primary evidence and GPS/address as supporting evidence.",
+          "Do not invent private facts, identity, intent, or events that are not visible.",
+          "Return strict JSON only."
+        ].join("\n")
+      },
+      {
+        role: "user",
+        content: [
+          {
+            type: "text",
+            text: [
+              `File name: ${input.fileName}`,
+              `Captured at: ${input.capturedAt ?? "unknown"}`,
+              gpsLine,
+              addressLine,
+              "Return strict JSON with keys: sceneSummary, memoryMeaning, topics, placeRoleHint, confidence.",
+              "sceneSummary: one short Chinese sentence about what is visible.",
+              "memoryMeaning: one short Chinese sentence about why this belongs in a personal memory map.",
+              "topics: 2-5 short English tags.",
+              "placeRoleHint: one of memory, work, life, travel, finance, recovery, unknown.",
+              "confidence: number from 0 to 1."
+            ].join("\n")
+          },
+          {
+            type: "image_url",
+            image_url: {
+              url: input.imageDataUrl,
+              detail: "high"
+            }
+          }
+        ]
+      }
+    ]
+  };
+}
+
+function extractJsonObject(text: string) {
+  const trimmed = text.trim();
+  if (trimmed.startsWith("{") && trimmed.endsWith("}")) return trimmed;
+  const fenced = trimmed.match(/```(?:json)?\s*([\s\S]*?)```/i)?.[1]?.trim();
+  if (fenced?.startsWith("{") && fenced.endsWith("}")) return fenced;
+  const start = trimmed.indexOf("{");
+  const end = trimmed.lastIndexOf("}");
+  if (start >= 0 && end > start) return trimmed.slice(start, end + 1);
+  return trimmed;
+}
+
+function clampConfidence(value: unknown) {
+  const numeric = typeof value === "number" ? value : Number(value);
+  if (!Number.isFinite(numeric)) return 0.5;
+  return Math.max(0, Math.min(1, numeric));
+}
+
+export function parseHermesImageMeaningResponse(response: unknown): HermesImageMeaning {
+  const content = (response as { choices?: Array<{ message?: { content?: unknown } }> }).choices?.[0]?.message?.content;
+  if (typeof content !== "string" || content.trim().length === 0) {
+    throw new Error("Hermes image meaning response did not include assistant content");
+  }
+  const parsed = JSON.parse(extractJsonObject(content)) as Partial<HermesImageMeaning>;
+
+  return {
+    sceneSummary: String(parsed.sceneSummary || "图片画面已由 Hermes 处理，但未返回可用场景摘要。"),
+    memoryMeaning: String(parsed.memoryMeaning || "这张图片可作为一次地点记忆的视觉证据。"),
+    topics: Array.isArray(parsed.topics) ? parsed.topics.map(String).filter(Boolean).slice(0, 5) : ["memory", "photo"],
+    placeRoleHint: String(parsed.placeRoleHint || "unknown"),
+    confidence: clampConfidence(parsed.confidence)
+  };
+}
+
+export async function requestHermesImageMeaning(input: HermesImageMeaningInput) {
+  const baseUrl = (import.meta.env.VITE_HERMES_API_BASE_URL as string | undefined)?.replace(/\/$/, "");
+  const apiKey = import.meta.env.VITE_HERMES_API_KEY as string | undefined;
+  const payload = createHermesImageMeaningRequest(input);
+
+  if (!baseUrl || !apiKey) {
+    return {
+      status: "offline" as const,
+      payload
+    };
+  }
+
+  const response = await fetch(`${baseUrl}/chat/completions`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(payload)
+  });
+
+  if (!response.ok) {
+    throw new Error(`Hermes image meaning failed with ${response.status}`);
+  }
+
+  const data = await response.json();
+  return {
+    status: "sent" as const,
+    payload,
+    meaning: parseHermesImageMeaningResponse(data)
   };
 }
 

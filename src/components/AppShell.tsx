@@ -8,6 +8,7 @@ const navItems = [
   { label: "世界地图", icon: gameAssets.icons.mapPin, view: "world" },
   { label: "办公室", icon: gameAssets.icons.office, view: "office" },
   { label: "记忆馆", icon: gameAssets.icons.memory, view: "memory" },
+  { label: "导入记忆", icon: gameAssets.addon.icons.camera, view: "memoryImport" },
   { label: "财务楼", icon: gameAssets.icons.finance },
   { label: "生活区", icon: gameAssets.icons.life },
   { label: "AI 研究所", icon: gameAssets.icons.ai },
