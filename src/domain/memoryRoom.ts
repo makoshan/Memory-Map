@@ -26,6 +26,8 @@ export type MemoryItem = {
   topics: string[];
   fileName: string;
   fileSize: number;
+  filePath?: string;
+  sha256?: string;
   syncEvidence?: WorldSyncEvidence;
 };
 

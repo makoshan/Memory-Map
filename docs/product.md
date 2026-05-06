@@ -231,14 +231,18 @@ type MediaAsset = {
 - 所有导入材料先形成 MediaAsset，再由 Layer 1 判断是否生成或更新 Event。
 - Hermes Agent 只接收摘要、转写、标签和必要上下文，不默认读取原始文件全文或原始媒体。
 
-Tauri + SQLite 原生导入规则：
+Mac 原生导入规则：
 
-- Mac 原生版以 SQLite 作为权威数据源，React 只负责选择文件、展示进度、预览结果和错误状态。
-- Tauri 导入命令负责复制原图、读取 EXIF、生成缩略图、计算 sha256 去重，并把元数据写入 SQLite。
+- Mac 原生版以 SQLite 作为权威数据源，React 只负责展示页面、面板、文件导入进度、记忆馆、地图、任务和 AI 分析结果。
+- React / TypeScript 不直接读取原图、不直接解析生产 EXIF、不直接生成生产缩略图、不直接写 SQLite、不直接请求系统权限。
+- Tauri 负责打包 Mac App、启动和管理 Swift sidecar、提供 React 与 Swift sidecar 之间的 command bridge，并保留少量 Rust 命令做壳层协调。
+- Swift sidecar 是导入流水线和 SQLite 的唯一生产写入者：复制原图、读取 HEIC / JPEG / PNG EXIF、生成缩略图、计算 sha256 去重，并把元数据写入 SQLite。
 - 原图存本地文件系统，例如 App Data 下的 `media-assets/YYYY/MM/`；缩略图存 `thumbnails/`。
 - SQLite 只保存文件路径、缩略图路径、EXIF JSON、地址证据、Hermes 状态、世界同步证据和索引字段，不保存原图 base64。
 - 浏览器开发模式可以保留 localStorage 兜底，但只用于轻量预览和测试，不能作为生产存储方案。
 - 批量上传时，每个文件独立形成导入任务；单个失败不阻塞其他文件，错误写入 `hermes_analysis_jobs` 或导入任务记录。
+- 最稳通信链路固定为：`React -> Tauri command -> Swift sidecar -> SQLite / 文件系统 -> 结构化 JSON 结果 -> React`。
+- 不允许 React 直接调用 Swift，也不允许 React 和 Swift 同时写 SQLite。所有生产导入写入必须经过 Swift sidecar。
 
 导入后的语义流程：
 
@@ -1016,14 +1020,17 @@ Godot 不直接读取原始 GPS、照片、健康和财务明细。它只读取 
 
 这个合同把边界固定下来：
 
-- Tauri / React / TypeScript：App 外壳、Mapbox、SQLite、本地数据、Hermes Agent、任务、设置和详情面板。
+- React / TypeScript：页面、面板、状态展示、文件导入进度 UI、记忆馆、地图、任务和 AI 分析结果展示；只调用本地服务，不直接碰原图、SQLite 细节或系统权限。
+- Swift sidecar：文件选择后的导入流水线、HEIC / JPEG / PNG EXIF 解析、原图复制、缩略图生成、sha256 去重、SQLite 读写、通知、菜单栏和权限请求；后续扩展 Photos、Finder、Share Extension、Spotlight 等 Mac 能力。
+- Tauri：打包 Mac App，启动和管理 Swift sidecar，提供 React 与 Swift sidecar 的桥接命令，必要时保留少量 Rust 壳层协调。
 - Godot 4.6：Layer 3 游戏世界，不承担地图数据、数据库、Agent 编排和复杂表单。
 - `world_state.json`：两者之间的唯一 MVP 数据桥。
 
-### 13.4 本地数据
+### 13.4 本地数据与 Mac sidecar
 
-- Mac 原生版采用 Tauri + SQLite。SQLite 是 MVP 主数据库，也是记忆、地点画像、世界同步状态和 Hermes 分析任务的权威来源。
-- React 不直接把记忆写入 localStorage。React 通过 Tauri command 读写 SQLite，并订阅导入任务、分析任务和世界同步状态。
+- Mac 原生版采用 Tauri + Swift sidecar + SQLite。SQLite 是 MVP 主数据库，也是记忆、地点画像、世界同步状态和 Hermes 分析任务的权威来源。
+- Swift sidecar 是 SQLite 的唯一生产写入者。React 通过 Tauri command 请求导入、列表、预览、Hermes 入队和世界同步状态，不直接读写 SQLite 文件。
+- Tauri Rust 层只负责解析 App Data 路径、启动 sidecar、转发参数、解析 sidecar JSON 输出和返回错误；不把导入业务逻辑分散到 Rust 与 React 中。
 - localStorage 只允许作为浏览器开发模式、单元测试或离线 UI demo 的轻量兜底；不得存储原图、音频、完整附件或长期记忆。
 - 照片、音频和附件存本地文件系统，SQLite 保存路径、sha256、缩略图路径、EXIF、地址证据、分析状态和同步证据。
 - 后期如需要多设备同步，再引入云端同步层；同步层消费 SQLite 中的结构化记录，不直接扫描 UI 状态。
@@ -1064,18 +1071,35 @@ analysis_status
 
 `event_meanings` 保存单张图片或单条材料生成的语义结果；`place_profiles` 保存同一地点达到阈值后的稳定画像；`world_sync_evidence` 保存 `EventMeaning -> PlaceProfile -> Layer 3 -> world_state.json` 的进度和置信度。
 
-Tauri command 边界：
+Tauri command 与 sidecar 边界：
 
 ```text
-import_media_files(paths[])       复制文件、去重、读 EXIF、生成缩略图、写 SQLite
-list_memory_items(filter)         返回记忆页列表和缩略图引用
-get_media_preview(asset_id)       返回缩略图或安全的本地 asset URL
-enqueue_hermes_analysis(asset_id) 创建 Hermes 分析任务
-recompute_world_sync(place_id?)   按阈值重算 PlaceProfile 和世界同步状态
-export_world_state()              从稳定画像导出 godot/data/world_state.json
+React
+-> import_media_files(paths[])
+-> Tauri command
+-> Swift sidecar import-media --database <path> --media-root <path> --file <path>
+-> SQLite / App Data media files
+-> { items: MemoryItem[] }
 ```
 
-这条路线解决浏览器存储配额问题：批量上传 10 张或更多图片时，UI 只保存进度状态，原图和缩略图由 Tauri 文件系统管理，长期索引由 SQLite 管理。
+第一阶段 command：
+
+```text
+import_media_files(paths[])       Tauri 启动 Swift sidecar；Swift 复制文件、去重、读 EXIF、生成缩略图、写 SQLite
+list_memory_items(filter)         Swift 从 SQLite 返回记忆页列表和缩略图引用
+get_media_preview(asset_id)       Tauri/Swift 返回缩略图或安全的本地 asset URL
+enqueue_hermes_analysis(asset_id) Swift 创建 Hermes 分析任务，Tauri 负责转发状态
+recompute_world_sync(place_id?)   Swift 按阈值重算 PlaceProfile 和世界同步状态
+export_world_state()              Tauri 从稳定画像导出 godot/data/world_state.json
+```
+
+这条路线解决浏览器存储配额问题：批量上传 10 张或更多图片时，UI 只保存进度状态，原图和缩略图由 Swift sidecar 管理，长期索引由 SQLite 管理。
+
+Mac 能力扩展顺序：
+
+1. 文件导入、EXIF、缩略图、sha256、SQLite 单写者。
+2. 通知、菜单栏、权限请求和导入任务状态。
+3. Photos、Finder、Share Extension、Spotlight。
 
 ### 13.5 AI
 

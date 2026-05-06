@@ -1,6 +1,8 @@
 use rusqlite::Connection;
 use serde::Serialize;
 use std::fs;
+use std::path::PathBuf;
+use std::process::Command;
 use tauri::Manager;
 
 #[derive(Serialize)]
@@ -160,10 +162,87 @@ fn init_database(app: tauri::AppHandle) -> Result<DatabaseStatus, String> {
     })
 }
 
+#[tauri::command]
+fn import_media_files(app: tauri::AppHandle, paths: Vec<String>) -> Result<serde_json::Value, String> {
+    if paths.is_empty() {
+        return Ok(serde_json::json!({ "items": [] }));
+    }
+
+    let data_dir = app
+        .path()
+        .app_data_dir()
+        .map_err(|error| format!("Unable to resolve app data directory: {error}"))?;
+    fs::create_dir_all(&data_dir)
+        .map_err(|error| format!("Unable to create app data directory: {error}"))?;
+
+    let database_path = data_dir.join("memory-map.sqlite");
+    let media_root = data_dir.join("media");
+    let mut command = sidecar_command(&app)?;
+    command
+        .arg("import-media")
+        .arg("--database")
+        .arg(database_path)
+        .arg("--media-root")
+        .arg(media_root);
+
+    for path in paths {
+        command.arg("--file").arg(path);
+    }
+
+    let output = command
+        .output()
+        .map_err(|error| format!("Unable to start Swift media sidecar: {error}"))?;
+    if !output.status.success() {
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        return Err(format!("Swift media sidecar failed: {stderr}"));
+    }
+
+    serde_json::from_slice(&output.stdout)
+        .map_err(|error| format!("Unable to parse Swift media sidecar output: {error}"))
+}
+
+fn sidecar_command(app: &tauri::AppHandle) -> Result<Command, String> {
+    if let Ok(binary_path) = std::env::var("MEMORY_MAP_SIDECAR_BIN") {
+        return Ok(Command::new(binary_path));
+    }
+
+    if let Ok(resource_dir) = app.path().resource_dir() {
+        let bundled = resource_dir.join("MemoryMapSidecar");
+        if bundled.exists() {
+            return Ok(Command::new(bundled));
+        }
+    }
+
+    let package_path = dev_sidecar_package_path()?;
+    let mut command = Command::new("swift");
+    command
+        .arg("run")
+        .arg("--quiet")
+        .arg("--package-path")
+        .arg(package_path)
+        .arg("MemoryMapSidecar");
+    Ok(command)
+}
+
+fn dev_sidecar_package_path() -> Result<PathBuf, String> {
+    let manifest_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+    let repo_root = manifest_dir
+        .parent()
+        .ok_or_else(|| "Unable to resolve repository root for Swift sidecar".to_string())?;
+    let package_path = repo_root.join("native").join("MemoryMapSidecar");
+    if !package_path.exists() {
+        return Err(format!(
+            "Swift sidecar package is missing at {}",
+            package_path.to_string_lossy()
+        ));
+    }
+    Ok(package_path)
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![init_database])
+        .invoke_handler(tauri::generate_handler![init_database, import_media_files])
         .run(tauri::generate_context!())
         .expect("error while running Memory Map");
 }

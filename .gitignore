@@ -5,6 +5,7 @@ dist/
 .env.*
 !.env.example
 src-tauri/target/
+native/**/.build/
 .playwright-mcp/
 work/runs/
 __pycache__/
