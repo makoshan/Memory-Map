@@ -15,6 +15,20 @@ public struct NativeWorldSyncEvidence: Codable, Sendable {
     public let capturedAt: String
     public let locationConfidence: Double
     public let hermesSucceeded: Bool
+
+    public init(
+        placeKey: String,
+        placeName: String,
+        capturedAt: String,
+        locationConfidence: Double,
+        hermesSucceeded: Bool
+    ) {
+        self.placeKey = placeKey
+        self.placeName = placeName
+        self.capturedAt = capturedAt
+        self.locationConfidence = locationConfidence
+        self.hermesSucceeded = hermesSucceeded
+    }
 }
 
 public struct NativeMemoryItem: Codable, Sendable {
@@ -32,6 +46,38 @@ public struct NativeMemoryItem: Codable, Sendable {
     public let filePath: String
     public let sha256: String
     public let syncEvidence: NativeWorldSyncEvidence?
+
+    public init(
+        id: String,
+        type: String,
+        title: String,
+        summary: String,
+        city: String?,
+        capturedAt: String,
+        capturedDate: String,
+        thumbnailUrl: String?,
+        topics: [String],
+        fileName: String,
+        fileSize: Int64,
+        filePath: String,
+        sha256: String,
+        syncEvidence: NativeWorldSyncEvidence?
+    ) {
+        self.id = id
+        self.type = type
+        self.title = title
+        self.summary = summary
+        self.city = city
+        self.capturedAt = capturedAt
+        self.capturedDate = capturedDate
+        self.thumbnailUrl = thumbnailUrl
+        self.topics = topics
+        self.fileName = fileName
+        self.fileSize = fileSize
+        self.filePath = filePath
+        self.sha256 = sha256
+        self.syncEvidence = syncEvidence
+    }
 }
 
 public struct MediaImportService {
