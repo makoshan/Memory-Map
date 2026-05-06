@@ -36,18 +36,16 @@ struct WorldCanvas: View {
             RoundedRectangle(cornerRadius: 8, style: .continuous)
                 .fill(
                     LinearGradient(
-                        colors: [Color(hex: 0x74D5FF), Color(hex: 0x1F9FE2), Color(hex: 0x0577C8)],
+                        colors: [Color(hex: 0x63CBF3), Color(hex: 0x2EA9E0), Color(hex: 0x0878C2)],
                         startPoint: .top,
                         endPoint: .bottom
                     )
                 )
 
-            AssetImage("public/assets/generated/v2/sprites/world-map-panel.png")
-                .frame(width: 680, height: 375)
-                .opacity(0.78)
-                .position(x: 365, y: 255)
-
+            SkylineBackdrop()
             DecorativeClouds()
+            WaterTexture()
+            BridgeLayer()
 
             ForEach(layout.worldBuildings, id: \.title) { building in
                 WorldBuildingMarker(building: building)
@@ -82,6 +80,93 @@ struct WorldCanvas: View {
             RoundedRectangle(cornerRadius: 8, style: .continuous)
                 .stroke(Theme.border, lineWidth: 1)
         )
+    }
+}
+
+struct SkylineBackdrop: View {
+    private let columns: [(CGFloat, CGFloat, CGFloat)] = [
+        (55, 78, 0.24), (86, 118, 0.18), (128, 62, 0.20), (455, 76, 0.18),
+        (487, 112, 0.16), (528, 82, 0.20), (590, 132, 0.14), (632, 92, 0.18)
+    ]
+
+    var body: some View {
+        ZStack(alignment: .bottom) {
+            LinearGradient(
+                colors: [Color.white.opacity(0.46), Color.white.opacity(0.08)],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .frame(height: 150)
+            .position(x: 365, y: 128)
+
+            ForEach(Array(columns.enumerated()), id: \.offset) { _, column in
+                RoundedRectangle(cornerRadius: 2)
+                    .fill(Color(hex: 0x3D7199).opacity(column.2))
+                    .frame(width: 18, height: column.1)
+                    .position(x: column.0, y: 178 - column.1 / 2)
+            }
+        }
+        .frame(width: 730, height: 220)
+        .position(x: 365, y: 120)
+    }
+}
+
+struct WaterTexture: View {
+    var body: some View {
+        ZStack {
+            ForEach(0..<18, id: \.self) { index in
+                Capsule()
+                    .fill(Color.white.opacity(index.isMultiple(of: 3) ? 0.16 : 0.08))
+                    .frame(width: CGFloat(36 + (index % 5) * 24), height: 2)
+                    .position(
+                        x: CGFloat(44 + (index * 47) % 650),
+                        y: CGFloat(210 + (index * 29) % 250)
+                    )
+            }
+            AssetImage("public/assets/game/sprites/lighthouse-island.png")
+                .frame(width: 92, height: 76)
+                .position(x: 625, y: 392)
+            AssetImage("public/assets/game/sprites/reed-patch.png")
+                .frame(width: 62, height: 54)
+                .position(x: 318, y: 442)
+            AssetImage("public/assets/game/sprites/flower-patch.png")
+                .frame(width: 58, height: 48)
+                .position(x: 420, y: 438)
+            AssetImage("public/assets/game/sprites/wood-bridge.png")
+                .frame(width: 78, height: 34)
+                .rotationEffect(.degrees(-12))
+                .position(x: 390, y: 336)
+        }
+        .frame(width: 730, height: 500)
+    }
+}
+
+struct BridgeLayer: View {
+    var body: some View {
+        ZStack {
+            BridgeSegment(width: 110, angle: -17, x: 270, y: 285)
+            BridgeSegment(width: 104, angle: 20, x: 445, y: 300)
+            BridgeSegment(width: 96, angle: -8, x: 560, y: 330)
+        }
+    }
+}
+
+struct BridgeSegment: View {
+    let width: CGFloat
+    let angle: Double
+    let x: CGFloat
+    let y: CGFloat
+
+    var body: some View {
+        RoundedRectangle(cornerRadius: 4)
+            .fill(Color(hex: 0xA56F3A).opacity(0.82))
+            .overlay(
+                RoundedRectangle(cornerRadius: 4)
+                    .stroke(Color(hex: 0x6B4A2A).opacity(0.65), lineWidth: 1)
+            )
+            .frame(width: width, height: 10)
+            .rotationEffect(.degrees(angle))
+            .position(x: x, y: y)
     }
 }
 
@@ -175,7 +260,7 @@ struct WorldBuildingMarker: View {
                     .stroke(Color.white.opacity(0.9), lineWidth: 1)
             )
             AssetImage(building.assetPath)
-                .frame(width: 106, height: 82)
+                .frame(width: 132, height: 104)
         }
         .shadow(color: Color.black.opacity(0.12), radius: 10, y: 7)
         .help(building.role)

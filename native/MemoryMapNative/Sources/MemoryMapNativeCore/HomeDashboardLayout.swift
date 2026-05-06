@@ -31,12 +31,12 @@ public struct HomeDashboardLayout: Equatable, Sendable {
             HomeSidebarItem(title: "AI 员工", subtitle: "我的团队", systemImage: "desktopcomputer")
         ],
         worldBuildings: [
-            HomeWorldBuilding(title: "办公室", level: "Lv.8", role: "work", assetPath: "public/assets/generated/v2/sprites/office-lv3.png", x: 0.25, y: 0.24),
-            HomeWorldBuilding(title: "记忆馆", level: "Lv.7", role: "memory", assetPath: "public/assets/generated/v2/sprites/memory-lv3.png", x: 0.52, y: 0.27),
-            HomeWorldBuilding(title: "财务楼", level: "Lv.6", role: "finance", assetPath: "public/assets/generated/v2/sprites/finance-lv3.png", x: 0.78, y: 0.34),
-            HomeWorldBuilding(title: "生活区", level: "Lv.5", role: "life", assetPath: "public/assets/generated/v2/sprites/life-lv2.png", x: 0.14, y: 0.58),
-            HomeWorldBuilding(title: "家", level: "Lv.10", role: "home", assetPath: "public/assets/generated/v2/sprites/home-lv3.png", x: 0.50, y: 0.64),
-            HomeWorldBuilding(title: "AI 研究所", level: "Lv.7", role: "ai", assetPath: "public/assets/generated/v2/sprites/ai-lab-lv3.png", x: 0.82, y: 0.66)
+            HomeWorldBuilding(title: "办公室", level: "Lv.8", role: "work", assetPath: "public/assets/game/sprites/office-island.png", x: 0.24, y: 0.31),
+            HomeWorldBuilding(title: "记忆馆", level: "Lv.7", role: "memory", assetPath: "public/assets/game/sprites/memory-museum-island.png", x: 0.49, y: 0.28),
+            HomeWorldBuilding(title: "财务楼", level: "Lv.6", role: "finance", assetPath: "public/assets/game/sprites/finance-tower-island.png", x: 0.76, y: 0.35),
+            HomeWorldBuilding(title: "生活区", level: "Lv.5", role: "life", assetPath: "public/assets/game/sprites/recovery-garden-island.png", x: 0.16, y: 0.61),
+            HomeWorldBuilding(title: "家", level: "Lv.10", role: "home", assetPath: "public/assets/game/sprites/home-base-island.png", x: 0.50, y: 0.63),
+            HomeWorldBuilding(title: "AI 研究所", level: "Lv.7", role: "ai", assetPath: "public/assets/game/sprites/ai-research-lab-island.png", x: 0.80, y: 0.67)
         ],
         primaryStatusMetrics: [
             HomeStatusMetric(title: "时间", value: "68%", caption: "8.2h / 12h", tintHex: 0x4B9CFF),
