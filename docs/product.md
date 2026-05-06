@@ -96,7 +96,7 @@ type Trace = {
 ### 4.3 输入来源
 
 - GPS 与移动轨迹。
-- Mapbox POI。
+- Apple MapKit / CoreLocation POI。
 - 照片与视频定位信息。
 - 用户手动导入的图片、笔记和音频。
 - 天气与环境 API。
@@ -233,16 +233,16 @@ type MediaAsset = {
 
 Mac 原生导入规则：
 
-- Mac 原生版以 SwiftUI app 和 `MemoryMapNativeCore` 作为权威应用层，Swift sidecar 负责耐久媒体导入、缩略图、EXIF 和 SQLite 写入。
-- SwiftUI 负责页面、面板、文件导入进度、记忆馆、地图、任务和 AI 分析结果。
-- `MemoryMapNative` 打包 Mac App，`MemoryMapSidecarCore` 提供可复用的本机媒体导入服务。
-- Swift sidecar 是导入流水线和 SQLite 的唯一生产写入者：复制原图、读取 HEIC / JPEG / PNG EXIF、生成缩略图、计算 sha256 去重，并把元数据写入 SQLite。
+- Mac 原生版以 SwiftUI app 和 `MemoryMapNativeCore` 作为权威应用层，原生核心负责耐久媒体导入、缩略图、EXIF 和持久化写入。
+- SwiftUI 负责页面、面板、文件导入进度、记忆馆、地图、任务和 AI 分析结果，只通过 `MemoryMapStore` 调用核心服务。
+- `MemoryMapNative` 打包 Mac App，`MemoryMapSidecarCore` 提供可复用的本机媒体导入能力。
+- 原生核心是导入流水线和持久化仓库的唯一生产写入者：复制原图、读取 HEIC / JPEG / PNG EXIF、生成缩略图、计算 sha256 去重，并把元数据写入本地数据源。
 - 原图存本地文件系统，例如 App Data 下的 `media-assets/YYYY/MM/`；缩略图存 `thumbnails/`。
 - SQLite 只保存文件路径、缩略图路径、EXIF JSON、地址证据、Hermes 状态、世界同步证据和索引字段，不保存原图 base64。
-- 浏览器开发模式可以保留轻量预览存储兜底，但只用于预览和测试，不能作为生产存储方案。
+- SwiftUI 预览和单元测试可以使用轻量 JSON fixture，但只用于预览和测试，不能作为生产存储方案。
 - 批量上传时，每个文件独立形成导入任务；单个失败不阻塞其他文件，错误写入 `hermes_analysis_jobs` 或导入任务记录。
-- 最稳通信链路固定为：`SwiftUI -> MemoryMapNativeCore -> MemoryMapSidecarCore -> SQLite / 文件系统 -> 结构化 Swift 模型`。
-- 不允许多个进程同时写 SQLite。所有生产导入写入必须经过 Swift sidecar。
+- 最稳通信链路固定为：`SwiftUI -> MemoryMapStore -> MemoryMapNativeCore -> 本地文件系统 / 持久化仓库 -> 结构化 Swift 模型`。
+- 所有生产导入写入必须经过 `MemoryMapNativeCore`，避免 UI、游戏层和数据层多头写入。
 
 导入后的语义流程：
 
@@ -601,7 +601,7 @@ Hermes Agent 的价值不在一次性问答，而在长期陪伴、跨会话记�
 - 从历史对话和任务中学习，沉淀成技能。
 - 基于过去事件和当前语义状态给出建议。
 - 定期生成日报、周报、提醒和复盘。
-- 通过 CLI、gateway 或本地 sidecar 与 Tauri 应用连接。
+- 通过 CLI、gateway 或本地服务与 SwiftUI 原生应用连接。
 
 Memory Map 接入 NousResearch 的 `hermes-agent` 作为分析底座。Hermes 的定位是带长期学习闭环的个人 Agent：它可以从经验中形成技能，检索过去会话，维护跨会话的用户模型，并通过 CLI 或 gateway 与外部入口连接。Memory Map 使用这些能力来分析导入材料、解释地点变化和生成机会，但不把 Hermes 当作原始数据仓库。
 
@@ -779,7 +779,7 @@ Memory Map 的核心闭环：
 
 ### 10.1 Layer 0
 
-- Mapbox 地图。
+- 原生地图 / 地点列表。
 - GPS 轨迹。
 - 基础地点记录。
 - 图片导入。
