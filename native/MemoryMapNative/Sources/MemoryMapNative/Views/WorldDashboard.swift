@@ -21,7 +21,7 @@ struct WorldDashboard: View {
                         ("心情", "82%")
                     ])
                     WorldSyncStatusCard(status: store.worldSyncStatus, exported: store.worldExported) {
-                        store.markWorldExported()
+                        store.exportGodotWorldStateWithPanel()
                     }
                     CityDistributionCard(rows: store.cityRows, total: store.memories.count)
                 }

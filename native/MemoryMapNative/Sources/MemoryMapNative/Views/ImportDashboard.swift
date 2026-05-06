@@ -29,9 +29,57 @@ struct ImportDashboard: View {
                     }
                 }
                 ImportProgressCard(steps: store.lastImportSteps)
+                ImportEvidenceCard(
+                    gps: store.lastGpsEvidenceLabel,
+                    address: store.lastAddressLabel,
+                    hermes: store.lastHermesPreview,
+                    world: store.worldSyncStatus.layer3
+                )
                 MemoryGrid(items: store.memories)
             }
         }
+    }
+}
+
+struct ImportEvidenceCard: View {
+    let gps: String
+    let address: String
+    let hermes: String
+    let world: String
+
+    var body: some View {
+        Card {
+            VStack(alignment: .leading, spacing: 14) {
+                Text("证据面板")
+                    .font(.headline)
+                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+                    EvidenceMiniPanel(title: "EXIF GPS", value: gps)
+                    EvidenceMiniPanel(title: "Amap provider", value: address)
+                    EvidenceMiniPanel(title: "Hermes image meaning", value: hermes)
+                    EvidenceMiniPanel(title: "World sync evidence", value: world)
+                }
+            }
+        }
+    }
+}
+
+struct EvidenceMiniPanel: View {
+    let title: String
+    let value: String
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text(title)
+                .font(.caption.bold())
+                .foregroundStyle(Theme.subText)
+            Text(value)
+                .font(.caption)
+                .lineLimit(4)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .padding(12)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Theme.soft, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
 }
 

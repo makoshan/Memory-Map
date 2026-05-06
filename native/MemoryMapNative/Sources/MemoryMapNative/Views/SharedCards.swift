@@ -68,9 +68,8 @@ struct WorldSyncStatusCard: View {
                 Button {
                     onExport()
                 } label: {
-                    Label(exported ? "已标记导出" : "标记世界导出", systemImage: "square.and.arrow.up")
+                    Label(exported ? "已导出世界状态" : "导出 world_state.json", systemImage: "square.and.arrow.up")
                 }
-                .disabled(exported)
             }
         }
     }

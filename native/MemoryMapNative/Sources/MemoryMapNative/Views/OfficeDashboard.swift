@@ -10,6 +10,10 @@ struct OfficeDashboard: View {
                         TaskPanel()
                         ProjectPanel()
                     }
+                    HStack(spacing: 14) {
+                        EmployeePanel()
+                        MonthlyPanel()
+                    }
                 }
                 RightRail {
                     StatListCard(title: "建筑属性", rows: [
@@ -21,6 +25,107 @@ struct OfficeDashboard: View {
                     UpgradeCard(title: "下一等级", value: "Lv.9", bullets: ["面积 +100", "效率 +15%", "员工上限 +1"])
                 }
             }
+        }
+    }
+}
+
+struct EmployeePanel: View {
+    private let employees = [
+        ("Emma", "研究员", "项目研究", "public/assets/game/sprites/agent-researcher.png", true),
+        ("Lily", "设计师", "界面设计", "public/assets/game/sprites/agent-designer.png", true),
+        ("Max", "分析师", "数据分析", "public/assets/game/sprites/agent-analyst.png", true),
+        ("David", "数据师", "数据处理", "public/assets/game/sprites/agent-data.png", false),
+        ("Kate", "助理", "设计支持", "public/assets/game/sprites/agent-assistant.png", true),
+        ("Bot-01", "执行助手", "执行中", "public/assets/game/sprites/agent-bot.png", true)
+    ]
+
+    var body: some View {
+        Card {
+            VStack(alignment: .leading, spacing: 12) {
+                HStack {
+                    Text("AI 员工").font(.headline)
+                    Spacer()
+                    Text("6 / 6").font(.caption).foregroundStyle(Theme.subText)
+                }
+                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
+                    ForEach(employees, id: \.0) { employee in
+                        HStack(spacing: 10) {
+                            AssetImage(employee.3).frame(width: 42, height: 42)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(employee.0).font(.caption.bold())
+                                Text(employee.1).font(.caption2).foregroundStyle(Theme.subText)
+                                Text(employee.2).font(.caption2).foregroundStyle(Theme.subText)
+                            }
+                            Spacer(minLength: 4)
+                            Circle().fill(employee.4 ? Theme.success : Theme.warning).frame(width: 8, height: 8)
+                        }
+                        .padding(8)
+                        .background(Theme.soft, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                    }
+                }
+            }
+        }
+    }
+}
+
+struct MonthlyPanel: View {
+    private let kpis = [
+        ("收入 (CNY)", "¥ 2,568,700", "+12.5%"),
+        ("项目完成", "18", "+20%"),
+        ("专注时长", "136h", "+15%")
+    ]
+    private let chartPoints: [Double] = [10, 24, 44, 36, 64, 78, 72, 58, 92, 82, 70, 68, 78]
+
+    var body: some View {
+        Card {
+            VStack(alignment: .leading, spacing: 12) {
+                HStack {
+                    Text("月度指标").font(.headline)
+                    Spacer()
+                    Text("May 2026").font(.caption).foregroundStyle(Theme.subText)
+                }
+                HStack(spacing: 10) {
+                    ForEach(kpis, id: \.0) { kpi in
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(kpi.0)
+                                .font(.caption2)
+                                .foregroundStyle(Theme.subText)
+                            Text(kpi.1)
+                                .font(.caption.bold())
+                            Text(kpi.2)
+                                .font(.caption2.bold())
+                                .foregroundStyle(Theme.success)
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                }
+                MonthlyLine(points: chartPoints)
+                    .frame(height: 110)
+            }
+        }
+    }
+}
+
+struct MonthlyLine: View {
+    let points: [Double]
+
+    var body: some View {
+        GeometryReader { geometry in
+            Path { path in
+                guard let minValue = points.min(), let maxValue = points.max(), maxValue > minValue else { return }
+                for (index, value) in points.enumerated() {
+                    let x = geometry.size.width * CGFloat(index) / CGFloat(Swift.max(1, points.count - 1))
+                    let normalized = (value - minValue) / (maxValue - minValue)
+                    let y = geometry.size.height * CGFloat(1 - normalized)
+                    if index == 0 {
+                        path.move(to: CGPoint(x: x, y: y))
+                    } else {
+                        path.addLine(to: CGPoint(x: x, y: y))
+                    }
+                }
+            }
+            .stroke(Theme.primary, style: StrokeStyle(lineWidth: 3, lineCap: .round, lineJoin: .round))
+            .background(Theme.soft, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
         }
     }
 }

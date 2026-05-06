@@ -16,6 +16,14 @@ cd native/MemoryMapNative
 swift test
 ```
 
+## Build .app
+
+```bash
+cd native/MemoryMapNative
+scripts/build-native-app.sh
+open ".build/app/Memory Map.app"
+```
+
 ## Current Scope
 
 - Native `NavigationSplitView` shell for World Map, Office, Memory Room, and Import Lab.
@@ -24,7 +32,7 @@ swift test
 - `MemoryMapNativeCore` ports city detection, media type inference, memory samples, and city grouping into testable Swift.
 - The Import Lab uses `NSOpenPanel` and local inference to create memory cards.
 - Memory cards, Hermes queue state, and world export state persist to Application Support as JSON.
-- Swift ports now cover the React/Tauri equivalents for import progress, duplicate detection, local store, Hermes offline jobs, and world sync thresholds.
+- Swift ports now cover the React/Tauri equivalents for import progress, duplicate detection, local store, sidecar media import, EventMeaning, Amap parsing, Hermes request previews, Godot export, image inline data sizing, and world sync thresholds.
 
 The existing `native/MemoryMapSidecar` package can be folded in next for durable SQLite storage, thumbnails, and EXIF evidence.
 

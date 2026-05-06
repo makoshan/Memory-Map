@@ -16,6 +16,9 @@ final class MemoryMapStore: ObservableObject {
         exifStatus: .empty,
         meaningGenerated: false
     )
+    @Published private(set) var lastGpsEvidenceLabel = "等待导入图片后读取 EXIF GPS"
+    @Published private(set) var lastAddressLabel = "Amap provider 未配置，当前使用本机证据"
+    @Published private(set) var lastHermesPreview = "Hermes 在线分析未开启，导入后会生成离线任务"
 
     private let repository: MemoryLibraryRepository
     private let importPipeline = MemoryImportPipeline()
@@ -41,6 +44,9 @@ final class MemoryMapStore: ObservableObject {
 
     var worldSyncStatus: WorldSyncStatus {
         let evidence = memories.compactMap { item -> WorldSyncEvidence? in
+            if let syncEvidence = item.syncEvidence {
+                return syncEvidence
+            }
             guard let city = item.city else { return nil }
             return WorldSyncEvidence(
                 placeKey: "city:\(city)",
@@ -106,6 +112,34 @@ final class MemoryMapStore: ObservableObject {
         persist()
     }
 
+    func exportGodotWorldStateWithPanel() {
+        let panel = NSSavePanel()
+        panel.nameFieldStringValue = "world_state.json"
+        panel.message = "导出给 Godot Layer 3 使用的原生 world_state.json。"
+        guard panel.runModal() == .OK, let url = panel.url else { return }
+        do {
+            try exportGodotWorldState(to: url)
+            importMessage = "已导出 world_state.json：\(url.lastPathComponent)"
+        } catch {
+            importMessage = "world_state.json 导出失败：\(error.localizedDescription)"
+        }
+    }
+
+    func exportGodotWorldState(to url: URL) throws {
+        let state = GodotWorldState.create(
+            input: GodotWorldStateInput(
+                memories: memories,
+                worldSpots: SampleWorld.spots,
+                generatedAt: ISO8601DateFormatter().string(from: Date())
+            )
+        )
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+        try encoder.encode(state).write(to: url, options: [.atomic])
+        worldExported = true
+        persist()
+    }
+
     private func refreshImportProgress(for result: MemoryImportResult) {
         let importedImages = result.items.filter { $0.type == .image }
         lastImportSteps = ImportProgressBuilder.imageSteps(
@@ -124,6 +158,36 @@ final class MemoryMapStore: ObservableObject {
 
         let duplicateText = result.duplicates.isEmpty ? "" : "，跳过 \(result.duplicates.count) 个重复项"
         importMessage = "已导入 \(result.items.count) 条记忆\(duplicateText)，世界地图和记忆馆已刷新。"
+        refreshEvidenceLabels(for: result.items)
+    }
+
+    private func refreshEvidenceLabels(for items: [MemoryItem]) {
+        if let evidence = items.compactMap(\.syncEvidence).first {
+            lastGpsEvidenceLabel = "\(evidence.placeName ?? evidence.placeKey) · confidence \(evidence.locationConfidence)"
+        } else if items.contains(where: { $0.type == .image }) {
+            lastGpsEvidenceLabel = "未得到可用 GPS，等待补充证据"
+        } else {
+            lastGpsEvidenceLabel = "当前导入未包含图片 EXIF GPS"
+        }
+
+        lastAddressLabel = items.compactMap(\.city).first.map { "\($0) · 来自文件名/笔记/sidecar 证据" }
+            ?? "未获得城市或 Amap 地址"
+
+        if let first = items.first {
+            let request = HermesClient.createImageMeaningRequest(
+                input: HermesImageMeaningInput(
+                    fileName: first.fileName,
+                    capturedAt: ISO8601DateFormatter().string(from: first.capturedAt),
+                    gpsEvidence: first.syncEvidence,
+                    address: first.city,
+                    userNote: first.summary,
+                    inlineImageDataURL: first.thumbnailPath ?? first.filePath ?? "memory-map://media/unavailable"
+                )
+            )
+            lastHermesPreview = request.prompt
+        } else {
+            lastHermesPreview = "Hermes 在线分析未开启，导入后会生成离线任务"
+        }
     }
 
     private func persist() {
