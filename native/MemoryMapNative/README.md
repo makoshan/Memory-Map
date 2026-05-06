@@ -36,13 +36,13 @@ open ".build/app/Memory Map.app"
 
 The existing `native/MemoryMapSidecar` package can be folded in next for durable SQLite storage, thumbnails, and EXIF evidence.
 
-## React/Tauri Parity Map
+## Native Parity Map
 
-| Existing area | Native SwiftUI replacement |
+| Previous area | Native SwiftUI replacement |
 | --- | --- |
-| `src/App.tsx` routes | `NavigationSplitView` sections: World Map, Office, Memory Room, Import Lab |
-| `src/components/MemoryRoom.tsx` | `MemoryDashboard`, `ImportDashboard`, native file picker, memory cards |
-| `src/domain/memoryRoom.ts` | `MemoryModels.swift`, `ImportPipeline.swift` |
-| `src/domain/worldSyncPipeline.ts` | `WorldSyncPipeline.swift` |
-| `src/integrations/localStore.ts` | `MemoryLibraryRepository.swift` |
+| Web routes | `NavigationSplitView` sections: World Map, Office, Memory Room, Import Lab |
+| Memory room UI | `MemoryDashboard`, `ImportDashboard`, native file picker, memory cards |
+| Memory domain logic | `MemoryModels.swift`, `ImportPipeline.swift` |
+| World sync logic | `WorldSyncPipeline.swift`, `WorldSnapshot.swift` |
+| Browser persistence | `MemoryLibraryRepository.swift` |
 | Tauri `import_media_files` bridge | Swift-native import pipeline, ready to merge with `MemoryMapSidecarCore` |

@@ -1,14 +1,10 @@
 .DS_Store
-node_modules/
-node_modules
 outputs/
-dist/
 .env
 .env.*
 !.env.example
-src-tauri/target/
 native/**/.build/
-.playwright-mcp/
+native/MemoryMapNative/.build/app/
 .worktrees/
 work/runs/
 __pycache__/

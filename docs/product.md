@@ -233,16 +233,16 @@ type MediaAsset = {
 
 Mac 原生导入规则：
 
-- Mac 原生版以 SQLite 作为权威数据源，React 只负责展示页面、面板、文件导入进度、记忆馆、地图、任务和 AI 分析结果。
-- React / TypeScript 不直接读取原图、不直接解析生产 EXIF、不直接生成生产缩略图、不直接写 SQLite、不直接请求系统权限。
-- Tauri 负责打包 Mac App、启动和管理 Swift sidecar、提供 React 与 Swift sidecar 之间的 command bridge，并保留少量 Rust 命令做壳层协调。
+- Mac 原生版以 SwiftUI app 和 `MemoryMapNativeCore` 作为权威应用层，Swift sidecar 负责耐久媒体导入、缩略图、EXIF 和 SQLite 写入。
+- SwiftUI 负责页面、面板、文件导入进度、记忆馆、地图、任务和 AI 分析结果。
+- `MemoryMapNative` 打包 Mac App，`MemoryMapSidecarCore` 提供可复用的本机媒体导入服务。
 - Swift sidecar 是导入流水线和 SQLite 的唯一生产写入者：复制原图、读取 HEIC / JPEG / PNG EXIF、生成缩略图、计算 sha256 去重，并把元数据写入 SQLite。
 - 原图存本地文件系统，例如 App Data 下的 `media-assets/YYYY/MM/`；缩略图存 `thumbnails/`。
 - SQLite 只保存文件路径、缩略图路径、EXIF JSON、地址证据、Hermes 状态、世界同步证据和索引字段，不保存原图 base64。
-- 浏览器开发模式可以保留 localStorage 兜底，但只用于轻量预览和测试，不能作为生产存储方案。
+- 浏览器开发模式可以保留轻量预览存储兜底，但只用于预览和测试，不能作为生产存储方案。
 - 批量上传时，每个文件独立形成导入任务；单个失败不阻塞其他文件，错误写入 `hermes_analysis_jobs` 或导入任务记录。
-- 最稳通信链路固定为：`React -> Tauri command -> Swift sidecar -> SQLite / 文件系统 -> 结构化 JSON 结果 -> React`。
-- 不允许 React 直接调用 Swift，也不允许 React 和 Swift 同时写 SQLite。所有生产导入写入必须经过 Swift sidecar。
+- 最稳通信链路固定为：`SwiftUI -> MemoryMapNativeCore -> MemoryMapSidecarCore -> SQLite / 文件系统 -> 结构化 Swift 模型`。
+- 不允许多个进程同时写 SQLite。所有生产导入写入必须经过 Swift sidecar。
 
 导入后的语义流程：
 
@@ -997,7 +997,7 @@ Godot 不直接读取原始 GPS、照片、健康和财务明细。它只读取 
 {
   "source": "memory-map-layer1",
   "bridge": {
-    "appShell": "tauri-react",
+    "appShell": "native-swiftui",
     "gameLayer": "godot-4.6"
   },
   "nodes": [
@@ -1031,7 +1031,7 @@ Godot 不直接读取原始 GPS、照片、健康和财务明细。它只读取 
 - Mac 原生版采用 Tauri + Swift sidecar + SQLite。SQLite 是 MVP 主数据库，也是记忆、地点画像、世界同步状态和 Hermes 分析任务的权威来源。
 - Swift sidecar 是 SQLite 的唯一生产写入者。React 通过 Tauri command 请求导入、列表、预览、Hermes 入队和世界同步状态，不直接读写 SQLite 文件。
 - Tauri Rust 层只负责解析 App Data 路径、启动 sidecar、转发参数、解析 sidecar JSON 输出和返回错误；不把导入业务逻辑分散到 Rust 与 React 中。
-- localStorage 只允许作为浏览器开发模式、单元测试或离线 UI demo 的轻量兜底；不得存储原图、音频、完整附件或长期记忆。
+- 开发预览存储只允许作为单元测试或离线 UI demo 的轻量兜底；不得存储原图、音频、完整附件或长期记忆。
 - 照片、音频和附件存本地文件系统，SQLite 保存路径、sha256、缩略图路径、EXIF、地址证据、分析状态和同步证据。
 - 后期如需要多设备同步，再引入云端同步层；同步层消费 SQLite 中的结构化记录，不直接扫描 UI 状态。
 

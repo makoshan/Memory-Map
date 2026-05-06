@@ -4,9 +4,9 @@ Godot 4.6 project for the personal game layer.
 
 ## Boundary
 
-- Tauri / React / TypeScript owns the app shell, Mapbox, SQLite, local data, Hermes Agent, tasks, settings, and detail panels.
+- The native SwiftUI app owns the app shell, local data, media import, Hermes/Amap previews, tasks, settings, and detail panels.
 - Godot owns Layer 3 only: islands, buildings, rooms, player movement, unlocks, growth, weather, dampness, recovery, and atmosphere.
-- The bridge is `godot/data/world_state.json`, generated from TypeScript with `npm run export:godot`.
+- The bridge is `world_state.json`, exported from Memory Map's World Map panel or through `native/MemoryMapNative/scripts/build-native-app.sh` for app packaging.
 
 ## Run
 

@@ -3,7 +3,7 @@
   "generatedAt": "2026-05-04T10:00:00+08:00",
   "source": "memory-map-layer1",
   "bridge": {
-    "appShell": "tauri-react",
+    "appShell": "native-swiftui",
     "gameLayer": "godot-4.6",
     "contract": "Layer 1 semantic summary -> Layer 3 world state"
   },
