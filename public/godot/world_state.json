@@ -16,7 +16,7 @@
   "world": {
     "id": "world-xixi-wetland",
     "title": "西溪湿地",
-    "baseMap": "Mapbox / Hangzhou semantic cluster",
+    "baseMap": "Native / Hangzhou semantic cluster",
     "weather": "24C sunny, AQI 28",
     "theme": "wetland-pixel"
   },

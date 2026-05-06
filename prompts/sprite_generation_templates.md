@@ -131,7 +131,7 @@ Flat #00FF00 background stays unchanged.
 No desk, no monitor, no props, no UI, no text, no shadow, no floor, no blur, no watermark, no redesign.
 ```
 
-## 2D. Dreamina Image2Video: React
+## 2D. Dreamina Image2Video: Acknowledgement
 
 ```text
 Use the uploaded image as the exact first frame.

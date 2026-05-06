@@ -965,24 +965,23 @@ V2 的关键目标：
 
 ## 13. 技术架构
 
-### 13.1 前端
+### 13.1 原生应用
 
-- Tauri。
-- React。
-- TypeScript。
-- Mapbox GL。
-- Zustand。
-- React Query。
+- SwiftUI。
+- SwiftPM。
+- AppKit 文件选择与系统权限。
+- `MemoryMapNativeCore`。
+- `MemoryMapSidecarCore`。
 
 ### 13.2 地图
 
-- MVP 使用 Mapbox。
-- 后期可切换 MapLibre。
+- MVP 使用原生地点状态和地图面板。
+- 后期可接入 MapKit、离线地图或 Godot 中的空间表现。
 
 ### 13.3 世界生成与游戏层
 
 - Godot 4.6 是 Layer 3 的唯一游戏世界引擎。
-- React 不负责渲染游戏世界，只负责承载入口、详情面板和数据管理。
+- SwiftUI 不负责渲染游戏世界，只负责承载入口、详情面板、数据管理和导入工作台。
 - Godot 负责岛屿、建筑、房间、角色移动、解锁、生长、天气、湿气、恢复状态和世界氛围。
 - Layer 2 负责生成 world_nodes、解锁条件和表现参数。
 - Layer 3 负责渲染个人游戏层，并处理玩家移动、点击、进入房间和任务完成。
@@ -991,7 +990,7 @@ V2 的关键目标：
 - 个性化角色、地图、建筑生长和状态动画遵循固定资产链路：Layer 1 语义 -> `prompt.json` -> Codex image2 首帧 -> Dreamina image2video -> 本地 pipeline -> Godot Layer 3。
 - 本地 pipeline 以 `tools/personal_asset_pipeline.py` 为总入口，并写入 `godot/data/generated_assets_manifest.json`。
 
-Godot 不直接读取原始 GPS、照片、健康和财务明细。它只读取 Tauri / React 从 Layer 1 导出的 `world_state.json`：
+Godot 不直接读取原始 GPS、照片、健康和财务明细。它只读取 SwiftUI 原生应用从 Layer 1 导出的 `world_state.json`：
 
 ```json
 {
@@ -1020,20 +1019,20 @@ Godot 不直接读取原始 GPS、照片、健康和财务明细。它只读取 
 
 这个合同把边界固定下来：
 
-- React / TypeScript：页面、面板、状态展示、文件导入进度 UI、记忆馆、地图、任务和 AI 分析结果展示；只调用本地服务，不直接碰原图、SQLite 细节或系统权限。
-- Swift sidecar：文件选择后的导入流水线、HEIC / JPEG / PNG EXIF 解析、原图复制、缩略图生成、sha256 去重、SQLite 读写、通知、菜单栏和权限请求；后续扩展 Photos、Finder、Share Extension、Spotlight 等 Mac 能力。
-- Tauri：打包 Mac App，启动和管理 Swift sidecar，提供 React 与 Swift sidecar 的桥接命令，必要时保留少量 Rust 壳层协调。
+- SwiftUI：页面、面板、状态展示、文件导入进度 UI、记忆馆、地图、任务和 AI 分析结果展示；只调用本地核心服务，不直接分散导入和持久化逻辑。
+- `MemoryMapNativeCore`：文件选择后的导入流水线、HEIC / JPEG / PNG EXIF 解析、原图复制、缩略图生成、sha256 去重、本地持久化、Hermes 预览、Amap 解析和世界同步导出。
+- AppKit / macOS：负责文件面板、权限请求、通知、菜单栏以及后续 Photos、Finder、Share Extension、Spotlight 等 Mac 能力。
 - Godot 4.6：Layer 3 游戏世界，不承担地图数据、数据库、Agent 编排和复杂表单。
 - `world_state.json`：两者之间的唯一 MVP 数据桥。
 
-### 13.4 本地数据与 Mac sidecar
+### 13.4 本地数据与原生核心
 
-- Mac 原生版采用 Tauri + Swift sidecar + SQLite。SQLite 是 MVP 主数据库，也是记忆、地点画像、世界同步状态和 Hermes 分析任务的权威来源。
-- Swift sidecar 是 SQLite 的唯一生产写入者。React 通过 Tauri command 请求导入、列表、预览、Hermes 入队和世界同步状态，不直接读写 SQLite 文件。
-- Tauri Rust 层只负责解析 App Data 路径、启动 sidecar、转发参数、解析 sidecar JSON 输出和返回错误；不把导入业务逻辑分散到 Rust 与 React 中。
+- Mac 原生版采用 SwiftUI + `MemoryMapNativeCore` + 本地持久化仓库。持久化仓库是 MVP 主数据源，也是记忆、地点画像、世界同步状态和 Hermes 分析任务的权威来源。
+- `MemoryMapNativeCore` 是生产写入者。SwiftUI 通过 `MemoryMapStore` 请求导入、列表、预览、Hermes 入队和世界同步状态，不直接绕过核心服务写数据。
+- SwiftPM 包边界负责隔离 UI 和业务逻辑；导入、地理解析、Hermes payload、世界同步和导出都保持在可测试模块里。
 - 开发预览存储只允许作为单元测试或离线 UI demo 的轻量兜底；不得存储原图、音频、完整附件或长期记忆。
-- 照片、音频和附件存本地文件系统，SQLite 保存路径、sha256、缩略图路径、EXIF、地址证据、分析状态和同步证据。
-- 后期如需要多设备同步，再引入云端同步层；同步层消费 SQLite 中的结构化记录，不直接扫描 UI 状态。
+- 照片、音频和附件存本地文件系统，持久化仓库保存路径、sha256、缩略图路径、EXIF、地址证据、分析状态和同步证据。
+- 后期如需要多设备同步，再引入云端同步层；同步层消费持久化仓库中的结构化记录，不直接扫描 UI 状态。
 
 核心表：
 
@@ -1071,33 +1070,33 @@ analysis_status
 
 `event_meanings` 保存单张图片或单条材料生成的语义结果；`place_profiles` 保存同一地点达到阈值后的稳定画像；`world_sync_evidence` 保存 `EventMeaning -> PlaceProfile -> Layer 3 -> world_state.json` 的进度和置信度。
 
-Tauri command 与 sidecar 边界：
+SwiftUI 与原生核心边界：
 
 ```text
-React
+SwiftUI
 -> import_media_files(paths[])
--> Tauri command
--> Swift sidecar import-media --database <path> --media-root <path> --file <path>
--> SQLite / App Data media files
+-> MemoryMapStore
+-> MemoryMapNativeCore / MemoryMapSidecarCore
+-> App Support media files / persistent snapshot
 -> { items: MemoryItem[] }
 ```
 
 第一阶段 command：
 
 ```text
-import_media_files(paths[])       Tauri 启动 Swift sidecar；Swift 复制文件、去重、读 EXIF、生成缩略图、写 SQLite
-list_memory_items(filter)         Swift 从 SQLite 返回记忆页列表和缩略图引用
-get_media_preview(asset_id)       Tauri/Swift 返回缩略图或安全的本地 asset URL
-enqueue_hermes_analysis(asset_id) Swift 创建 Hermes 分析任务，Tauri 负责转发状态
+import_media_files(paths[])       Swift 复制文件、去重、读 EXIF、生成缩略图、写入本地持久化仓库
+list_memory_items(filter)         Swift 从持久化仓库返回记忆页列表和缩略图引用
+get_media_preview(asset_id)       Swift 返回缩略图或安全的本地 asset URL
+enqueue_hermes_analysis(asset_id) Swift 创建 Hermes 分析任务并记录状态
 recompute_world_sync(place_id?)   Swift 按阈值重算 PlaceProfile 和世界同步状态
-export_world_state()              Tauri 从稳定画像导出 godot/data/world_state.json
+export_world_state()              Swift 从稳定画像导出 godot/data/world_state.json
 ```
 
-这条路线解决浏览器存储配额问题：批量上传 10 张或更多图片时，UI 只保存进度状态，原图和缩略图由 Swift sidecar 管理，长期索引由 SQLite 管理。
+这条路线解决浏览器式存储配额问题：批量上传 10 张或更多图片时，UI 只保存进度状态，原图、缩略图和长期索引由原生核心管理。
 
 Mac 能力扩展顺序：
 
-1. 文件导入、EXIF、缩略图、sha256、SQLite 单写者。
+1. 文件导入、EXIF、缩略图、sha256、本地持久化单写者。
 2. 通知、菜单栏、权限请求和导入任务状态。
 3. Photos、Finder、Share Extension、Spotlight。
 
@@ -1106,21 +1105,21 @@ Mac 能力扩展顺序：
 - NousResearch `hermes-agent` 作为 AI orchestration 与导入材料分析层。
 - Hermes 负责长期记忆、技能、自动化、跨会话 recall 和 Agent 角色。
 - 模型供应商可通过 Hermes 配置，不在业务代码中绑定单一模型。
-- Tauri 通过本地命令、sidecar 服务或 gateway 与 Hermes Agent 通信。
+- SwiftUI 原生应用通过本地服务、CLI 或 gateway 与 Hermes Agent 通信。
 - Memory Map 只向 Hermes 提供 Layer 1 的结构化摘要和必要上下文。
 - 图片、笔记和音频导入后，先在本地生成 MediaAsset，再把摘要、笔记正文或音频 transcript 发给 Hermes 分析。
 - Hermes 的输出必须落回结构化对象：Event 草稿、Opportunity 草稿、AI 三行、今日任务或世界解释。
 - 原始位置、照片、健康和财务数据默认留在本地 SQLite 与文件系统中。
 
-### 13.6 Tauri 与 Godot 集成路线
+### 13.6 SwiftUI 与 Godot 集成路线
 
 MVP 分三步集成：
 
-1. Tauri 从 SQLite 中读取稳定后的 `PlaceProfile` 和 `world_sync_evidence`，生成 `world_state.json`；Godot 从 `godot/data/world_state.json` 读取。
+1. Swift 原生核心从持久化仓库中读取稳定后的 `PlaceProfile` 和 `world_sync_evidence`，生成 `world_state.json`；Godot 从 `godot/data/world_state.json` 读取。
 2. Godot 原型独立运行，验证 Layer 3 的移动、点击、房间、解锁和环境表达。
-3. 通过 Godot Web export 嵌入 Tauri WebView，或通过 Tauri sidecar 启动 Godot native 运行时。
+3. 通过独立 Godot native 运行时或后续 SwiftUI 容器集成 Godot 视图。
 
-第一阶段优先验证“世界是否有吸引力”，而不是过早处理复杂嵌入。React 页面可以先保留为产品壳，Godot 项目负责真实的世界体验。
+第一阶段优先验证“世界是否有吸引力”，而不是过早处理复杂嵌入。SwiftUI 负责产品壳和数据管理，Godot 项目负责真实的世界体验。
 
 ## 14. 核心数据结构
 
