@@ -13,5 +13,6 @@ rm -rf "$APP_DIR"
 mkdir -p "$MACOS_DIR" "$RESOURCES_DIR"
 cp "$ROOT/.build/release/MemoryMapNative" "$MACOS_DIR/MemoryMapNative"
 cp "$ROOT/Resources/Info.plist" "$APP_DIR/Contents/Info.plist"
+cp -R "$ROOT/../../public" "$RESOURCES_DIR/public"
 
 echo "$APP_DIR"

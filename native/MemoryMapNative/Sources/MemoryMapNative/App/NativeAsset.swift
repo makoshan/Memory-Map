@@ -39,15 +39,19 @@ enum NativeAsset {
 
     private static func candidateRoots() -> [URL] {
         let cwd = URL(fileURLWithPath: FileManager.default.currentDirectoryPath, isDirectory: true)
+        let sourceFile = URL(fileURLWithPath: #filePath)
+        let repositoryRoot = sourceFile
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
         return [
+            Bundle.main.resourceURL,
             cwd,
             cwd.deletingLastPathComponent().deletingLastPathComponent(),
-            URL(fileURLWithPath: #filePath)
-                .deletingLastPathComponent()
-                .deletingLastPathComponent()
-                .deletingLastPathComponent()
-                .deletingLastPathComponent()
-                .deletingLastPathComponent()
-        ]
+            repositoryRoot
+        ].compactMap(\.self)
     }
 }
