@@ -1011,6 +1011,7 @@ function MediaMeaningWorkbench() {
               })
             };
             saveStoredHermesJobs([jobView, ...loadStoredHermesJobs([])]);
+            setArchiveState({ status: "archived", item, job: jobView });
             updateBatchItem(queued.id, {
               status: "done",
               detail: item.syncEvidence ? "已写入记忆库 · 参与 10 张地点匹配" : "已写入记忆库 · 等待补充地点证据"
@@ -1148,8 +1149,11 @@ function MediaMeaningWorkbench() {
   );
   const batchDoneCount = batchItems.filter((item) => item.status === "done").length;
   const batchFailedCount = batchItems.filter((item) => item.status === "failed").length;
+  const batchCompletedCount = batchDoneCount + batchFailedCount;
+  const batchProgressPercent = batchItems.length ? Math.round((batchCompletedCount / batchItems.length) * 100) : 0;
+  const batchActiveItem = batchItems.find((item) => item.status === "processing");
   const batchProgressLabel = batchItems.length
-    ? `${batchDoneCount + batchFailedCount} / ${batchItems.length}`
+    ? `${batchCompletedCount} / ${batchItems.length}`
     : "等待批量选择图片";
   return (
     <section
@@ -1239,6 +1243,23 @@ function MediaMeaningWorkbench() {
               <span>{batchItems.length ? `${batchItems.length} 张图片` : "等待批量选择图片"}</span>
               <span>错误 {batchFailedCount}</span>
             </div>
+            <div
+              className="batch-import-progressbar"
+              role="progressbar"
+              aria-label="批量上传处理进度"
+              aria-valuemin={0}
+              aria-valuemax={batchItems.length || 1}
+              aria-valuenow={batchCompletedCount}
+            >
+              <i style={{ width: `${batchProgressPercent}%` }} />
+            </div>
+            <p className="batch-import-current">
+              {batchActiveItem
+                ? `正在执行下一步：${batchActiveItem.name}`
+                : batchItems.length
+                ? `批量处理完成 ${batchProgressLabel}`
+                : "选择多张图片后会自动逐张读取证据、生成事件并写入记忆库。"}
+            </p>
             <ul className="batch-import-list">
               {batchItems.map((item) => (
                 <li key={item.id} data-state={item.status}>

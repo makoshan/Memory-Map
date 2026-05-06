@@ -123,6 +123,8 @@ describe("App", () => {
     expect(html).toContain("导入图片");
     expect(html).toContain("批量上传");
     expect(html).toContain("上传进度");
+    expect(html).toContain("批量上传处理进度");
+    expect(html).toContain("选择多张图片后会自动逐张读取证据、生成事件并写入记忆库。");
     expect(html).toContain("错误");
     expect(html).toContain("预览结果");
     expect(html).toContain("等待批量选择图片");

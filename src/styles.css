@@ -3962,6 +3962,28 @@ img {
   white-space: nowrap;
 }
 
+.batch-import-progressbar {
+  height: 8px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #e7eef6;
+}
+
+.batch-import-progressbar i {
+  height: 100%;
+  display: block;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #4b9cff, #22c55e);
+  transition: width 180ms ease;
+}
+
+.batch-import-current {
+  margin: -2px 0 0;
+  color: var(--text-sub);
+  font-size: 11px;
+  line-height: 1.4;
+}
+
 .batch-import-list {
   max-height: 320px;
   margin: 0;
