@@ -8,24 +8,16 @@ struct ImportDashboard: View {
         DashboardScaffold(title: "导入工作台", subtitle: "Native file picker · local inference · Swift state") {
             VStack(alignment: .leading, spacing: 18) {
                 Card {
-                    HStack(spacing: 18) {
-                        Image(systemName: "square.and.arrow.down.on.square")
-                            .font(.system(size: 44, weight: .medium))
-                            .foregroundStyle(Theme.primary)
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text("选择文件，生成本机记忆卡")
-                                .font(.title2.bold())
-                            Text(store.importMessage)
-                                .foregroundStyle(Theme.subText)
+                    ViewThatFits(in: .horizontal) {
+                        HStack(spacing: 18) {
+                            ImportHeroContent(message: store.importMessage)
+                            Spacer()
+                            ImportButton()
                         }
-                        Spacer()
-                        Button {
-                            store.presentImportPanel()
-                        } label: {
-                            Label("导入文件", systemImage: "plus")
+                        VStack(alignment: .leading, spacing: 14) {
+                            ImportHeroContent(message: store.importMessage)
+                            ImportButton()
                         }
-                        .buttonStyle(.borderedProminent)
-                        .controlSize(.large)
                     }
                 }
                 ImportProgressCard(steps: store.lastImportSteps)
@@ -41,6 +33,39 @@ struct ImportDashboard: View {
     }
 }
 
+struct ImportHeroContent: View {
+    let message: String
+
+    var body: some View {
+        HStack(spacing: 18) {
+            Image(systemName: "square.and.arrow.down.on.square")
+                .font(.system(size: 44, weight: .medium))
+                .foregroundStyle(Theme.primary)
+            VStack(alignment: .leading, spacing: 8) {
+                Text("选择文件，生成本机记忆卡")
+                    .font(.title2.bold())
+                Text(message)
+                    .foregroundStyle(Theme.subText)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+    }
+}
+
+struct ImportButton: View {
+    @EnvironmentObject private var store: MemoryMapStore
+
+    var body: some View {
+        Button {
+            store.presentImportPanel()
+        } label: {
+            Label("导入文件", systemImage: "plus")
+        }
+        .buttonStyle(.borderedProminent)
+        .controlSize(.large)
+    }
+}
+
 struct ImportEvidenceCard: View {
     let gps: String
     let address: String
@@ -52,7 +77,7 @@ struct ImportEvidenceCard: View {
             VStack(alignment: .leading, spacing: 14) {
                 Text("证据面板")
                     .font(.headline)
-                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+                LazyVGrid(columns: [GridItem(.adaptive(minimum: 220), spacing: 12)], spacing: 12) {
                     EvidenceMiniPanel(title: "EXIF GPS", value: gps)
                     EvidenceMiniPanel(title: "Amap provider", value: address)
                     EvidenceMiniPanel(title: "Hermes image meaning", value: hermes)
@@ -91,7 +116,7 @@ struct ImportProgressCard: View {
             VStack(alignment: .leading, spacing: 14) {
                 Text("导入流程")
                     .font(.headline)
-                HStack(spacing: 12) {
+                LazyVGrid(columns: [GridItem(.adaptive(minimum: 180), spacing: 12)], spacing: 12) {
                     ForEach(steps) { step in
                         VStack(alignment: .leading, spacing: 8) {
                             Image(systemName: symbol(for: step.state))

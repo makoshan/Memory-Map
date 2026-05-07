@@ -5,22 +5,36 @@ struct RootView: View {
     @EnvironmentObject private var store: MemoryMapStore
 
     var body: some View {
-        HStack(alignment: .top, spacing: 10) {
-            ProfileSidebar()
+        GeometryReader { proxy in
+            let sidebarWidth: CGFloat = 166
+            let outerPadding: CGFloat = 10
+            let contentSpacing: CGFloat = 10
+            let contentWidth = max(0, proxy.size.width - sidebarWidth - contentSpacing - outerPadding * 2)
 
-            switch store.selection ?? .world {
-            case .world:
-                WorldDashboard()
-            case .office:
-                OfficeDashboard()
-            case .memory:
-                MemoryDashboard()
-            case .importLab:
-                ImportDashboard()
+            HStack(alignment: .top, spacing: contentSpacing) {
+                ProfileSidebar()
+                    .frame(width: sidebarWidth)
+
+                currentDashboard
+                    .frame(width: contentWidth, alignment: .topLeading)
             }
+            .padding(outerPadding)
         }
-        .padding(10)
         .background(Theme.background)
+    }
+
+    @ViewBuilder
+    private var currentDashboard: some View {
+        switch store.selection ?? .world {
+        case .world:
+            WorldDashboard()
+        case .office:
+            OfficeDashboard()
+        case .memory:
+            MemoryDashboard()
+        case .importLab:
+            ImportDashboard()
+        }
     }
 }
 

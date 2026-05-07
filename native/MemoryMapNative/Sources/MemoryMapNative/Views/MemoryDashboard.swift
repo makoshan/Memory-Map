@@ -29,21 +29,20 @@ struct MemoryDashboard: View {
         let visible = selectedCity == "全部" ? store.memories : store.memories.filter { $0.city == selectedCity }
 
         DashboardScaffold(title: "记忆馆", subtitle: "Lv.7 · 照片、笔记和音频回到城市地图") {
-            HStack(alignment: .top, spacing: 18) {
+            AdaptiveDashboardColumns {
                 VStack(spacing: 18) {
-                    HeroImageCard(asset: "public/assets/memory-room/scene.jpg", title: "记忆馆", progress: 0.70)
+                    HeroImageCard(asset: "scene:memory", title: "记忆馆", progress: 0.70)
                     CityFilterBar(cities: cities, selectedCity: $selectedCity)
                     MemoryGrid(items: visible)
                 }
-                RightRail {
-                    ImportCard()
-                    HermesStatusCard(jobs: store.hermesJobs)
-                    WorldSyncStatusCard(status: store.worldSyncStatus, exported: store.worldExported) {
-                        store.exportGodotWorldStateWithPanel()
-                    }
-                    CityDistributionCard(rows: store.cityRows, total: store.memories.count)
-                    MemorySummaryCard(items: store.memories)
+            } rail: {
+                ImportCard()
+                HermesStatusCard(jobs: store.hermesJobs)
+                WorldSyncStatusCard(status: store.worldSyncStatus, exported: store.worldExported) {
+                    store.exportGodotWorldStateWithPanel()
                 }
+                CityDistributionCard(rows: store.cityRows, total: store.memories.count)
+                MemorySummaryCard(items: store.memories)
             }
         }
     }
@@ -55,20 +54,22 @@ struct CityFilterBar: View {
 
     var body: some View {
         Card {
-            HStack(spacing: 8) {
-                ForEach(cities, id: \.self) { city in
-                    Button {
-                        selectedCity = city
-                    } label: {
-                        Text(city)
-                            .font(.caption.bold())
-                            .frame(minWidth: 52)
+            ScrollView(.horizontal) {
+                HStack(spacing: 8) {
+                    ForEach(cities, id: \.self) { city in
+                        Button {
+                            selectedCity = city
+                        } label: {
+                            Text(city)
+                                .font(.caption.bold())
+                                .frame(minWidth: 52)
+                        }
+                        .buttonStyle(.bordered)
+                        .tint(selectedCity == city ? Theme.primary : Theme.muted)
                     }
-                    .buttonStyle(.bordered)
-                    .tint(selectedCity == city ? Theme.primary : Theme.muted)
                 }
-                Spacer()
             }
+            .scrollIndicators(.hidden)
         }
     }
 }
@@ -121,7 +122,7 @@ struct MemoryGrid: View {
                         .frame(maxWidth: .infinity, minHeight: 120, alignment: .center)
                         .background(Theme.soft, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
                 } else {
-                    LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 12), count: 4), spacing: 12) {
+                    LazyVGrid(columns: [GridItem(.adaptive(minimum: 150), spacing: 12)], spacing: 12) {
                         ForEach(items.prefix(8)) { item in
                             MemoryTile(item: item)
                         }

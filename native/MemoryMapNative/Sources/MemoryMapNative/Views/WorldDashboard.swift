@@ -4,27 +4,48 @@ import SwiftUI
 struct WorldDashboard: View {
     @EnvironmentObject private var store: MemoryMapStore
     private let layout = HomeDashboardLayout.designReference
+    private let boardWidth: CGFloat = 1360
+    private let boardHeight: CGFloat = 910
 
     var body: some View {
-        ScrollView([.vertical, .horizontal]) {
-            VStack(spacing: 10) {
-                HStack(alignment: .top, spacing: 10) {
-                    VStack(spacing: 10) {
-                        WorldCanvas(layout: layout)
-                        FocusStrip(memoriesCount: store.memories.count, cityTabs: layout.cityTabs)
-                    }
-                    .frame(width: 730)
+        GeometryReader { proxy in
+            let scale = min(1, proxy.size.width / boardWidth)
 
-                    DetailRail(memoriesCount: store.memories.count, layout: layout)
-                        .frame(width: 510)
-                }
-
-                LifeTimelineCard(stages: layout.lifeStages)
+            ScrollView(.vertical) {
+                WorldDashboardBoard(
+                    layout: layout,
+                    memoriesCount: store.memories.count,
+                    boardWidth: boardWidth
+                )
+                .scaleEffect(scale, anchor: .topLeading)
+                .frame(width: boardWidth * scale, height: boardHeight * scale, alignment: .topLeading)
+                .frame(maxWidth: .infinity, alignment: .topLeading)
             }
-            .frame(minWidth: 1250, alignment: .topLeading)
+            .scrollIndicators(.hidden)
         }
-        .scrollIndicators(.hidden)
         .background(Theme.background)
+    }
+}
+
+struct WorldDashboardBoard: View {
+    let layout: HomeDashboardLayout
+    let memoriesCount: Int
+    let boardWidth: CGFloat
+
+    var body: some View {
+        VStack(spacing: 10) {
+            HStack(alignment: .top, spacing: 10) {
+                VStack(spacing: 10) {
+                    WorldCanvas(layout: layout)
+                    BottomFocusMapRow(memoriesCount: memoriesCount, cityTabs: layout.cityTabs)
+                }
+                .frame(width: 730)
+
+                ReferenceSideStack(memoriesCount: memoriesCount, layout: layout)
+                    .frame(width: 620)
+            }
+        }
+        .frame(width: boardWidth, alignment: .topLeading)
     }
 }
 
@@ -58,7 +79,7 @@ struct WorldCanvas: View {
                 .position(x: 400, y: 320)
 
             WorldTopBar()
-                .position(x: 438, y: 34)
+                .position(x: 438, y: 30)
 
             Button {
             } label: {
@@ -202,25 +223,53 @@ struct CloudGroup: View {
 struct WorldTopBar: View {
     var body: some View {
         HStack(spacing: 8) {
-            Label("杭州  Hangzhou", systemImage: "mappin.circle.fill")
-                .padding(.horizontal, 14)
-                .frame(height: 34)
-                .background(.white.opacity(0.84), in: RoundedRectangle(cornerRadius: 8, style: .continuous))
-            Label("24°C   晴 · 空气优 28", systemImage: "sun.max.fill")
-                .padding(.horizontal, 14)
-                .frame(height: 34)
-                .background(.white.opacity(0.84), in: RoundedRectangle(cornerRadius: 8, style: .continuous))
-            Spacer(minLength: 22)
+            WorldMenuPill(systemImage: "mappin.circle.fill", title: "杭州  Hangzhou", trailingImage: "chevron.down")
+                .frame(width: 142)
+            WorldMenuPill(systemImage: "sun.max.fill", title: "24°C   晴 · 空气优 28")
+                .frame(width: 178)
+            Spacer(minLength: 76)
             WorldTopIcon(systemImage: "calendar")
             WorldTopIcon(systemImage: "bell.badge")
             WorldTopIcon(systemImage: "gearshape")
             AssetImage("public/assets/game/sprites/player-alex.png")
-                .frame(width: 38, height: 38)
+                .frame(width: 34, height: 34)
                 .background(.white, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
         }
         .font(.system(size: 12, weight: .bold))
         .foregroundStyle(Theme.subText)
-        .frame(width: 500, height: 42)
+        .padding(.horizontal, 8)
+        .padding(.vertical, 5)
+        .frame(width: 565, height: 44)
+        .background(.white.opacity(0.18), in: Capsule())
+    }
+}
+
+struct WorldMenuPill: View {
+    let systemImage: String
+    let title: String
+    var trailingImage: String?
+
+    var body: some View {
+        HStack(spacing: 7) {
+            Image(systemName: systemImage)
+                .foregroundStyle(systemImage == "sun.max.fill" ? Theme.warning : Theme.primary)
+            Text(title)
+                .lineLimit(1)
+                .minimumScaleFactor(0.75)
+            if let trailingImage {
+                Spacer(minLength: 0)
+                Image(systemName: trailingImage)
+                    .font(.system(size: 9, weight: .bold))
+                    .foregroundStyle(Theme.subText.opacity(0.7))
+            }
+        }
+        .padding(.horizontal, 10)
+        .frame(height: 32)
+        .background(.white.opacity(0.88), in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                .stroke(Color.white.opacity(0.72), lineWidth: 1)
+        )
     }
 }
 
@@ -328,6 +377,119 @@ struct FocusStrip: View {
     }
 }
 
+struct BottomFocusMapRow: View {
+    let memoriesCount: Int
+    let cityTabs: [String]
+
+    var body: some View {
+        HStack(alignment: .top, spacing: 10) {
+            FocusOverviewCard(memoriesCount: memoriesCount)
+                .frame(width: 410, height: 230)
+            CitySwitchCard(cityTabs: cityTabs)
+                .frame(width: 310, height: 230)
+        }
+    }
+}
+
+struct FocusOverviewCard: View {
+    let memoriesCount: Int
+
+    var body: some View {
+        HomePanel(title: "5. 今日页 - 你的重点") {
+            HStack(alignment: .top, spacing: 10) {
+                FocusListCardContent()
+                CalendarMiniContent()
+                DailySummaryContent(memoriesCount: memoriesCount)
+            }
+        }
+    }
+}
+
+struct FocusListCardContent: View {
+    var body: some View {
+        VStack(alignment: .leading, spacing: 9) {
+            Text("今日重点")
+                .font(.system(size: 11, weight: .bold))
+            ForEach([("产品设计评审", "10:00"), ("AI 研究进展同步", "14:00"), ("财务月度分析", "16:00")], id: \.0) { item in
+                HStack(spacing: 6) {
+                    Image(systemName: "checkmark.square.fill")
+                        .foregroundStyle(Theme.ocean)
+                    Text(item.0)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.75)
+                    Spacer(minLength: 4)
+                    Text(item.1)
+                        .foregroundStyle(Theme.subText)
+                }
+                .font(.system(size: 9, weight: .semibold))
+                .padding(.vertical, 6)
+                .padding(.horizontal, 7)
+                .background(Theme.soft, in: RoundedRectangle(cornerRadius: 7, style: .continuous))
+            }
+            Spacer(minLength: 0)
+            Button {
+            } label: {
+                Label("添加任务", systemImage: "plus")
+                    .frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.plain)
+            .font(.system(size: 10, weight: .bold))
+            .padding(.vertical, 8)
+            .background(.white, in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+            .overlay(RoundedRectangle(cornerRadius: 8).stroke(Theme.border))
+        }
+        .frame(width: 120, alignment: .topLeading)
+    }
+}
+
+struct CalendarMiniContent: View {
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Text("日历视图")
+                    .font(.system(size: 11, weight: .bold))
+                Spacer()
+                Text("今天")
+                    .foregroundStyle(Theme.subText)
+            }
+            ForEach([("10:00  产品设计评审", Theme.primaryLight), ("14:00  AI 研究进展同步", Color(hex: 0xFCE3EE)), ("16:00  财务月度分析", Color(hex: 0xFFE8B8)), ("19:00  运动 · 跑步 5km", Color(hex: 0xCFF3DF))], id: \.0) { item in
+                Text(item.0)
+                    .font(.system(size: 9, weight: .bold))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.75)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.vertical, 7)
+                    .padding(.horizontal, 8)
+                    .background(item.1, in: RoundedRectangle(cornerRadius: 7, style: .continuous))
+            }
+        }
+        .frame(width: 122, alignment: .topLeading)
+    }
+}
+
+struct DailySummaryContent: View {
+    let memoriesCount: Int
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("每日总结")
+                .font(.system(size: 11, weight: .bold))
+            DailySummaryScene()
+                .frame(height: 72)
+                .frame(maxWidth: .infinity)
+                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+            Text("完成 2/4 项任务")
+                .font(.system(size: 10, weight: .bold))
+            HStack {
+                MiniStat(title: "专注", value: "6.2h")
+                MiniStat(title: "记忆", value: "\(memoriesCount)")
+                MiniStat(title: "完成", value: "72%")
+            }
+        }
+        .frame(width: 122, alignment: .topLeading)
+    }
+}
+
 struct FocusListCard: View {
     var body: some View {
         HomePanel(title: "5. 今日页 - 你的重点") {
@@ -395,7 +557,7 @@ struct DailySummaryCard: View {
     var body: some View {
         HomePanel(title: "每日总结") {
             VStack(alignment: .leading, spacing: 10) {
-                AssetImage("public/assets/ai-company/daily.png")
+                DailySummaryScene()
                     .frame(height: 105)
                     .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
                 Text("你已完成 2/4 项任务")
@@ -416,21 +578,26 @@ struct DailySummaryCard: View {
 
 struct CitySwitchCard: View {
     let cityTabs: [String]
+    private let columns = [
+        GridItem(.flexible(), spacing: 6),
+        GridItem(.flexible(), spacing: 6)
+    ]
 
     var body: some View {
         HomePanel(title: "6. 世界地图 - 切换城市") {
             VStack(alignment: .leading, spacing: 10) {
-                AssetImage("public/assets/generated/v2/sprites/world-map-panel.png")
-                    .frame(height: 126)
+                StylizedWorldMapScene()
+                    .frame(height: 108)
                     .frame(maxWidth: .infinity)
                     .background(
                         LinearGradient(colors: [Theme.sky, Theme.ocean.opacity(0.72)], startPoint: .top, endPoint: .bottom),
                         in: RoundedRectangle(cornerRadius: 8, style: .continuous)
                     )
-                HStack(spacing: 6) {
+                LazyVGrid(columns: columns, spacing: 6) {
                     ForEach(cityTabs, id: \.self) { city in
                         Text(city)
                             .font(.system(size: 10, weight: .bold))
+                            .frame(maxWidth: .infinity)
                             .padding(.horizontal, 9)
                             .padding(.vertical, 7)
                             .background(city == "杭州" ? Theme.primaryLight : Theme.soft, in: RoundedRectangle(cornerRadius: 7, style: .continuous))
@@ -448,35 +615,93 @@ struct DetailRail: View {
 
     var body: some View {
         VStack(spacing: 10) {
-            HStack(alignment: .top, spacing: 10) {
-                RoomPreviewCard(
-                    number: "2.",
-                    title: "进入建筑（以办公室为例）",
-                    asset: "public/assets/office-room/office_scene.jpg"
-                )
-                .frame(width: 320)
-                VStack(spacing: 10) {
-                    BuildingStatsCard()
-                    ProjectProgressCard()
+            BuildingStatsCard()
+            ProjectProgressCard()
+            RoomPreviewCard(
+                number: "2.",
+                title: "进入建筑（以办公室为例）",
+                asset: "scene:office"
+            )
+            MemoryMuseumCard(memoriesCount: memoriesCount)
+            CityBrowseCard()
+            FinanceRoomCard()
+            AssetDonutCard()
+            CityDistributionMiniCard()
+        }
+    }
+}
+
+struct ReferenceSideStack: View {
+    let memoriesCount: Int
+    let layout: HomeDashboardLayout
+
+    var body: some View {
+        VStack(spacing: 10) {
+            OfficeOverviewSection()
+                .frame(height: 345)
+            MemoryOverviewSection(memoriesCount: memoriesCount)
+                .frame(height: 190)
+            FinanceOverviewSection()
+                .frame(height: 165)
+            LifeTimelineCard(stages: layout.lifeStages)
+                .frame(height: 180)
+        }
+    }
+}
+
+struct OfficeOverviewSection: View {
+    var body: some View {
+        HStack(alignment: .top, spacing: 10) {
+            RoomPreviewWideCard()
+                .frame(width: 420)
+            VStack(spacing: 10) {
+                BuildingStatsCard()
+                ProjectProgressCard()
+            }
+            .frame(width: 190)
+        }
+    }
+}
+
+struct RoomPreviewWideCard: View {
+    var body: some View {
+        HomePanel(title: "2. 进入建筑（以办公室为例）") {
+            VStack(spacing: 10) {
+                OfficeRoomScene()
+                    .frame(height: 160)
+                    .frame(maxWidth: .infinity)
+                    .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                HStack(alignment: .top, spacing: 10) {
+                    TaskScheduleMini()
+                    AIEmployeeMini()
                 }
-                .frame(width: 180)
             }
+        }
+    }
+}
 
-            HStack(alignment: .top, spacing: 10) {
-                MemoryMuseumCard(memoriesCount: memoriesCount)
-                    .frame(width: 300)
-                CityBrowseCard()
-                    .frame(width: 200)
-            }
+struct MemoryOverviewSection: View {
+    let memoriesCount: Int
 
-            HStack(alignment: .top, spacing: 10) {
-                FinanceRoomCard()
-                    .frame(width: 260)
-                AssetDonutCard()
-                    .frame(width: 130)
-                CityDistributionMiniCard()
-                    .frame(width: 100)
-            }
+    var body: some View {
+        HStack(alignment: .top, spacing: 10) {
+            MemoryMuseumCard(memoriesCount: memoriesCount)
+                .frame(width: 420)
+            CityBrowseCard()
+                .frame(width: 190)
+        }
+    }
+}
+
+struct FinanceOverviewSection: View {
+    var body: some View {
+        HStack(alignment: .top, spacing: 10) {
+            FinanceRoomCard()
+                .frame(width: 300)
+            AssetDonutCard()
+                .frame(width: 150)
+            CityDistributionMiniCard()
+                .frame(width: 150)
         }
     }
 }
@@ -489,11 +714,11 @@ struct RoomPreviewCard: View {
     var body: some View {
         HomePanel(title: "\(number) \(title)") {
             VStack(spacing: 10) {
-                AssetImage(asset)
-                    .frame(height: 170)
+                AssetScenePreview(asset: asset)
+                    .frame(height: 126)
                     .frame(maxWidth: .infinity)
                     .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-                HStack(spacing: 10) {
+                VStack(spacing: 10) {
                     TaskScheduleMini()
                     AIEmployeeMini()
                 }
@@ -593,23 +818,26 @@ struct MemoryMuseumCard: View {
     var body: some View {
         HomePanel(title: "3. 记忆馆") {
             VStack(alignment: .leading, spacing: 10) {
-                AssetImage("public/assets/memory-room/scene.jpg")
-                    .frame(height: 120)
+                MemoryGalleryScene()
+                    .frame(height: 86)
                     .frame(maxWidth: .infinity)
                     .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-                HStack(spacing: 7) {
-                    ForEach(["2018", "2019", "2020", "2021", "2022", "2023", "2024"], id: \.self) { year in
-                        VStack(spacing: 3) {
-                            AssetImage("public/assets/imported/user-atlas/sprites/city-hangzhou.png")
-                                .frame(width: 40, height: 28)
-                                .background(Theme.soft, in: RoundedRectangle(cornerRadius: 5))
-                            Text(year)
-                                .font(.system(size: 8, weight: .bold))
+                ScrollView(.horizontal) {
+                    HStack(spacing: 7) {
+                        ForEach(["2018", "2019", "2020", "2021", "2022", "2023", "2024"], id: \.self) { year in
+                            VStack(spacing: 3) {
+                                AssetImage("public/assets/imported/user-atlas/sprites/city-hangzhou.png")
+                                    .frame(width: 40, height: 28)
+                                    .background(Theme.soft, in: RoundedRectangle(cornerRadius: 5))
+                                Text(year)
+                                    .font(.system(size: 8, weight: .bold))
+                            }
+                            .padding(4)
+                            .background(year == "2024" ? Theme.primaryLight : Color.clear, in: RoundedRectangle(cornerRadius: 6))
                         }
-                        .padding(4)
-                        .background(year == "2024" ? Theme.primaryLight : Color.clear, in: RoundedRectangle(cornerRadius: 6))
                     }
                 }
+                .scrollIndicators(.hidden)
                 Text("本地记忆 \(memoriesCount) 条，按年份和城市进入。")
                     .font(.system(size: 10, weight: .semibold))
                     .foregroundStyle(Theme.subText)
@@ -640,7 +868,7 @@ struct FinanceRoomCard: View {
     var body: some View {
         HomePanel(title: "4. 财务楼") {
             HStack(spacing: 12) {
-                AssetImage("public/assets/ai-company/finance.png")
+                FinanceRoomScene()
                     .frame(width: 150, height: 120)
                     .clipShape(RoundedRectangle(cornerRadius: 8))
                 VStack(alignment: .leading, spacing: 9) {
@@ -713,14 +941,14 @@ struct LifeTimelineCard: View {
                         .background(Theme.primary, in: Capsule())
                         .offset(x: 350, y: -20)
                 }
-                HStack(spacing: 10) {
+                HStack(spacing: 8) {
                     ForEach(stages, id: \.title) { stage in
                         LifeStageTile(stage: stage, isActive: stage.title == "创业阶段")
                     }
                 }
             }
         }
-        .frame(width: 1250)
+        .frame(maxWidth: .infinity)
     }
 }
 
@@ -731,7 +959,7 @@ struct LifeStageTile: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 7) {
             AssetImage(stage.assetPath)
-                .frame(height: 72)
+                .frame(height: 50)
                 .frame(maxWidth: .infinity)
                 .background(Theme.soft, in: RoundedRectangle(cornerRadius: 8))
                 .clipShape(RoundedRectangle(cornerRadius: 8))
@@ -742,7 +970,7 @@ struct LifeStageTile: View {
                 .foregroundStyle(Theme.subText)
         }
         .padding(10)
-        .frame(width: 230, alignment: .leading)
+        .frame(width: 106, alignment: .leading)
         .background(isActive ? Theme.primaryLight : Theme.soft, in: RoundedRectangle(cornerRadius: 8, style: .continuous))
         .overlay(
             RoundedRectangle(cornerRadius: 8, style: .continuous)

@@ -3,27 +3,24 @@ import SwiftUI
 struct OfficeDashboard: View {
     var body: some View {
         DashboardScaffold(title: "办公室", subtitle: "Lv.8 · AI 员工与你一起推动项目") {
-            HStack(alignment: .top, spacing: 18) {
+            AdaptiveDashboardColumns {
                 VStack(spacing: 18) {
-                    HeroImageCard(asset: "public/assets/office-room/office_scene.jpg", title: "创造与工作的中心", progress: 0.65)
-                    HStack(spacing: 14) {
+                    HeroImageCard(asset: "scene:office", title: "创造与工作的中心", progress: 0.65)
+                    LazyVGrid(columns: [GridItem(.adaptive(minimum: 280), spacing: 14)], spacing: 14) {
                         TaskPanel()
                         ProjectPanel()
-                    }
-                    HStack(spacing: 14) {
                         EmployeePanel()
                         MonthlyPanel()
                     }
                 }
-                RightRail {
-                    StatListCard(title: "建筑属性", rows: [
-                        ("面积", "850 m2"),
-                        ("员工", "6 / 6"),
-                        ("效率", "125%"),
-                        ("维护费用", "320 / 天")
-                    ])
-                    UpgradeCard(title: "下一等级", value: "Lv.9", bullets: ["面积 +100", "效率 +15%", "员工上限 +1"])
-                }
+            } rail: {
+                StatListCard(title: "建筑属性", rows: [
+                    ("面积", "850 m2"),
+                    ("员工", "6 / 6"),
+                    ("效率", "125%"),
+                    ("维护费用", "320 / 天")
+                ])
+                UpgradeCard(title: "下一等级", value: "Lv.9", bullets: ["面积 +100", "效率 +15%", "员工上限 +1"])
             }
         }
     }
