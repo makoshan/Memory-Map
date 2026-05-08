@@ -1,7 +1,16 @@
 ---
 version: alpha
 name: Me Inc. World OS
-description: 白色系统界面 + City Pop 像素游戏世界 + Mac 原生 App 质感。用于“一个人的 AI 公司”网页 / Mac App / 游戏化空间。
+description: 白色系统界面 + City Pop 像素游戏世界 + Mac 原生 App 质感。当前主分支落地为 React / Vite / Tauri / Swift sidecar / Godot 的本地优先 Memory Map。
+techStack:
+  frontend: "React 19 + TypeScript 5.9 + Vite 7"
+  desktopShell: "Tauri 2 + Rust + SQLite"
+  nativeImport: "Swift 6 sidecar on macOS 14"
+  gameLayer: "Godot 4.6, consuming generated world_state.json"
+  maps: "Mapbox GL frontend dependency + Amap Web Service evidence flow"
+  ai: "Hermes gateway or local OpenAI-compatible Hermes API, optional by env"
+  storage: "SQLite in Tauri production, localStorage only for web preview"
+  tests: "Vitest in node environment + react-dom/server snapshots"
 colors:
   bg-main: "#F7F8FB"
   bg-card: "#FFFFFF"
@@ -228,6 +237,34 @@ components:
 
 用户看到的是一个世界，不是一个系统。数据只作为状态出现，不作为解释出现。
 
+这份文档同时是设计说明和 token 源文件。YAML front matter 会被 `scripts/export-design-tokens.mjs` 生成到 `src/design-tokens.css`，`npm run build` 会先执行 `npm run design:tokens:check`。不要手改生成后的 CSS token。
+
+## Current Main Stack
+
+当前主分支不是纯网页原型，而是一个本地优先的 Mac / Web 双态应用：
+
+- 前端壳：`React 19`、`TypeScript 5.9`、`Vite 7`，入口在 `src/main.tsx`，页面状态由 `src/viewRoutes.ts` 和 `window.history` 管理，当前没有引入 React Router。
+- 样式系统：原生 CSS，`src/styles.css` 只导入 `src/design-tokens.css` 并使用 CSS variables；当前没有 Tailwind、shadcn、CSS-in-JS 或组件库。
+- 桌面壳：`Tauri 2`，默认窗口 `1440 x 960`，最小 `1120 x 760`。Rust command 负责初始化 SQLite，并通过 sidecar 触发原生媒体导入。
+- 原生导入：`native/MemoryMapSidecar` 是 Swift 6 / macOS 14 sidecar，使用 ImageIO / CoreGraphics 生成缩略图，用 SHA-256 去重，并写入 SQLite。
+- 游戏层：`godot/` 是 Godot 4.6 原型，边界是 Layer 3。它读取 `godot/data/world_state.json`，该文件由 `npm run export:godot` 从 TypeScript 数据导出。
+- 地图与地点证据：依赖 `mapbox-gl`，中国地址流使用 Amap Web Service，将 EXIF WGS84 转 GCJ-02 后反查地址。`VITE_MAPBOX_TOKEN` 和 `VITE_AMAP_KEY` 都是可选环境配置。
+- AI 语义：Hermes 是可选网关。媒体分析走 `VITE_HERMES_GATEWAY_URL`，图片意义可以走 `VITE_HERMES_API_BASE_URL` + `VITE_HERMES_API_KEY`。没有配置时 UI 必须保持可用并显示本地/离线状态。
+- 测试：Vitest 使用 node 环境，React 页面主要通过 `react-dom/server` 渲染断言；设计 token 同步也有测试覆盖。
+
+## Current Surface
+
+当前已落地的路由只有四个：
+
+```text
+/              WorldPage
+/office        OfficePage
+/memory        MemoryPage / MemoryLibraryDashboard
+/memory/import MemoryImportPage / Image Import Workbench
+```
+
+财务楼、生活区、AI 研究所、家目前是世界地图节点和侧边栏入口，不是已实现的完整页面。文档可以继续规定它们的目标体验，但实现时必须先补 `ViewKey`、路由、页面组件和测试。
+
 ## Colors
 
 主背景使用接近白色的浅灰蓝 `#F7F8FB`，避免纯白刺眼。卡片统一使用白色 `#FFFFFF`。主交互色是明亮蓝 `#4B9CFF`，用于品牌感、进度条和轻量入口。
@@ -259,21 +296,22 @@ components:
 
 ## Layout & Spacing
 
-全局使用三栏结构：
+全局优先使用 Mac App 式三栏结构：
 
 ```text
 TopBar
-Sidebar | Main Content | Right Panel
+Sidebar | Main Content | Optional Right Rail
 ```
 
 桌面端基准：
 
-- 页面宽度优先适配 1440px / 1536px / 1728px。
+- Tauri 默认窗口是 1440px / 960px，最小窗口是 1120px / 760px；网页开发态继续适配 1440px / 1536px / 1728px。
 - 左侧 Sidebar：160px。
 - 右侧信息栏：220px 到 280px，当前实现 248px。
 - 主内容区自适应。
 - 卡片间距：12px 到 16px。
 - 页面外边距：16px 到 24px。
+- 页面容器可以使用 `100vw` / `100vh` 与内部 `overflow: auto`，但固定格式区域要用 `aspect-ratio`、`minmax()`、稳定高度或 CSS 变量避免内容抖动。
 
 主内容区结构：
 
@@ -286,7 +324,8 @@ Function Cards
 
 - 世界：首页大岛屿场景 + 今日状态 + 城市入口。
 - 办公室：办公室室内场景 + 今日任务 / AI 员工 / 项目进度 / 本月数据。
-- 记忆馆：记忆室场景 + 记忆卡片 / 时间轴 / AI 记忆助手。
+- 记忆馆：记忆室场景 + 记忆卡片 / 城市分布 / Hermes 状态 / 导入入口。
+- 导入记忆：独立工作台 + 批量上传状态 + EXIF/Amap/Hermes 证据 + 世界同步状态。
 - 财务楼：财务空间场景 + 收入 / 支出 / 资产 / 城市资金分布。
 - 生活区：生活空间场景 + 睡眠 / 运动 / 恢复 / 环境状态。
 
@@ -319,7 +358,7 @@ backdrop-filter: blur(12px);
 
 ### AppShell
 
-页面总容器。背景使用 `bg-main`。内部使用三栏布局。
+页面总容器。背景使用 `bg-main`。当前实现由 `TopBar`、`Sidebar`、主内容区和可选 `right-rail` 组成。没有右栏的页面使用 wide 变体，不要为了填满布局塞入无意义卡片。
 
 ### TopBar
 
@@ -341,6 +380,7 @@ TopBar 只放全局状态，不放复杂业务内容。
 世界地图
 办公室
 记忆馆
+导入记忆
 财务楼
 生活区
 AI 研究所
@@ -348,7 +388,7 @@ AI 研究所
 设置
 ```
 
-当前页面必须有明显 active 状态。Active 使用 `primary-strong` 背景以保证白字对比度。
+当前页面必须有明显 active 状态。Active 使用 `primary-strong` 背景以保证白字对比度。没有路由的导航项可以保留视觉入口，但不能伪装成已完成页面。
 
 ### SceneCard
 
@@ -361,11 +401,11 @@ AI 研究所
 - 生活区：花园、健身、恢复空间。
 - AI 研究所：AI 实验室、模型训练屏幕。
 
-SceneCard 可以使用图片或 Canvas / WebGL 渲染。第一版允许用静态图作为背景。
+SceneCard 当前使用静态 raster 场景图和像素 sprite 层。React 页面不要直接重写 Godot 的交互世界；需要真实移动、房间、天气、生长、解锁时，由 Godot Layer 3 读取 `world_state.json` 承担。
 
 ### InfoPanel
 
-右侧信息栏，显示当前空间属性与升级信息。
+右侧信息栏，对应当前代码里的 `rightRail`。它显示当前空间属性与升级信息，属于可选区域。专注导入、编辑、复核的工作台页面可以不显示右栏。
 
 例如办公室：
 
@@ -432,6 +472,27 @@ AI 员工不是聊天气泡，而是办公室里的角色。
 
 点击打开记忆详情。
 
+### MemoryImportWorkbench
+
+导入记忆是独立页面，不要塞进记忆馆主卡片里。当前工作台支持图片导入，批量上传支持逐张处理进度。核心状态按四步呈现：
+
+```text
+选择图片
+读取证据
+生成信息
+同步世界
+```
+
+证据展示必须区分硬事实和候选解释：EXIF GPS 是硬证据，Amap 地址、视觉摘要、文件名主题是辅助证据。没有真实坐标时，不要在地图或世界状态里生成硬事实点位。
+
+### EvidenceCard
+
+用于 EXIF、地址、Hermes 图片意义、世界同步等证据块。它必须显示状态、来源和用户能理解的一句话解释。可以显示 `gps_exif`、`amap`、`Hermes`、`world_state.json` 这类技术来源，但不要让用户看到原始数据库字段。
+
+### HermesStatusCard
+
+Hermes 是可选能力，不是页面加载前提。未配置网关时，状态应显示离线 / 本地 payload 就绪，并继续允许用户导入、建卡和浏览记忆。
+
 ### CitySwitchMap
 
 用于城市切换。城市不是普通 Tab，而是空间节点。交互是缩小当前城市，进入世界地图，选择目标城市，再放大进入。
@@ -447,6 +508,9 @@ AI 员工不是聊天气泡，而是办公室里的角色。
 - 让数据以状态、等级、建筑、进度出现。
 - 让 AI 员工以角色形式出现。
 - 让记忆以地点、时间、照片和故事出现。
+- 使用 `DESIGN.md` 中的 token，运行生成脚本同步到 `src/design-tokens.css`。
+- 把原始媒体、SQLite 路径、API key 留在本地实现层，只在 UI 中显示语义摘要和状态。
+- 让 Godot 只消费稳定后的 `world_state.json` 和资产 manifest。
 
 ### Don't
 
@@ -458,12 +522,16 @@ AI 员工不是聊天气泡，而是办公室里的角色。
 - 不要做太多货币、红点、抽奖式反馈。
 - 不要让用户感觉自己在填写数据库。
 - 不要把 AI 员工做成普通聊天机器人列表。
+- 不要新增另一套 `--color-bg` / `--color-surface` 等 token 别名。
+- 不要手动修改 `src/design-tokens.css`。
+- 不要在没有迁移计划时引入 Tailwind、shadcn、CSS-in-JS 或新的 UI 组件库。
+- 不要让 Godot、Hermes 或 Mapbox 直接读取原始照片、音频、SQLite 文件路径或完整隐私数据。
 
 ## Page Rules
 
 ### WorldPage
 
-主视觉是岛屿城市。建筑必须可点击：
+主视觉是岛屿城市。当前 `/` 已实现世界地图、TopBar、Sidebar、右侧城市状态和底部功能卡。建筑视觉节点包括：
 
 ```text
 家
@@ -474,7 +542,7 @@ AI 员工不是聊天气泡，而是办公室里的角色。
 AI 研究所
 ```
 
-世界页的目标是让用户感到“我的世界正在生长”。
+当前已可点击进入的是办公室和记忆馆；其他建筑作为世界状态目标保留。世界页的目标是让用户感到“我的世界正在生长”。
 
 ### OfficePage
 
@@ -491,20 +559,37 @@ AI 员工
 
 ### MemoryPage
 
-主视觉是记忆馆室内。核心卡片：
+主视觉是记忆馆室内。当前 `/memory` 是记忆库页面，核心卡片：
 
 ```text
-记忆流
-时间轴
-地点分类
-AI 记忆助手
+记忆馆场景
+批量导入
+2024 年记忆
+城市分布
+Hermes 状态
+导入记忆入口
 ```
 
 记忆馆不是相册，是可探索的人生空间。
 
+### MemoryImportPage
+
+`/memory/import` 是图片导入工作台。它不是普通表单，而是证据流水线：
+
+```text
+选择 HEIC / JPEG / PNG
+读取 EXIF GPS
+请求 Amap 地址候选
+请求 Hermes 图片意义
+生成 MemoryItem / EventMeaning
+等待同地点证据达到同步阈值
+```
+
+导入体验必须自动化、可解释、可回退。用户不应该被迫填写标题、主题或数据库字段。批量导入时必须展示进度、失败项和当前处理文件。
+
 ### FinancePage
 
-主视觉是财务楼。核心卡片：
+目标页，当前主分支尚未实现路由。主视觉是财务楼。核心卡片：
 
 ```text
 总资产
@@ -517,7 +602,7 @@ AI 记忆助手
 
 ### LifePage
 
-主视觉是生活区。核心卡片：
+目标页，当前主分支尚未实现路由。主视觉是生活区。核心卡片：
 
 ```text
 睡眠
@@ -528,26 +613,80 @@ AI 记忆助手
 
 生活区表达真实身体状态如何影响数字世界。
 
+### AIResearchPage
+
+目标页，当前主分支尚未实现路由。AI 研究所表达 Hermes / Agent 能力，但不要做成普通聊天列表。核心卡片：
+
+```text
+AI 员工
+Hermes 任务
+技能进化
+自动化队列
+世界解释
+```
+
 ## Implementation Guidance
 
-前端优先使用组件化结构：
+当前代码边界：
+
+- `src/domain` 放纯 TypeScript 领域模型、世界生成、地点画像、同步阈值和测试。
+- `src/integrations` 放 Amap、EXIF、Hermes、localStore、Godot world state 等外部边界。
+- `src/components` 放可复用 React 组件，例如 `AppShell`、`MemoryRoom`。
+- `src/App.tsx` 目前仍承担页面编排和导入工作台逻辑；后续变大时优先按页面拆分，不要把新业务继续堆进同一个文件。
+- `src-tauri` 放 Tauri / Rust / SQLite command。
+- `native/MemoryMapSidecar` 放 Swift 原生媒体导入。
+- `godot` 放 Layer 3 游戏世界原型。
+
+前端优先使用当前已落地的组件结构：
 
 ```text
 AppShell
 TopBar
 Sidebar
+DesignCard
 SceneCard
 RightInfoPanel
 TaskCard
 AgentCard
 ProgressCard
 MemoryCard
+MemoryImportWorkbench
+EvidenceCard
 Timeline
 ```
 
-第一版可以使用静态场景图。后续再替换为 Canvas / WebGL / Godot 渲染。
+第一版 React 页面使用静态场景图、sprite PNG 和 CSS 布局。后续如果要嵌入真正可移动的世界，不要在 React 中手写一套游戏引擎；应让 Godot Web export 或 Godot native sidecar 承担 Layer 3。
 
-CSS 默认使用 `src/styles.css` 中的基础变量。当前代码仍保留 `--bg-main`、`--bg-card`、`--bg-soft` 这组已经落地的命名；不要新增另一套 `--color-bg` / `--color-surface` 别名，避免设计系统漂移。
+CSS 默认使用 `src/styles.css`，并从 `src/design-tokens.css` 读取变量。当前代码保留 `--bg-main`、`--bg-card`、`--bg-soft` 这组已经落地的命名；不要新增另一套 `--color-bg` / `--color-surface` 别名，避免设计系统漂移。
+
+常用命令：
+
+```bash
+npm run design:tokens
+npm run design:tokens:check
+npm run export:godot
+npm run test
+npm run build
+npm run tauri
+```
+
+环境变量：
+
+```text
+VITE_MAPBOX_TOKEN
+VITE_AMAP_KEY
+VITE_HERMES_GATEWAY_URL
+VITE_HERMES_API_BASE_URL
+VITE_HERMES_API_KEY
+```
+
+资产约定：
+
+- `public/assets/generated/v2/sprites` 是当前主 UI / 世界节点 sprite 来源。
+- `public/assets/generated/v2/addon-sprites` 是按钮、徽章、图标、卡片底图等辅助 sprite。
+- `public/assets/game/sprites` 是世界地图 cut sprite。
+- `public/assets/office-room` 和 `public/assets/memory-room` 是页面 scene 背景。
+- `godot/assets` 只服务 Godot 项目，不要直接依赖其 `.import` 文件作为 Web UI 资产。
 
 ## Product Tone
 
