@@ -70,9 +70,36 @@ export function TopBar() {
   );
 }
 
-export function Sidebar({ active, onNavigate }: { active: string; onNavigate: NavigateHandler }) {
+function SideProfile() {
+  return (
+    <section className="side-profile" aria-label="玩家信息">
+      <img className="side-profile-avatar" src={gameAssets.player} alt="" />
+      <div>
+        <strong>Alex Chen</strong>
+        <span>CEO of Me Inc.</span>
+      </div>
+      <p>Day 10,532</p>
+      <div className="side-profile-progress">
+        <span>Lv.42</span>
+        <div className="xp-track"><i style={{ width: "68%" }} /></div>
+        <em>68%</em>
+      </div>
+    </section>
+  );
+}
+
+export function Sidebar({
+  active,
+  onNavigate,
+  showProfile = false
+}: {
+  active: string;
+  onNavigate: NavigateHandler;
+  showProfile?: boolean;
+}) {
   return (
     <aside className="side-nav" aria-label="建筑导航">
+      {showProfile ? <SideProfile /> : null}
       <nav>
         {navItems.map(({ label, icon, view }) => (
           <a
@@ -109,7 +136,8 @@ export function AppShell({
   className,
   contentClassName = "main-stage",
   onNavigate,
-  rightRail
+  rightRail,
+  showTopBar = true
 }: {
   active: string;
   children: ReactNode;
@@ -117,11 +145,14 @@ export function AppShell({
   contentClassName?: string;
   onNavigate: NavigateHandler;
   rightRail?: ReactNode;
+  showTopBar?: boolean;
 }) {
+  const shellClassName = `app-shell ${className}${rightRail ? "" : " app-shell--wide"}${showTopBar ? "" : " app-shell--no-topbar"}`;
+
   return (
-    <main className={`app-shell ${className}${rightRail ? "" : " app-shell--wide"}`}>
-      <TopBar />
-      <Sidebar active={active} onNavigate={onNavigate} />
+    <main className={shellClassName}>
+      {showTopBar ? <TopBar /> : null}
+      <Sidebar active={active} onNavigate={onNavigate} showProfile={!showTopBar} />
       <section className={contentClassName}>
         {children}
       </section>

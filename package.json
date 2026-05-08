@@ -9,6 +9,7 @@
     "design:tokens": "node scripts/export-design-tokens.mjs",
     "design:tokens:check": "node scripts/export-design-tokens.mjs --check",
     "export:godot": "vite-node scripts/export-godot-world-state.ts",
+    "generate:pixel-island": "python3 scripts/pixel_island_pipeline.py",
     "test": "vitest",
     "tauri": "tauri"
   },
