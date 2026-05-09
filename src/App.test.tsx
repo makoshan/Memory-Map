@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 import App, {
   buildImageImportProgressSteps,
   createArchiveProcessingFile,
+  GodotWebGamePage,
   getPathForView,
   getViewFromPathname,
   MemoryCreatePage,
@@ -47,6 +48,8 @@ describe("App", () => {
     expect(html).toContain("24°C");
     expect(html).toContain("晴 · 空气优 28");
     expect(html).toContain("世界地图");
+    expect(html).toContain("进入杭州像素岛");
+    expect(html).toContain('data-godot-session-entry="hangzhou"');
     expect(html).toContain("进入办公室");
     expect(html).toContain("进入记忆馆");
     expect(html).toContain('href="/office"');
@@ -231,12 +234,28 @@ describe("App", () => {
     expect(getPathForView("office")).toBe("/office");
     expect(getPathForView("memory")).toBe("/memory");
     expect(getPathForView("memoryImport")).toBe("/memory/import");
+    expect(getPathForView("game")).toBe("/game");
     expect(getViewFromPathname("/")).toBe("world");
     expect(getViewFromPathname("/office")).toBe("office");
     expect(getViewFromPathname("/memory")).toBe("memory");
     expect(getViewFromPathname("/memory/")).toBe("memory");
     expect(getViewFromPathname("/memory/import")).toBe("memoryImport");
     expect(getViewFromPathname("/memory/import/")).toBe("memoryImport");
+    expect(getViewFromPathname("/game")).toBe("game");
     expect(getViewFromPathname("/unknown")).toBe("world");
+  });
+
+  it("renders the Godot iframe as a focusable game surface for keyboard walking", () => {
+    const html = renderToStaticMarkup(<GodotWebGamePage onNavigate={() => undefined} />);
+
+    expect(html).toContain("app-shell godot-game-shell");
+    expect(html).toContain("side-profile");
+    expect(html).toContain("godot-game-card");
+    expect(html).toContain("godot-game-toolbar");
+    expect(html).not.toContain("godot-web-topbar");
+    expect(html).not.toContain("Godot Web");
+    expect(html).toContain('src="/godot-web/index.html"');
+    expect(html).toContain('title="杭州像素岛 Godot 游戏"');
+    expect(html).toContain('tabindex="0"');
   });
 });

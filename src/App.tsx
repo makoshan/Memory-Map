@@ -58,6 +58,19 @@ const aiCompanyAssets = {
 
 type WorldStageMode = "island" | "map";
 type MapboxWorldMapVariant = "rail" | "stage";
+type GodotWebSessionResult = {
+  sessionId?: string;
+  status?: string;
+  worldSlug?: string;
+  completedTasks?: string[];
+  visitedRooms?: string[];
+};
+
+type GodotWebSessionMessage = {
+  type: "memory-map:godot-session";
+  session?: GodotWebSessionResult;
+  returnToApp?: boolean;
+};
 
 const hangzhouMap = {
   city: "杭州",
@@ -67,6 +80,15 @@ const hangzhouMap = {
   railZoom: 7.4,
   stageZoom: 10.2
 };
+
+function isGodotWebSessionMessage(value: unknown): value is GodotWebSessionMessage {
+  if (typeof value !== "object" || value === null) {
+    return false;
+  }
+
+  const record = value as Record<string, unknown>;
+  return record.type === "memory-map:godot-session";
+}
 
 const tasks = [
   ["10:00", "产品设计评审", true],
@@ -344,7 +366,13 @@ function PixelStageStatusCard() {
   );
 }
 
-function WorldSceneCard({ onNavigate, onShowMap }: { onNavigate: NavigateHandler; onShowMap: () => void }) {
+function WorldSceneCard({
+  onNavigate,
+  onShowMap
+}: {
+  onNavigate: NavigateHandler;
+  onShowMap: () => void;
+}) {
   const pack = hangzhouPixelIslandPack;
   const visualMode: "composite" = "composite";
 
@@ -373,6 +401,16 @@ function WorldSceneCard({ onNavigate, onShowMap }: { onNavigate: NavigateHandler
         <p>{pack.city} 的像素岛屿由背景、切图素材和摆放数据拼接而成。</p>
       </article>
       <div className="world-stage-actions world-stage-actions--map-only">
+        <a
+          className="world-map-chip world-game-chip"
+          href={getPathForView("game")}
+          onClick={(event) => onNavigate("game", event)}
+          data-godot-session-entry={pack.slug}
+        >
+          <img src={gameAssets.player} alt="" />
+          <span>进入杭州像素岛</span>
+          <b>›</b>
+        </a>
         <button className="world-map-chip" type="button" onClick={onShowMap}>
           <img src={gameAssets.icons.mapPin} alt="" />
           <span>世界地图</span>
@@ -488,6 +526,90 @@ function IslandHomePage({ onNavigate }: { onNavigate: NavigateHandler }) {
         <WorldSceneCard onNavigate={onNavigate} onShowMap={showMap} />
       )}
       <WorldBottomGrid onNavigate={onNavigate} />
+    </AppShell>
+  );
+}
+
+export function GodotWebGamePage({ onNavigate }: { onNavigate: NavigateHandler }) {
+  const frameRef = useRef<HTMLIFrameElement>(null);
+  const [sessionResult, setSessionResult] = useState<GodotWebSessionResult | null>(null);
+  const visitedRooms = sessionResult?.visitedRooms?.length ?? 0;
+  const completedTasks = sessionResult?.completedTasks?.length ?? 0;
+
+  const focusGodotFrame = () => {
+    const frame = frameRef.current;
+    if (!frame) {
+      return;
+    }
+
+    frame.focus();
+    frame.contentWindow?.focus();
+    const canvas = frame.contentDocument?.getElementById("canvas");
+    if (canvas instanceof HTMLCanvasElement) {
+      canvas.focus();
+    }
+  };
+
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      if (!isGodotWebSessionMessage(event.data)) {
+        return;
+      }
+
+      const godotWindow = frameRef.current?.contentWindow;
+      if (godotWindow && event.source !== godotWindow) {
+        return;
+      }
+
+      if (event.data.session) {
+        setSessionResult(event.data.session);
+        window.sessionStorage.setItem("memory-map:last-godot-session", JSON.stringify(event.data.session));
+      }
+
+      if (event.data.returnToApp) {
+        onNavigate("world");
+      }
+    };
+
+    window.addEventListener("message", handleMessage);
+    return () => window.removeEventListener("message", handleMessage);
+  }, [onNavigate]);
+
+  return (
+    <AppShell
+      active="世界地图"
+      className="godot-game-shell"
+      contentClassName="godot-game-stage"
+      onNavigate={onNavigate}
+      showTopBar={false}
+    >
+      <section className="godot-game-card" aria-label="杭州像素岛">
+        <header className="godot-game-toolbar">
+          <div className="godot-game-pill godot-game-city">
+            <img src={gameAssets.icons.mapPin} alt="" />
+            <strong>杭州</strong>
+            <span>Hangzhou</span>
+          </div>
+          <div className="godot-game-pill godot-game-weather">
+            <img src={gameAssets.addon.icons.energy} alt="" />
+            <strong>24°C</strong>
+            <span>晴 · 空气优 28</span>
+          </div>
+          <p className="godot-game-session-pill">
+            {sessionResult ? `Session 已同步 · ${visitedRooms} 房间 · ${completedTasks} 任务` : "Session 运行中"}
+          </p>
+        </header>
+        <iframe
+          ref={frameRef}
+          className="godot-web-frame"
+          src="/godot-web/index.html"
+          title="杭州像素岛 Godot 游戏"
+          allow="autoplay; fullscreen; gamepad; clipboard-read; clipboard-write"
+          tabIndex={0}
+          onLoad={focusGodotFrame}
+          onPointerDown={focusGodotFrame}
+        />
+      </section>
     </AppShell>
   );
 }
@@ -1793,6 +1915,10 @@ export default function App() {
 
   if (view === "memoryImport") {
     return <MemoryCreatePage onNavigate={navigate} />;
+  }
+
+  if (view === "game") {
+    return <GodotWebGamePage onNavigate={navigate} />;
   }
 
   return <IslandHomePage onNavigate={navigate} />;

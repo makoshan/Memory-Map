@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { ChangeEvent, DragEvent } from "react";
 import { DesignCard, type NavigateHandler } from "./AppShell";
 import { gameAssets } from "../data/gameAssets";
+import { hangzhouPixelIslandPack } from "../data/pixelIslandPacks";
 import {
   buildAgentContext,
   buildMediaAsset,
@@ -28,6 +29,9 @@ type HermesJobView = HermesAnalysisJob & {
 };
 
 const memoryScene = "/assets/memory-room/scene.jpg";
+const memoryMuseumSprite =
+  hangzhouPixelIslandPack.layers.find((layer) => layer.key === "memory")?.sprite ??
+  "/assets/generated/v2/hangzhou-sprites/memory-museum-island.png";
 
 const ACCEPTED_TYPES = "image/*,audio/*,text/plain,text/markdown,.md,.txt";
 
@@ -134,7 +138,11 @@ export async function fileToProcessingFile(file: File, options: ProcessingFileOp
 
 function MemoryHeroCard() {
   return (
-    <DesignCard className="scene-card memory-scene-card">
+    <DesignCard
+      className="scene-card memory-scene-card memory-museum-game-stage"
+      data-memory-sprites-manifest={hangzhouPixelIslandPack.spritesManifest}
+      data-godot-room-entry="memory"
+    >
       <img className="memory-scene" src={memoryScene} alt="记忆馆像素风场景" />
       <article className="scene-info">
         <header>
@@ -146,6 +154,22 @@ function MemoryHeroCard() {
         <div className="progress-track"><i style={{ width: "70%" }} /></div>
         <p>存放你人生重要的记忆。AI 会从照片、笔记和音频里提炼成事件，并把它们放回城市地图。</p>
       </article>
+      <aside
+        className="memory-museum-entry"
+        aria-label="记忆馆游戏入口"
+        data-memory-sprites-manifest={hangzhouPixelIslandPack.spritesManifest}
+        data-godot-room-entry="memory"
+      >
+        <img src={memoryMuseumSprite} alt="" />
+        <div>
+          <span>切图清单</span>
+          <strong>记忆馆像素岛</strong>
+          <small>{hangzhouPixelIslandPack.spritesManifest}</small>
+        </div>
+        <a className="button-primary memory-game-link" href="/game?room=memory">
+          进入记忆馆游戏
+        </a>
+      </aside>
     </DesignCard>
   );
 }

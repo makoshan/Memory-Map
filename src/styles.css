@@ -2836,6 +2836,111 @@ img {
   font-size: 20px;
 }
 
+.world-game-chip {
+  background: rgba(23, 32, 51, 0.9);
+  color: #fff;
+}
+
+.world-game-chip b {
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.godot-game-shell {
+  min-height: 100vh;
+}
+
+.godot-game-stage {
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+}
+
+.godot-game-card {
+  position: relative;
+  width: 100%;
+  min-height: calc(100vh - var(--space-page) * 2);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--bg-card);
+  box-shadow: var(--shadow-card);
+}
+
+.godot-game-toolbar {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  right: 20px;
+  z-index: 2;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  pointer-events: none;
+}
+
+.godot-game-toolbar > * {
+  pointer-events: auto;
+}
+
+.godot-game-pill,
+.godot-game-session-pill {
+  min-height: 48px;
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid rgba(226, 232, 240, 0.92);
+  border-radius: var(--radius-lg);
+  background: rgba(255, 255, 255, 0.88);
+  color: var(--text-main);
+  box-shadow: 0 8px 30px rgba(15, 23, 42, 0.08);
+  backdrop-filter: blur(12px);
+}
+
+.godot-game-pill {
+  gap: 10px;
+  padding: 0 16px 0 12px;
+}
+
+.godot-game-pill img {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+}
+
+.godot-game-pill strong {
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.godot-game-pill span {
+  color: var(--text-sub);
+  font-weight: 700;
+}
+
+.godot-game-city {
+  min-width: 250px;
+}
+
+.godot-game-weather {
+  min-width: 248px;
+}
+
+.godot-game-session-pill {
+  margin: 0 0 0 auto;
+  padding: 0 16px;
+  color: var(--primary-strong);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.godot-web-frame {
+  width: 100%;
+  height: calc(100vh - var(--space-page) * 2);
+  display: block;
+  border: 0;
+  background: var(--bg-soft);
+}
+
 .world-map-stage-card {
   background: #dceaf1;
 }
@@ -3580,6 +3685,61 @@ img {
 
 .memory-scene-card {
   height: 320px;
+}
+
+.memory-museum-entry {
+  position: absolute;
+  right: 22px;
+  bottom: 22px;
+  width: min(332px, calc(100% - 44px));
+  display: grid;
+  grid-template-columns: 82px minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+  padding: 14px;
+  border: 1px solid rgba(215, 226, 241, 0.9);
+  border-radius: var(--radius-card);
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 18px 42px rgba(15, 23, 42, 0.16);
+  backdrop-filter: blur(12px);
+}
+
+.memory-museum-entry img {
+  width: 82px;
+  height: 82px;
+  object-fit: contain;
+  image-rendering: pixelated;
+  filter: drop-shadow(0 8px 12px rgba(15, 23, 42, 0.18));
+}
+
+.memory-museum-entry div {
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.memory-museum-entry span {
+  color: var(--primary);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.memory-museum-entry strong {
+  color: var(--text-main);
+  font-size: 17px;
+  line-height: 1.25;
+}
+
+.memory-museum-entry small {
+  overflow: hidden;
+  color: var(--text-muted);
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.memory-game-link {
+  grid-column: 1 / -1;
 }
 
 .memory-scene {

@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "npm run design:tokens:check && tsc && vite build",
+    "build:godot-web": "node scripts/build-godot-web.mjs",
     "design:tokens": "node scripts/export-design-tokens.mjs",
     "design:tokens:check": "node scripts/export-design-tokens.mjs --check",
     "export:godot": "vite-node scripts/export-godot-world-state.ts",
