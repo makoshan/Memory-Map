@@ -116,6 +116,11 @@ func _assert_player_walk_leg_pose(scene: Node) -> void:
 	if pose == null or left_leg == null or right_leg == null:
 		fail("Player should include named leg pose nodes so walking is visible even when the generated sheet is subtle")
 		return
+	if not pose.show_behind_parent:
+		fail("Leg pose overlay should render behind the generated character sheet so it does not look pasted on")
+	var left_shoe := left_leg.get_node_or_null("Shoe") as Polygon2D
+	if left_shoe != null and left_shoe.color.r > 0.75 and left_shoe.color.g > 0.75 and left_shoe.color.b > 0.75:
+		fail("Leg pose overlay should not add bright white shoes over the character art")
 
 	scene._update_player_walk_pose(false, Vector2.ZERO)
 	if pose.visible:

@@ -17,8 +17,8 @@ const COLOR_TEXT_MAIN := Color(0.066666667, 0.094117647, 0.152941176, 1.0)
 const COLOR_TEXT_SUB := Color(0.278431373, 0.333333333, 0.411764706, 1.0)
 const COLOR_TEXT_MUTED := Color(0.580392157, 0.639215686, 0.721568627, 1.0)
 const COLOR_BORDER := Color(0.88627451, 0.909803922, 0.941176471, 1.0)
-const COLOR_PLAYER_LEG := Color(0.035294118, 0.149019608, 0.349019608, 0.92)
-const COLOR_PLAYER_SHOE := Color(0.921568627, 0.964705882, 1.0, 0.94)
+const COLOR_PLAYER_LEG_SHADOW := Color(0.02745098, 0.109803922, 0.254901961, 0.5)
+const COLOR_PLAYER_FOOT_SHADOW := Color(0.011764706, 0.031372549, 0.078431373, 0.42)
 const ASSET_PATHS := {
 	"home-lv1": "res://assets/sprites/home-lv1.png",
 	"home-lv2": "res://assets/sprites/home-lv2.png",
@@ -687,7 +687,8 @@ func _attach_player_walk_pose() -> void:
 	player_walk_pose = Node2D.new()
 	player_walk_pose.name = "WalkPose"
 	player_walk_pose.visible = false
-	player_walk_pose.z_index = 8
+	player_walk_pose.show_behind_parent = true
+	player_walk_pose.z_index = -4
 	player.add_child(player_walk_pose)
 	player_walk_pose.add_child(_create_walk_leg_node("LeftLeg", Vector2(-8, 28)))
 	player_walk_pose.add_child(_create_walk_leg_node("RightLeg", Vector2(8, 28)))
@@ -700,26 +701,26 @@ func _create_walk_leg_node(node_name: String, hip_position: Vector2) -> Node2D:
 
 	var thigh := Polygon2D.new()
 	thigh.name = "Pants"
-	thigh.color = COLOR_PLAYER_LEG
+	thigh.color = COLOR_PLAYER_LEG_SHADOW
 	thigh.polygon = PackedVector2Array([
-		Vector2(-3, 0),
-		Vector2(4, 0),
-		Vector2(5, 25),
-		Vector2(-4, 25),
+		Vector2(-2, 0),
+		Vector2(3, 0),
+		Vector2(4, 22),
+		Vector2(-3, 22),
 	])
 	leg.add_child(thigh)
 
-	var shoe := Polygon2D.new()
-	shoe.name = "Shoe"
-	shoe.color = COLOR_PLAYER_SHOE
-	shoe.position = Vector2(0, 25)
-	shoe.polygon = PackedVector2Array([
-		Vector2(-8, 0),
-		Vector2(7, 0),
-		Vector2(9, 5),
-		Vector2(-9, 5),
+	var step_shadow := Polygon2D.new()
+	step_shadow.name = "StepShadow"
+	step_shadow.color = COLOR_PLAYER_FOOT_SHADOW
+	step_shadow.position = Vector2(0, 22)
+	step_shadow.polygon = PackedVector2Array([
+		Vector2(-6, 0),
+		Vector2(6, 0),
+		Vector2(8, 4),
+		Vector2(-8, 4),
 	])
-	leg.add_child(shoe)
+	leg.add_child(step_shadow)
 	return leg
 
 
@@ -752,12 +753,12 @@ func _update_player_walk_pose(is_walking: bool, _movement: Vector2) -> void:
 	if absf(stride) < 0.08:
 		stride = 0.08 if cos(phase) >= 0.0 else -0.08
 
-	left_leg.position = Vector2(-8 + stride * 3.0, 28 + maxf(0.0, -stride) * 2.0)
-	right_leg.position = Vector2(8 - stride * 3.0, 28 + maxf(0.0, stride) * 2.0)
-	left_leg.rotation = stride * 0.24
-	right_leg.rotation = -stride * 0.24
-	left_leg.scale = Vector2(1.0, 0.96 + maxf(0.0, stride) * 0.12)
-	right_leg.scale = Vector2(1.0, 0.96 + maxf(0.0, -stride) * 0.12)
+	left_leg.position = Vector2(-8 + stride * 2.0, 28 + maxf(0.0, -stride) * 1.2)
+	right_leg.position = Vector2(8 - stride * 2.0, 28 + maxf(0.0, stride) * 1.2)
+	left_leg.rotation = stride * 0.16
+	right_leg.rotation = -stride * 0.16
+	left_leg.scale = Vector2(1.0, 0.98 + maxf(0.0, stride) * 0.06)
+	right_leg.scale = Vector2(1.0, 0.98 + maxf(0.0, -stride) * 0.06)
 
 
 func _create_player() -> void:
