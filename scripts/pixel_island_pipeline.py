@@ -6,7 +6,8 @@ The creative image generation step happens outside this script. Feed the script:
 2. a sprite atlas generated on a near-#FF00FF chroma-key background
 
 It writes transparent sprites, manifests, prompt files, and a composite preview that
-can be consumed by the React homepage or a future Godot export.
+can be consumed by the React homepage or a future Godot export. Pass
+--memory-room to build the dedicated 记忆室 pack through memory_room_pipeline.py.
 """
 
 from __future__ import annotations
@@ -14,6 +15,7 @@ from __future__ import annotations
 import argparse
 import json
 import shutil
+import sys
 from collections import deque
 from pathlib import Path
 from typing import Any
@@ -491,7 +493,21 @@ def mirror_pack(slug: str, output_root: Path, mirror_root: Path) -> None:
     shutil.copytree(src_sprites, dst_sprites)
 
 
+def dispatch_memory_room_pipeline() -> bool:
+    if "--memory-room" not in sys.argv[1:]:
+        return False
+
+    sys.argv = [sys.argv[0], *[arg for arg in sys.argv[1:] if arg != "--memory-room"]]
+    from memory_room_pipeline import main as memory_room_main
+
+    memory_room_main()
+    return True
+
+
 def main() -> None:
+    if dispatch_memory_room_pipeline():
+        return
+
     parser = argparse.ArgumentParser(description="Build a reusable pixel-island asset pack from generated images.")
     parser.add_argument("--slug", default="hangzhou")
     parser.add_argument("--city", default="Hangzhou")

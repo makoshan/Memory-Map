@@ -81,7 +81,30 @@ Use a first-frame image with a flat chroma background:
 - No shadows, floor, gradients, props, text, watermark, or border.
 - No green on the character if using the green key.
 
+If the available source asset is already a transparent PNG, prepare the Dreamina first frame by compositing it onto the green key:
+
+```bash
+python tools/prepare_chroma_first_frame.py \
+  --input "public/assets/generated/v2/sprites/memory-lv3.png" \
+  --output "source_images/memory-door-open-first-frame.png" \
+  --canvas-size 1024x1024 \
+  --layout-mode fit-foreground \
+  --padding 64 \
+  --report "work/runs/memory-door-open-first-frame-report.json"
+```
+
+Use `preserve-canvas` when the transparent PNG is already the exact canvas you want. Use `fit-foreground` for small exported sprites that need to be centered on a larger Dreamina input canvas.
+
 For non-idle animation, create a small transition pose before sending the image to the video model. Ask the video model for locked camera, same size, same facing, no travel, no zoom, and unchanged flat green background.
+
+For the memory room entrance transition, use the dedicated door prompt:
+
+```bash
+python tools/personal_asset_pipeline.py \
+  --prompt prompts/memory-door-open.json
+```
+
+This creates an 8-frame `door_open` strip from the prepared first frame. Godot should play that strip at the door trigger, then fade out and switch into the memory room scene.
 
 ## Local Workflow
 

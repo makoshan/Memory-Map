@@ -185,6 +185,23 @@ Flat #00FF00 background stays unchanged.
 No floor, no shadows, no text, no watermark, no extra objects outside the building.
 ```
 
+## 3A. Dreamina Image2Video: Memory Door Open
+
+```text
+Use the uploaded image as the exact first frame.
+Animate a tiny 2.5D isometric pixel-art memory museum door opening for a game transition.
+
+Keep the same building facade, same door frame, same isometric angle, same scale, same colors, and same pixel-art design.
+Only the door opens inward with a small warm light appearing from inside.
+The building does not move.
+The asset stays centered and does not travel.
+
+Locked camera.
+No zoom, no pan, no rotation, no cuts, no camera shake.
+Flat #00FF00 background stays unchanged.
+No shadows, no floor, no extra props, no characters, no UI, no text, no watermark, no blur, no redesign.
+```
+
 ## 4. Dreamina Image2Video: Damp Fatigue Visual State
 
 ```text

@@ -1,0 +1,386 @@
+{
+  "slug": "memory-room",
+  "title": "记忆室组合地图",
+  "visualModel": "layered_raster",
+  "runtimeObjectModel": "interactive_entities",
+  "collisionModel": "trigger_zones",
+  "engineTargets": [
+    "React",
+    "Godot"
+  ],
+  "size": {
+    "width": 1672,
+    "height": 941
+  },
+  "base": {
+    "src": "/assets/generated/v2/memory-room-background.png"
+  },
+  "layers": [
+    {
+      "key": "background",
+      "type": "base",
+      "src": "/assets/generated/v2/memory-room-background.png",
+      "zIndex": 0,
+      "locked": true
+    },
+    {
+      "key": "bookshelf",
+      "type": "interactive_prop",
+      "label": "书架",
+      "materialType": "book",
+      "role": "书",
+      "src": "/assets/generated/v2/memory-room-sprites/bookshelf.png",
+      "zIndex": 22,
+      "anchor": "bottom-center",
+      "placement": {
+        "centerX": 0.32,
+        "centerY": 0.43,
+        "widthRatio": 0.18,
+        "box": {
+          "left": 385,
+          "top": 97,
+          "width": 300,
+          "height": 404
+        }
+      },
+      "hitArea": {
+        "shape": "rect",
+        "left": 385,
+        "top": 97,
+        "width": 300,
+        "height": 404
+      },
+      "actions": [
+        {
+          "type": "open_book_library",
+          "label": "打开书库"
+        }
+      ]
+    },
+    {
+      "key": "map-wall",
+      "type": "interactive_prop",
+      "label": "地图墙",
+      "materialType": "location",
+      "role": "地理位置",
+      "src": "/assets/generated/v2/memory-room-sprites/map-wall.png",
+      "zIndex": 24,
+      "anchor": "bottom-center",
+      "placement": {
+        "centerX": 0.76,
+        "centerY": 0.5,
+        "widthRatio": 0.18,
+        "box": {
+          "left": 1120,
+          "top": 114,
+          "width": 300,
+          "height": 469
+        }
+      },
+      "hitArea": {
+        "shape": "rect",
+        "left": 1120,
+        "top": 114,
+        "width": 300,
+        "height": 469
+      },
+      "actions": [
+        {
+          "type": "open_location_graph",
+          "label": "打开地点关联"
+        }
+      ]
+    },
+    {
+      "key": "notes-desk",
+      "type": "interactive_prop",
+      "label": "笔记台",
+      "materialType": "note",
+      "role": "笔记",
+      "src": "/assets/generated/v2/memory-room-sprites/notes-desk.png",
+      "zIndex": 42,
+      "anchor": "bottom-center",
+      "placement": {
+        "centerX": 0.28,
+        "centerY": 0.7,
+        "widthRatio": 0.17,
+        "box": {
+          "left": 326,
+          "top": 448,
+          "width": 284,
+          "height": 276
+        }
+      },
+      "hitArea": {
+        "shape": "rect",
+        "left": 326,
+        "top": 448,
+        "width": 284,
+        "height": 276
+      },
+      "actions": [
+        {
+          "type": "open_note_list",
+          "label": "打开笔记列表"
+        }
+      ]
+    },
+    {
+      "key": "photo-album",
+      "type": "interactive_prop",
+      "label": "相册",
+      "materialType": "photo",
+      "role": "照片",
+      "src": "/assets/generated/v2/memory-room-sprites/photo-album.png",
+      "zIndex": 46,
+      "anchor": "bottom-center",
+      "placement": {
+        "centerX": 0.56,
+        "centerY": 0.68,
+        "widthRatio": 0.17,
+        "box": {
+          "left": 794,
+          "top": 467,
+          "width": 284,
+          "height": 227
+        }
+      },
+      "hitArea": {
+        "shape": "rect",
+        "left": 794,
+        "top": 467,
+        "width": 284,
+        "height": 227
+      },
+      "actions": [
+        {
+          "type": "open_photo_memories",
+          "label": "打开照片列表"
+        }
+      ]
+    },
+    {
+      "key": "audio-machine",
+      "type": "interactive_prop",
+      "label": "音频机",
+      "materialType": "audio",
+      "role": "音频",
+      "src": "/assets/generated/v2/memory-room-sprites/audio-machine.png",
+      "zIndex": 48,
+      "anchor": "bottom-center",
+      "placement": {
+        "centerX": 0.8,
+        "centerY": 0.71,
+        "widthRatio": 0.14,
+        "box": {
+          "left": 1220,
+          "top": 433,
+          "width": 234,
+          "height": 309
+        }
+      },
+      "hitArea": {
+        "shape": "rect",
+        "left": 1220,
+        "top": 433,
+        "width": 234,
+        "height": 309
+      },
+      "actions": [
+        {
+          "type": "play_audio_memory",
+          "label": "播放语音"
+        }
+      ]
+    },
+    {
+      "key": "timeline-table",
+      "type": "interactive_prop",
+      "label": "时间台",
+      "materialType": "timeline",
+      "role": "回放",
+      "src": "/assets/generated/v2/memory-room-sprites/timeline-table.png",
+      "zIndex": 54,
+      "anchor": "bottom-center",
+      "placement": {
+        "centerX": 0.5,
+        "centerY": 0.76,
+        "widthRatio": 0.22,
+        "box": {
+          "left": 652,
+          "top": 464,
+          "width": 367,
+          "height": 330
+        }
+      },
+      "hitArea": {
+        "shape": "rect",
+        "left": 652,
+        "top": 464,
+        "width": 367,
+        "height": 330
+      },
+      "actions": [
+        {
+          "type": "replay_timeline",
+          "label": "触发 AI 总结"
+        }
+      ]
+    }
+  ],
+  "interactions": [
+    {
+      "key": "bookshelf",
+      "label": "书架",
+      "materialType": "book",
+      "role": "书",
+      "sprite": "/assets/generated/v2/memory-room-sprites/bookshelf.png",
+      "placement": {
+        "centerX": 0.32,
+        "centerY": 0.43,
+        "widthRatio": 0.18,
+        "zIndex": 22,
+        "previewBox": {
+          "left": 385,
+          "top": 97,
+          "width": 300,
+          "height": 404
+        }
+      },
+      "actions": [
+        {
+          "type": "open_book_library",
+          "label": "打开书库"
+        }
+      ]
+    },
+    {
+      "key": "notes-desk",
+      "label": "笔记台",
+      "materialType": "note",
+      "role": "笔记",
+      "sprite": "/assets/generated/v2/memory-room-sprites/notes-desk.png",
+      "placement": {
+        "centerX": 0.28,
+        "centerY": 0.7,
+        "widthRatio": 0.17,
+        "zIndex": 42,
+        "previewBox": {
+          "left": 326,
+          "top": 448,
+          "width": 284,
+          "height": 276
+        }
+      },
+      "actions": [
+        {
+          "type": "open_note_list",
+          "label": "打开笔记列表"
+        }
+      ]
+    },
+    {
+      "key": "map-wall",
+      "label": "地图墙",
+      "materialType": "location",
+      "role": "地理位置",
+      "sprite": "/assets/generated/v2/memory-room-sprites/map-wall.png",
+      "placement": {
+        "centerX": 0.76,
+        "centerY": 0.5,
+        "widthRatio": 0.18,
+        "zIndex": 24,
+        "previewBox": {
+          "left": 1120,
+          "top": 114,
+          "width": 300,
+          "height": 469
+        }
+      },
+      "actions": [
+        {
+          "type": "open_location_graph",
+          "label": "打开地点关联"
+        }
+      ]
+    },
+    {
+      "key": "photo-album",
+      "label": "相册",
+      "materialType": "photo",
+      "role": "照片",
+      "sprite": "/assets/generated/v2/memory-room-sprites/photo-album.png",
+      "placement": {
+        "centerX": 0.56,
+        "centerY": 0.68,
+        "widthRatio": 0.17,
+        "zIndex": 46,
+        "previewBox": {
+          "left": 794,
+          "top": 467,
+          "width": 284,
+          "height": 227
+        }
+      },
+      "actions": [
+        {
+          "type": "open_photo_memories",
+          "label": "打开照片列表"
+        }
+      ]
+    },
+    {
+      "key": "audio-machine",
+      "label": "音频机",
+      "materialType": "audio",
+      "role": "音频",
+      "sprite": "/assets/generated/v2/memory-room-sprites/audio-machine.png",
+      "placement": {
+        "centerX": 0.8,
+        "centerY": 0.71,
+        "widthRatio": 0.14,
+        "zIndex": 48,
+        "previewBox": {
+          "left": 1220,
+          "top": 433,
+          "width": 234,
+          "height": 309
+        }
+      },
+      "actions": [
+        {
+          "type": "play_audio_memory",
+          "label": "播放语音"
+        }
+      ]
+    },
+    {
+      "key": "timeline-table",
+      "label": "时间台",
+      "materialType": "timeline",
+      "role": "回放",
+      "sprite": "/assets/generated/v2/memory-room-sprites/timeline-table.png",
+      "placement": {
+        "centerX": 0.5,
+        "centerY": 0.76,
+        "widthRatio": 0.22,
+        "zIndex": 54,
+        "previewBox": {
+          "left": 652,
+          "top": 464,
+          "width": 367,
+          "height": 330
+        }
+      },
+      "actions": [
+        {
+          "type": "replay_timeline",
+          "label": "触发 AI 总结"
+        }
+      ]
+    }
+  ],
+  "preview": "/assets/generated/v2/memory-room-scene-preview.png",
+  "spritesManifest": "/assets/generated/v2/memory-room-sprites/manifest.json",
+  "toolFlow": "/assets/generated/v2/memory-room-tool-flow.json"
+}

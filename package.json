@@ -11,6 +11,7 @@
     "design:tokens:check": "node scripts/export-design-tokens.mjs --check",
     "export:godot": "vite-node scripts/export-godot-world-state.ts",
     "generate:pixel-island": "python3 scripts/pixel_island_pipeline.py",
+    "generate:memory-room": "python3 scripts/pixel_island_pipeline.py --memory-room --validate",
     "test": "vitest",
     "tauri": "tauri"
   },

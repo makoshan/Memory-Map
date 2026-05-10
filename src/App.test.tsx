@@ -5,6 +5,7 @@ import App, {
   buildImageImportProgressSteps,
   createArchiveProcessingFile,
   GodotWebGamePage,
+  getGameRoomFromSearch,
   getPathForView,
   getViewFromPathname,
   MemoryCreatePage,
@@ -114,6 +115,7 @@ describe("App", () => {
     expect(html).toContain("城市分布");
     expect(html).toContain("导入记忆");
     expect(html).toContain('href="/memory/import"');
+    expect(html).toContain('href="/game?room=memory"');
     expect(html).toContain("返回岛屿");
     expect(html).toContain('href="/"');
     expect(html).toContain('href="/office"');
@@ -243,6 +245,9 @@ describe("App", () => {
     expect(getViewFromPathname("/memory/import/")).toBe("memoryImport");
     expect(getViewFromPathname("/game")).toBe("game");
     expect(getViewFromPathname("/unknown")).toBe("world");
+    expect(getGameRoomFromSearch("?room=memory")).toBe("memory");
+    expect(getGameRoomFromSearch("?room=world")).toBe("world");
+    expect(getGameRoomFromSearch("")).toBe("world");
   });
 
   it("renders the Godot iframe as a focusable game surface for keyboard walking", () => {
@@ -254,8 +259,24 @@ describe("App", () => {
     expect(html).toContain("godot-game-toolbar");
     expect(html).not.toContain("godot-web-topbar");
     expect(html).not.toContain("Godot Web");
-    expect(html).toContain('src="/godot-web/index.html"');
+    expect(html).toContain('src="/godot-web/index.html?boot=');
     expect(html).toContain('title="杭州像素岛 Godot 游戏"');
     expect(html).toContain('tabindex="0"');
+  });
+
+  it("opens the memory game link directly into the Godot memory room map", () => {
+    const html = renderToStaticMarkup(<GodotWebGamePage room="memory" onNavigate={() => undefined} />);
+
+    expect(html).toContain("app-shell godot-game-shell memory-game-shell");
+    expect(html).toContain("记忆室");
+    expect(html).toContain("Memory Room");
+    expect(html).toContain('aria-label="记忆室 Godot 游戏"');
+    expect(html).toContain('data-memory-game-map="/assets/generated/v2/memory-room-map.json"');
+    expect(html).toContain('src="/godot-web/index.html?room=memory&amp;boot=');
+    expect(html).toContain('title="记忆室 Godot 游戏"');
+    expect(html).toContain('tabindex="0"');
+    expect(html).not.toContain('src="/assets/generated/v2/memory-room-scene-preview.png"');
+    expect(html).not.toContain("打开书库");
+    expect(html).not.toContain('src="/godot-web/index.html"');
   });
 });

@@ -1,0 +1,143 @@
+{
+  "version": "memory-room-v1",
+  "generator": "scripts/memory_room_pipeline.py",
+  "sourceRaw": "/assets/generated/v2/memory-room-atlas-raw.png",
+  "sourceTransparent": "/assets/generated/v2/memory-room-atlas.png",
+  "preview": "/assets/generated/v2/memory-room-sprites-preview.png",
+  "backgroundKey": "border median RGB [239, 5, 239], removed by key-distance threshold 90.0",
+  "spriteCount": 6,
+  "sprites": {
+    "bookshelf": {
+      "src": "/assets/generated/v2/memory-room-sprites/bookshelf.png",
+      "label": "书架",
+      "materialType": "book",
+      "role": "书",
+      "sourceBox": [
+        28,
+        156,
+        369,
+        621
+      ],
+      "cropBox": [
+        20,
+        148,
+        377,
+        629
+      ],
+      "width": 357,
+      "height": 481,
+      "area": 121266,
+      "anchor": "bottom-center"
+    },
+    "notes-desk": {
+      "src": "/assets/generated/v2/memory-room-sprites/notes-desk.png",
+      "label": "笔记台",
+      "materialType": "note",
+      "role": "笔记",
+      "sourceBox": [
+        388,
+        325,
+        660,
+        589
+      ],
+      "cropBox": [
+        380,
+        317,
+        668,
+        597
+      ],
+      "width": 288,
+      "height": 280,
+      "area": 47485,
+      "anchor": "bottom-center"
+    },
+    "map-wall": {
+      "src": "/assets/generated/v2/memory-room-sprites/map-wall.png",
+      "label": "地图墙",
+      "materialType": "location",
+      "role": "地理位置",
+      "sourceBox": [
+        672,
+        156,
+        964,
+        622
+      ],
+      "cropBox": [
+        664,
+        148,
+        972,
+        630
+      ],
+      "width": 308,
+      "height": 482,
+      "area": 102590,
+      "anchor": "bottom-center"
+    },
+    "photo-album": {
+      "src": "/assets/generated/v2/memory-room-sprites/photo-album.png",
+      "label": "相册",
+      "materialType": "photo",
+      "role": "照片",
+      "sourceBox": [
+        979,
+        372,
+        1295,
+        622
+      ],
+      "cropBox": [
+        971,
+        364,
+        1303,
+        630
+      ],
+      "width": 332,
+      "height": 266,
+      "area": 54563,
+      "anchor": "bottom-center"
+    },
+    "audio-machine": {
+      "src": "/assets/generated/v2/memory-room-sprites/audio-machine.png",
+      "label": "音频机",
+      "materialType": "audio",
+      "role": "音频",
+      "sourceBox": [
+        1298,
+        269,
+        1531,
+        582
+      ],
+      "cropBox": [
+        1290,
+        261,
+        1539,
+        590
+      ],
+      "width": 249,
+      "height": 329,
+      "area": 52283,
+      "anchor": "bottom-center"
+    },
+    "timeline-table": {
+      "src": "/assets/generated/v2/memory-room-sprites/timeline-table.png",
+      "label": "时间台",
+      "materialType": "timeline",
+      "role": "回放",
+      "sourceBox": [
+        1540,
+        291,
+        1890,
+        605
+      ],
+      "cropBox": [
+        1532,
+        283,
+        1898,
+        613
+      ],
+      "width": 366,
+      "height": 330,
+      "area": 57564,
+      "anchor": "bottom-center"
+    }
+  }
+}

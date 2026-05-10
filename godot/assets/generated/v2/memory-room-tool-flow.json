@@ -1,0 +1,117 @@
+{
+  "slug": "memory-room",
+  "name": "memory-room-layered-map-tool-flow",
+  "entrypoint": "scripts/pixel_island_pipeline.py --memory-room",
+  "command": [
+    "python3",
+    "scripts/pixel_island_pipeline.py",
+    "--memory-room",
+    "--slug",
+    "memory-room",
+    "--raw-background",
+    "<background.png>",
+    "--raw-atlas",
+    "<objects-atlas.png>",
+    "--output-root",
+    "public/assets/generated/v2",
+    "--mirror-root",
+    "godot/assets/generated/v2",
+    "--validate"
+  ],
+  "inputs": {
+    "rawBackground": "/Users/thursday/.codex/generated_images/019e0af3-845d-7120-9c99-52936e71ee01/ig_0f1456a655dd0e070169ff35f699808191809db85ba8b92749.png",
+    "rawAtlas": "/Users/thursday/.codex/generated_images/019e0af3-845d-7120-9c99-52936e71ee01/ig_0f17f5ac1ab953260169ff33aecc0c819188366a10556829ce.png",
+    "expectedObjectOrder": [
+      "bookshelf",
+      "notes-desk",
+      "map-wall",
+      "photo-album",
+      "audio-machine",
+      "timeline-table"
+    ]
+  },
+  "outputs": {
+    "background": "/assets/generated/v2/memory-room-background.png",
+    "atlas": "/assets/generated/v2/memory-room-atlas.png",
+    "spritesManifest": "/assets/generated/v2/memory-room-sprites/manifest.json",
+    "spritesPreview": "/assets/generated/v2/memory-room-sprites-preview.png",
+    "scenePreview": "/assets/generated/v2/memory-room-scene-preview.png",
+    "pack": "/assets/generated/v2/memory-room-pack.json",
+    "interactions": "/assets/generated/v2/memory-room-interactions.json",
+    "map": "/assets/generated/v2/memory-room-map.json",
+    "toolFlow": "/assets/generated/v2/memory-room-tool-flow.json"
+  },
+  "map": "/assets/generated/v2/memory-room-map.json",
+  "steps": [
+    {
+      "id": "ingest-raw-assets",
+      "label": "导入背景和 atlas 原图"
+    },
+    {
+      "id": "key-atlas",
+      "label": "从 #FF00FF atlas 建立透明层"
+    },
+    {
+      "id": "cut-interactive-props",
+      "label": "按连通区域切出 6 个可交互物件"
+    },
+    {
+      "id": "despill-prop-edges",
+      "label": "清理 magenta 残边并归零透明 RGB"
+    },
+    {
+      "id": "compose-layered-map",
+      "label": "把底图与物件按 zIndex 组合成地图预览"
+    },
+    {
+      "id": "emit-runtime-contracts",
+      "label": "输出 pack / interactions / map / manifest"
+    },
+    {
+      "id": "mirror-godot-assets",
+      "label": "镜像同名产物到 Godot 目录"
+    },
+    {
+      "id": "validate-output-contract",
+      "label": "验证 JSON、sprite 透明度、热区和镜像一致性"
+    }
+  ],
+  "contracts": {
+    "visualModel": "layered_raster",
+    "runtimeObjectModel": "interactive_entities",
+    "collisionModel": "trigger_zones",
+    "spriteCount": 6,
+    "actions": [
+      {
+        "key": "bookshelf",
+        "type": "open_book_library",
+        "label": "打开书库"
+      },
+      {
+        "key": "notes-desk",
+        "type": "open_note_list",
+        "label": "打开笔记列表"
+      },
+      {
+        "key": "map-wall",
+        "type": "open_location_graph",
+        "label": "打开地点关联"
+      },
+      {
+        "key": "photo-album",
+        "type": "open_photo_memories",
+        "label": "打开照片列表"
+      },
+      {
+        "key": "audio-machine",
+        "type": "play_audio_memory",
+        "label": "播放语音"
+      },
+      {
+        "key": "timeline-table",
+        "type": "replay_timeline",
+        "label": "触发 AI 总结"
+      }
+    ]
+  }
+}

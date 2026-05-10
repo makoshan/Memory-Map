@@ -71,6 +71,21 @@ type GodotWebSessionMessage = {
   session?: GodotWebSessionResult;
   returnToApp?: boolean;
 };
+type GameRoom = "world" | "memory";
+
+const memoryRoomGameMap = {
+  map: "/assets/generated/v2/memory-room-map.json",
+  toolFlow: "/assets/generated/v2/memory-room-tool-flow.json",
+} as const;
+
+function createGodotWebSrc(room: GameRoom) {
+  const params = new URLSearchParams();
+  if (room === "memory") {
+    params.set("room", "memory");
+  }
+  params.set("boot", String(Date.now()));
+  return `/godot-web/index.html?${params.toString()}`;
+}
 
 const hangzhouMap = {
   city: "杭州",
@@ -88,6 +103,11 @@ function isGodotWebSessionMessage(value: unknown): value is GodotWebSessionMessa
 
   const record = value as Record<string, unknown>;
   return record.type === "memory-map:godot-session";
+}
+
+export function getGameRoomFromSearch(search: string): GameRoom {
+  const room = new URLSearchParams(search).get("room");
+  return room === "memory" ? "memory" : "world";
 }
 
 const tasks = [
@@ -530,25 +550,73 @@ function IslandHomePage({ onNavigate }: { onNavigate: NavigateHandler }) {
   );
 }
 
-export function GodotWebGamePage({ onNavigate }: { onNavigate: NavigateHandler }) {
+function focusGodotFrame(frame: HTMLIFrameElement | null) {
+  if (!frame) {
+    return;
+  }
+
+  frame.focus();
+  frame.contentWindow?.focus();
+  const canvas = frame.contentDocument?.getElementById("canvas");
+  if (canvas instanceof HTMLCanvasElement) {
+    canvas.focus();
+  }
+}
+
+function MemoryGameMapPage({ onNavigate }: { onNavigate: NavigateHandler }) {
+  const frameRef = useRef<HTMLIFrameElement>(null);
+  const godotWebSrc = useMemo(() => createGodotWebSrc("memory"), []);
+  const focusMemoryFrame = () => focusGodotFrame(frameRef.current);
+
+  return (
+    <AppShell
+      active="记忆馆"
+      className="godot-game-shell memory-game-shell"
+      contentClassName="godot-game-stage memory-game-stage"
+      onNavigate={onNavigate}
+      showTopBar={false}
+    >
+      <section
+        className="godot-game-card memory-game-card"
+        aria-label="记忆室 Godot 游戏"
+        data-memory-game-map={memoryRoomGameMap.map}
+        data-memory-tool-flow={memoryRoomGameMap.toolFlow}
+      >
+        <header className="godot-game-toolbar memory-game-toolbar">
+          <div className="godot-game-pill godot-game-city">
+            <img src={gameAssets.icons.memory} alt="" />
+            <strong>记忆室</strong>
+            <span>Memory Room</span>
+          </div>
+          <div className="godot-game-pill godot-game-weather">
+            <img src={gameAssets.addon.icons.camera} alt="" />
+            <strong>Godot 可玩模式</strong>
+            <span>WASD · 点击物件</span>
+          </div>
+          <p className="godot-game-session-pill">Session 运行中 · 记忆室</p>
+        </header>
+        <iframe
+          ref={frameRef}
+          className="godot-web-frame"
+          src={godotWebSrc}
+          title="记忆室 Godot 游戏"
+          allow="autoplay; fullscreen; gamepad; clipboard-read; clipboard-write"
+          tabIndex={0}
+          onLoad={focusMemoryFrame}
+          onPointerDown={focusMemoryFrame}
+        />
+      </section>
+    </AppShell>
+  );
+}
+
+function GodotWorldGamePage({ onNavigate }: { onNavigate: NavigateHandler }) {
   const frameRef = useRef<HTMLIFrameElement>(null);
   const [sessionResult, setSessionResult] = useState<GodotWebSessionResult | null>(null);
+  const godotWebSrc = useMemo(() => createGodotWebSrc("world"), []);
   const visitedRooms = sessionResult?.visitedRooms?.length ?? 0;
   const completedTasks = sessionResult?.completedTasks?.length ?? 0;
-
-  const focusGodotFrame = () => {
-    const frame = frameRef.current;
-    if (!frame) {
-      return;
-    }
-
-    frame.focus();
-    frame.contentWindow?.focus();
-    const canvas = frame.contentDocument?.getElementById("canvas");
-    if (canvas instanceof HTMLCanvasElement) {
-      canvas.focus();
-    }
-  };
+  const focusWorldFrame = () => focusGodotFrame(frameRef.current);
 
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
@@ -602,15 +670,23 @@ export function GodotWebGamePage({ onNavigate }: { onNavigate: NavigateHandler }
         <iframe
           ref={frameRef}
           className="godot-web-frame"
-          src="/godot-web/index.html"
+          src={godotWebSrc}
           title="杭州像素岛 Godot 游戏"
           allow="autoplay; fullscreen; gamepad; clipboard-read; clipboard-write"
           tabIndex={0}
-          onLoad={focusGodotFrame}
-          onPointerDown={focusGodotFrame}
+          onLoad={focusWorldFrame}
+          onPointerDown={focusWorldFrame}
         />
       </section>
     </AppShell>
+  );
+}
+
+export function GodotWebGamePage({ onNavigate, room = "world" }: { onNavigate: NavigateHandler; room?: GameRoom }) {
+  return room === "memory" ? (
+    <MemoryGameMapPage onNavigate={onNavigate} />
+  ) : (
+    <GodotWorldGamePage onNavigate={onNavigate} />
   );
 }
 
@@ -1918,7 +1994,8 @@ export default function App() {
   }
 
   if (view === "game") {
-    return <GodotWebGamePage onNavigate={navigate} />;
+    const room = typeof window === "undefined" ? "world" : getGameRoomFromSearch(window.location.search);
+    return <GodotWebGamePage room={room} onNavigate={navigate} />;
   }
 
   return <IslandHomePage onNavigate={navigate} />;

@@ -28,7 +28,10 @@ type HermesJobView = HermesAnalysisJob & {
   payloadPreview: string;
 };
 
-const memoryScene = "/assets/memory-room/scene.jpg";
+const memoryRoomMap = "/assets/generated/v2/memory-room-map.json";
+const memoryRoomToolFlow = "/assets/generated/v2/memory-room-tool-flow.json";
+const memoryRoomSpritesManifest = "/assets/generated/v2/memory-room-sprites/manifest.json";
+const memoryScene = "/assets/generated/v2/memory-room-scene-preview.png";
 const memoryMuseumSprite =
   hangzhouPixelIslandPack.layers.find((layer) => layer.key === "memory")?.sprite ??
   "/assets/generated/v2/hangzhou-sprites/memory-museum-island.png";
@@ -140,10 +143,12 @@ function MemoryHeroCard() {
   return (
     <DesignCard
       className="scene-card memory-scene-card memory-museum-game-stage"
-      data-memory-sprites-manifest={hangzhouPixelIslandPack.spritesManifest}
+      data-memory-room-map={memoryRoomMap}
+      data-memory-tool-flow={memoryRoomToolFlow}
+      data-memory-sprites-manifest={memoryRoomSpritesManifest}
       data-godot-room-entry="memory"
     >
-      <img className="memory-scene" src={memoryScene} alt="记忆馆像素风场景" />
+      <img className="memory-scene" src={memoryScene} alt="记忆室组合地图" />
       <article className="scene-info">
         <header>
           <h1>记忆馆</h1>
@@ -157,14 +162,16 @@ function MemoryHeroCard() {
       <aside
         className="memory-museum-entry"
         aria-label="记忆馆游戏入口"
-        data-memory-sprites-manifest={hangzhouPixelIslandPack.spritesManifest}
+        data-memory-room-map={memoryRoomMap}
+        data-memory-tool-flow={memoryRoomToolFlow}
+        data-memory-sprites-manifest={memoryRoomSpritesManifest}
         data-godot-room-entry="memory"
       >
         <img src={memoryMuseumSprite} alt="" />
         <div>
-          <span>切图清单</span>
-          <strong>记忆馆像素岛</strong>
-          <small>{hangzhouPixelIslandPack.spritesManifest}</small>
+          <span>组合地图</span>
+          <strong>记忆室工具流</strong>
+          <small>{memoryRoomToolFlow}</small>
         </div>
         <a className="button-primary memory-game-link" href="/game?room=memory">
           进入记忆馆游戏

@@ -2941,6 +2941,93 @@ img {
   background: var(--bg-soft);
 }
 
+.memory-game-stage {
+  align-items: stretch;
+}
+
+.memory-game-card {
+  background: #f5efe3;
+}
+
+.memory-game-map {
+  position: relative;
+  width: 100%;
+  height: calc(100vh - var(--space-page) * 2);
+  overflow: hidden;
+  background: #eadcc4;
+}
+
+.memory-game-map > img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.memory-game-hotspot {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: transparent;
+  color: #17324d;
+}
+
+.memory-game-hotspot::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: rgba(75, 156, 255, 0);
+  box-shadow: inset 0 0 0 1px rgba(75, 156, 255, 0);
+  transition: background 160ms ease, box-shadow 160ms ease;
+}
+
+.memory-game-hotspot span,
+.memory-game-hotspot small {
+  position: relative;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 160ms ease, transform 160ms ease;
+}
+
+.memory-game-hotspot span {
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.92);
+  font-size: 14px;
+  font-weight: 900;
+  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.14);
+}
+
+.memory-game-hotspot small {
+  margin-top: 6px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: rgba(23, 50, 77, 0.82);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.memory-game-hotspot:hover::before,
+.memory-game-hotspot:focus-visible::before,
+.memory-game-hotspot.is-active::before {
+  background: rgba(75, 156, 255, 0.16);
+  box-shadow: inset 0 0 0 2px rgba(75, 156, 255, 0.72), 0 12px 34px rgba(75, 156, 255, 0.18);
+}
+
+.memory-game-hotspot:hover span,
+.memory-game-hotspot:hover small,
+.memory-game-hotspot:focus-visible span,
+.memory-game-hotspot:focus-visible small,
+.memory-game-hotspot.is-active span,
+.memory-game-hotspot.is-active small {
+  opacity: 1;
+  transform: translateY(0);
+}
+
 .world-map-stage-card {
   background: #dceaf1;
 }
