@@ -26,6 +26,72 @@ const countTags = (events: EventRecord[]) =>
     return acc;
   }, {});
 
+const hourFromStartTime = (startTime: string) => {
+  const localHour = /T(\d{2}):/.exec(startTime)?.[1];
+  return localHour ? Number(localHour) : new Date(startTime).getHours();
+};
+
+const dayPartForHour = (hour: number) => {
+  if (hour >= 5 && hour < 12) return "morning" as const;
+  if (hour >= 12 && hour < 18) return "afternoon" as const;
+  if (hour >= 18 && hour < 23) return "evening" as const;
+  return "night" as const;
+};
+
+const dominant = <T extends string>(items: T[], fallback: T): T => {
+  const counts = items.reduce<Record<string, number>>((acc, item) => {
+    acc[item] = (acc[item] ?? 0) + 1;
+    return acc;
+  }, {});
+  return (Object.entries(counts).sort((a, b) => b[1] - a[1])[0]?.[0] as T | undefined) ?? fallback;
+};
+
+const buildTimePattern = (events: EventRecord[]) => {
+  const hours = events.map((event) => hourFromStartTime(event.startTime)).filter((hour) => Number.isFinite(hour));
+  const dayParts = hours.map(dayPartForHour);
+  const weekendCount = events.filter((event) => {
+    const day = new Date(event.startTime).getDay();
+    return day === 0 || day === 6;
+  }).length;
+  const weekdayCount = events.length - weekendCount;
+
+  return {
+    dominantPartOfDay: events.length === 0 ? "mixed" as const : dominant(dayParts, "mixed"),
+    visitHours: Array.from(new Set(hours)).sort((a, b) => a - b),
+    weekdayBias:
+      weekdayCount === weekendCount
+        ? "mixed" as const
+        : weekdayCount > weekendCount
+        ? "weekday" as const
+        : "weekend" as const
+  };
+};
+
+const buildEmotionPattern = (events: EventRecord[]) => {
+  const valences = events.map((event) => event.valence).filter((value): value is number => value !== undefined);
+  const intensities = events.map((event) => event.intensity).filter((value): value is number => value !== undefined);
+  const averageValence = valences.length
+    ? valences.reduce((sum, value) => sum + value, 0) / valences.length
+    : 0;
+  const averageIntensity = intensities.length
+    ? intensities.reduce((sum, value) => sum + value, 0) / intensities.length
+    : 0;
+
+  return {
+    averageValence: Number(averageValence.toFixed(2)),
+    averageIntensity: Number(averageIntensity.toFixed(2)),
+    label: averageValence >= 0.35 ? "positive" as const : averageValence <= -0.2 ? "strained" as const : "neutral" as const
+  };
+};
+
+const buildSocialPattern = (events: EventRecord[]) => {
+  const socialEventCount = events.filter((event) => event.tags.includes("social")).length;
+  return {
+    socialEventCount,
+    relationshipHint: socialEventCount >= 3 ? "recurring" as const : socialEventCount > 0 ? "light" as const : "none" as const
+  };
+};
+
 const inferRole = (place: Place, events: EventRecord[]): PlaceRole => {
   const tagCounts = countTags(events);
   if (place.poiType === "home") return "home";
@@ -56,6 +122,35 @@ export function buildPlaceProfile(place: Place, allEvents: EventRecord[]): Place
   const dampPenalty = humidity !== undefined && humidity > 78 ? clamp((humidity - 78) / 25) : 0;
   const heatLoad = temp !== undefined && temp > 30 ? clamp((temp - 30) / 12) : 0;
   const overloadRisk = clamp(visitCount / 8 + heatLoad * 0.4 + dampPenalty * 0.25);
+  const role = inferRole(place, events);
+  const timePattern = buildTimePattern(events);
+  const emotionPattern = buildEmotionPattern(events);
+  const socialPattern = buildSocialPattern(events);
+  const activityAffordances = Array.from(new Set([
+    ...(recovery >= 0.6 ? ["recovery" as const] : []),
+    ...(mediaCount >= 3 ? ["memory" as const, "record" as const] : []),
+    ...(financeWeight >= 0.35 ? ["finance" as const] : []),
+    ...(role === "work" ? ["work" as const, "project" as const] : []),
+    ...(socialPattern.socialEventCount > 0 ? ["relationship" as const] : []),
+    ...(overloadRisk >= 0.7 ? ["avoid" as const] : [])
+  ]));
+  const riskPriors = [
+    ...(dampPenalty > 0 ? ["湿度偏高时容易形成疲劳或低亮度世界状态"] : []),
+    ...(heatLoad > 0 ? ["高温时适合降低移动和任务强度"] : []),
+    ...(overloadRisk >= 0.55 ? ["近期事件密度偏高，适合减少连续外出"] : [])
+  ];
+  const opportunityPriors = [
+    ...(recovery >= 0.6 ? ["适合作为恢复或低负荷行动节点"] : []),
+    ...(mediaCount >= 3 ? ["适合整理记忆材料并生成记忆物件"] : []),
+    ...(financeWeight >= 0.35 ? ["适合做轻量收入或支出复盘"] : [])
+  ];
+  const prediction = {
+    ifNearby: `${place.name} 附近可能触发 ${activityAffordances.length ? activityAffordances.join("、") : "记录"} 行动。`,
+    bestNextActions: opportunityPriors.length ? opportunityPriors : ["记录一次新的地点事件，继续收集证据"],
+    avoidWhen: riskPriors.length ? riskPriors : ["证据不足时避免生成强任务"],
+    revisitWhen: [`${timePattern.dominantPartOfDay === "mixed" ? "证据更稳定时" : timePattern.dominantPartOfDay} 重访更符合历史节奏`]
+  };
+  const confidence = clamp(0.35 + Math.min(visitCount, 6) * 0.07 + Math.min(mediaCount, 8) * 0.035);
   const score =
     Math.log1p(visitCount) * 0.9 +
     Math.log1p(dwellTimeMinutes / 45) * 0.45 +
@@ -67,7 +162,7 @@ export function buildPlaceProfile(place: Place, allEvents: EventRecord[]): Place
   return {
     placeId: place.id,
     placeName: place.name,
-    role: inferRole(place, events),
+    role,
     visitCount,
     dwellTimeMinutes,
     mediaCount,
@@ -83,7 +178,19 @@ export function buildPlaceProfile(place: Place, allEvents: EventRecord[]): Place
       humidityAvg: humidity,
       tempAvg: temp,
       aqiAvg: aqi
-    }
+    },
+    stateSummary: `${place.name} 当前是 ${role} 倾向地点，承载 ${visitCount} 次访问、${mediaCount} 条媒体证据和 ${steps} 步行动信号。`,
+    timePattern,
+    emotionPattern,
+    socialPattern,
+    activityAffordances,
+    riskPriors,
+    opportunityPriors,
+    prediction,
+    confidence: Number(confidence.toFixed(2)),
+    reviewState: "suggested",
+    profileVersion: 1,
+    lastReflectedAt: undefined
   };
 }
 
@@ -201,6 +308,24 @@ export function generateUnlocks(
   return unlocks;
 }
 
+const baseFeedbackSummary = {
+  acceptedCount: 0,
+  dismissedCount: 0,
+  completedCount: 0
+};
+
+const policyMetadata = (profile: PlaceProfile, input: {
+  policyType: Opportunity["policyType"];
+  hypothesis: string;
+  expectedWorldDelta: Opportunity["expectedWorldDelta"];
+}) => ({
+  policyType: input.policyType,
+  hypothesis: input.hypothesis,
+  expectedWorldDelta: input.expectedWorldDelta,
+  sourceProfileVersion: profile.profileVersion,
+  feedbackSummary: { ...baseFeedbackSummary }
+});
+
 export function generateOpportunities(profiles: PlaceProfile[], events: EventRecord[]): Opportunity[] {
   const opportunities: Opportunity[] = [];
   const eventCountByPlace = events.reduce<Record<string, number>>((acc, event) => {
@@ -234,7 +359,18 @@ export function generateOpportunities(profiles: PlaceProfile[], events: EventRec
           visualHint: "提高植被密度和亮度",
           unlockKey: "recovery-garden"
         },
-        status: "new"
+        status: "new",
+        ...policyMetadata(profile, {
+          policyType: "rest",
+          hypothesis: `${profile.placeName} 的恢复状态和空气条件支持一次低负荷行动。`,
+          expectedWorldDelta: {
+            nodeId: `world-${profile.placeId}`,
+            brightnessDelta: 0.08,
+            vegetationDelta: 0.12,
+            unlockKey: "recovery-garden",
+            explanation: "完成恢复行动后，生活区亮度和植被可以轻微上升。"
+          }
+        })
       });
     }
 
@@ -260,7 +396,16 @@ export function generateOpportunities(profiles: PlaceProfile[], events: EventRec
           visualHint: "生成记忆书架和时间胶片",
           unlockKey: "memory-shelf"
         },
-        status: "new"
+        status: "new",
+        ...policyMetadata(profile, {
+          policyType: "record",
+          hypothesis: `${profile.placeName} 已经有足够媒体证据，可以从地点状态转成记忆节点。`,
+          expectedWorldDelta: {
+            nodeId: `world-${profile.placeId}`,
+            unlockKey: "memory-shelf",
+            explanation: "整理记忆后，Godot 世界可以解锁记忆书架或时间胶片。"
+          }
+        })
       });
     }
 
@@ -286,7 +431,17 @@ export function generateOpportunities(profiles: PlaceProfile[], events: EventRec
           visualHint: "升级任务桌和 AI 员工提示",
           unlockKey: "building-upgrade"
         },
-        status: "new"
+        status: "new",
+        ...policyMetadata(profile, {
+          policyType: "do",
+          hypothesis: `${profile.placeName} 的工作标签和访问频率支持承接一个明确任务。`,
+          expectedWorldDelta: {
+            nodeId: `world-${profile.placeId}`,
+            brightnessDelta: 0.05,
+            unlockKey: "building-upgrade",
+            explanation: "完成任务后，办公室节点可以升级任务桌或 AI 员工提示。"
+          }
+        })
       });
     }
 
@@ -312,7 +467,16 @@ export function generateOpportunities(profiles: PlaceProfile[], events: EventRec
           visualHint: "点亮账本墙",
           unlockKey: "finance-review"
         },
-        status: "new"
+        status: "new",
+        ...policyMetadata(profile, {
+          policyType: "do",
+          hypothesis: `${profile.placeName} 的财务权重支持一次轻量复盘。`,
+          expectedWorldDelta: {
+            nodeId: `world-${profile.placeId}`,
+            unlockKey: "finance-review",
+            explanation: "完成复盘后，财务楼可以点亮账本墙。"
+          }
+        })
       });
     }
   }

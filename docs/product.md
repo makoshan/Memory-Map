@@ -1048,6 +1048,12 @@ world_sync_evidence
 world_nodes
 game_unlocks
 opportunities
+opportunity_actions
+feedback_events
+reflections
+skills
+model_claims
+workbench_artifacts
 hermes_analysis_jobs
 ```
 
@@ -1205,6 +1211,18 @@ MVP 分三步集成：
 - damp_penalty
 - heat_load
 - overload_risk
+- state_summary
+- time_pattern_json
+- emotion_pattern_json
+- social_pattern_json
+- activity_affordances_json
+- risk_priors_json
+- opportunity_priors_json
+- prediction_json
+- confidence
+- review_state
+- profile_version
+- last_reflected_at
 
 ### world_nodes
 
@@ -1285,6 +1303,11 @@ MVP 分三步集成：
 - layer3_unlock_key
 - layer3_visual_hint
 - status
+- policy_type
+- hypothesis
+- expected_world_delta_json
+- source_profile_version
+- feedback_summary_json
 - created_at
 - expires_at
 - resolved_at
@@ -1300,6 +1323,73 @@ MVP 分三步集成：
 - dismissed_at
 - completed_at
 - feedback
+
+### feedback_events
+
+- id
+- user_id
+- target_type
+- target_id
+- action
+- user_note
+- before_json
+- after_json
+- created_at
+
+### reflections
+
+- id
+- user_id
+- scope
+- source_event_ids
+- source_feedback_ids
+- summary
+- confidence
+- status
+- created_at
+
+### skills
+
+- id
+- user_id
+- title
+- trigger
+- procedure
+- source_reflection_ids
+- success_count
+- failure_count
+- status
+- created_at
+- updated_at
+
+### model_claims
+
+- id
+- user_id
+- target_type
+- target_id
+- claim_type
+- claim_text
+- evidence_refs
+- confidence
+- review_state
+- created_at
+- updated_at
+
+### workbench_artifacts
+
+- id
+- user_id
+- artifact_type
+- title
+- target_type
+- target_id
+- summary
+- model_claim_ids
+- feedback_event_ids
+- status
+- created_at
+- updated_at
 
 ### ai_suggestions
 

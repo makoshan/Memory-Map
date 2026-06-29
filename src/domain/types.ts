@@ -76,6 +76,45 @@ export type MediaAsset = {
   analysisStatus: "pending" | "analyzed" | "failed";
 };
 
+export type ReviewState = "draft" | "suggested" | "confirmed" | "rejected" | "superseded";
+
+export type DayPart = "morning" | "afternoon" | "evening" | "night" | "mixed";
+
+export type PlaceAffordance =
+  | "work"
+  | "memory"
+  | "finance"
+  | "recovery"
+  | "relationship"
+  | "route"
+  | "project"
+  | "avoid"
+  | "record";
+
+export type PlaceTimePattern = {
+  dominantPartOfDay: DayPart;
+  visitHours: number[];
+  weekdayBias: "weekday" | "weekend" | "mixed";
+};
+
+export type PlaceEmotionPattern = {
+  averageValence: number;
+  averageIntensity: number;
+  label: "positive" | "neutral" | "strained";
+};
+
+export type PlaceSocialPattern = {
+  socialEventCount: number;
+  relationshipHint: "none" | "light" | "recurring";
+};
+
+export type PlacePrediction = {
+  ifNearby: string;
+  bestNextActions: string[];
+  avoidWhen: string[];
+  revisitWhen: string[];
+};
+
 export type PlaceProfile = {
   placeId: string;
   placeName: string;
@@ -96,6 +135,18 @@ export type PlaceProfile = {
     tempAvg?: number;
     aqiAvg?: number;
   };
+  stateSummary: string;
+  timePattern: PlaceTimePattern;
+  emotionPattern: PlaceEmotionPattern;
+  socialPattern: PlaceSocialPattern;
+  activityAffordances: PlaceAffordance[];
+  riskPriors: string[];
+  opportunityPriors: string[];
+  prediction: PlacePrediction;
+  confidence: number;
+  reviewState: ReviewState;
+  profileVersion: number;
+  lastReflectedAt?: string;
 };
 
 export type WorldNode = {
@@ -136,6 +187,30 @@ export type OpportunityType =
   | "route"
   | "project";
 
+export type OpportunityPolicyType =
+  | "do"
+  | "avoid"
+  | "revisit"
+  | "rest"
+  | "record"
+  | "route"
+  | "project";
+
+export type ExpectedWorldDelta = {
+  nodeId?: string;
+  brightnessDelta?: number;
+  vegetationDelta?: number;
+  fogDelta?: number;
+  unlockKey?: string;
+  explanation: string;
+};
+
+export type OpportunityFeedbackSummary = {
+  acceptedCount: number;
+  dismissedCount: number;
+  completedCount: number;
+};
+
 export type Opportunity = {
   id: string;
   type: OpportunityType;
@@ -158,6 +233,11 @@ export type Opportunity = {
     visualHint?: string;
   };
   status: "new" | "accepted" | "dismissed" | "done" | "expired";
+  policyType: OpportunityPolicyType;
+  hypothesis: string;
+  expectedWorldDelta: ExpectedWorldDelta;
+  sourceProfileVersion: number;
+  feedbackSummary: OpportunityFeedbackSummary;
 };
 
 export type OpportunityAction = {
@@ -167,6 +247,88 @@ export type OpportunityAction = {
   taskId?: string;
   feedback?: string;
   createdAt: string;
+};
+
+export type FeedbackTargetType =
+  | "event_meaning"
+  | "place_profile"
+  | "opportunity"
+  | "reflection"
+  | "skill"
+  | "world_node"
+  | "model_claim";
+
+export type FeedbackAction =
+  | "confirm"
+  | "correct"
+  | "dismiss"
+  | "merge"
+  | "split"
+  | "accept"
+  | "complete"
+  | "snooze"
+  | "tune";
+
+export type FeedbackEvent = {
+  id: string;
+  targetType: FeedbackTargetType;
+  targetId: string;
+  action: FeedbackAction;
+  userNote?: string;
+  beforeJson?: string;
+  afterJson?: string;
+  createdAt: string;
+};
+
+export type Reflection = {
+  id: string;
+  scope: "place" | "project" | "user" | "agent" | "skill";
+  sourceEventIds: string[];
+  sourceFeedbackIds: string[];
+  summary: string;
+  confidence: number;
+  status: ReviewState;
+  createdAt: string;
+};
+
+export type Skill = {
+  id: string;
+  title: string;
+  trigger: string;
+  procedure: string;
+  sourceReflectionIds: string[];
+  successCount: number;
+  failureCount: number;
+  status: "draft" | "active" | "paused" | "retired";
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type ModelClaim = {
+  id: string;
+  targetType: "event_meaning" | "place_profile" | "opportunity" | "world_node";
+  targetId: string;
+  claimType: "role" | "risk" | "opportunity" | "memory" | "world_delta";
+  claimText: string;
+  evidenceRefs: string[];
+  confidence: number;
+  reviewState: ReviewState;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type WorkbenchArtifact = {
+  id: string;
+  artifactType: "place_inspector" | "opportunity_board" | "memory_review" | "skill_workshop" | "world_sync_preview";
+  title: string;
+  targetType: "place_profile" | "opportunity" | "reflection" | "skill" | "world_state";
+  targetId: string;
+  summary: string;
+  modelClaimIds: string[];
+  feedbackEventIds: string[];
+  status: "draft" | "ready" | "reviewed" | "archived";
+  createdAt: string;
+  updatedAt: string;
 };
 
 export type HermesAnalysisJob = {

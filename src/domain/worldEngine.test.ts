@@ -68,6 +68,35 @@ describe("world engine", () => {
     expect(profile.dampPenalty).toBeGreaterThan(0);
   });
 
+  it("builds a predictive place state that can drive future action", () => {
+    const profile = buildPlaceProfile(xixi, events);
+
+    expect(profile.stateSummary).toContain("西溪湿地");
+    expect(profile.timePattern.dominantPartOfDay).toBe("morning");
+    expect(profile.emotionPattern.averageValence).toBeGreaterThan(0);
+    expect(profile.activityAffordances).toContain("recovery");
+    expect(profile.prediction.bestNextActions.length).toBeGreaterThan(0);
+    expect(profile.prediction.ifNearby).toContain("可能");
+    expect(profile.confidence).toBeGreaterThan(0.5);
+    expect(profile.reviewState).toBe("suggested");
+    expect(profile.profileVersion).toBe(1);
+  });
+
+  it("marks opportunities as controller policy outputs rather than world model state", () => {
+    const profile = buildPlaceProfile(xixi, events);
+    const [opportunity] = generateOpportunities([profile], events);
+
+    expect(opportunity.policyType).toBeTruthy();
+    expect(opportunity.hypothesis).toContain(profile.placeName);
+    expect(opportunity.expectedWorldDelta).toBeTruthy();
+    expect(opportunity.sourceProfileVersion).toBe(profile.profileVersion);
+    expect(opportunity.feedbackSummary).toEqual({
+      acceptedCount: 0,
+      dismissedCount: 0,
+      completedCount: 0
+    });
+  });
+
   it("generates a personal Layer 3 world node from Layer 1", () => {
     const profile = buildPlaceProfile(xixi, events);
     const node = generateWorldNode(profile);

@@ -1,4 +1,11 @@
 import { createEventMeaning } from "../domain/eventMeaning";
+import {
+  createFeedbackEvent,
+  createModelClaimForPlaceProfile,
+  createPlaceInspectorArtifact,
+  createReflectionFromFeedback,
+  createSkillFromReflection
+} from "../domain/learningLoop";
 import { createWorldSnapshot } from "../domain/worldSnapshot";
 import type { EventRecord, Place, Trace } from "../domain/types";
 
@@ -182,7 +189,7 @@ export const robotExhibitionMeaning = createEventMeaning({
   userNote: "杭州刘小龙展会，拍了很多机器人"
 });
 
-export const sampleSnapshot = createWorldSnapshot({
+export const sampleSnapshotBase = createWorldSnapshot({
   userId: "alex",
   places,
   events,
@@ -190,6 +197,68 @@ export const sampleSnapshot = createWorldSnapshot({
   timeline: timelineStages,
   generatedAt: "2026-05-04T10:00:00+08:00"
 });
+
+export const sampleXixiProfile = sampleSnapshotBase.profiles.find((profile) => profile.placeId === "place-xixi");
+
+export const sampleFeedbackEvents = sampleXixiProfile
+  ? [
+      createFeedbackEvent({
+        targetType: "place_profile",
+        targetId: sampleXixiProfile.placeId,
+        action: "confirm",
+        userNote: "这里确实是恢复和生活节点。",
+        now: "2026-05-10T10:00:00+08:00"
+      })
+    ]
+  : [];
+
+export const sampleModelClaims = sampleXixiProfile
+  ? [createModelClaimForPlaceProfile(sampleXixiProfile, "2026-05-10T10:00:00+08:00")]
+  : [];
+
+export const sampleReflections = sampleFeedbackEvents.length
+  ? [
+      createReflectionFromFeedback({
+        scope: "place",
+        sourceEventIds: ["event-xixi-walk"],
+        feedbackEvents: sampleFeedbackEvents,
+        summary: "西溪湿地的低负荷散步和媒体记录能稳定提升恢复感。",
+        confidence: 0.82,
+        now: "2026-05-10T10:05:00+08:00"
+      })
+    ]
+  : [];
+
+export const sampleSkills = sampleReflections.length
+  ? [
+      createSkillFromReflection({
+        reflection: sampleReflections[0],
+        title: "西溪湿地恢复散步",
+        trigger: "当西溪湿地出现恢复机会且当天负荷不高",
+        procedure: "建议 20 分钟低负荷散步，并在完成后记录一条恢复事件。",
+        now: "2026-05-10T10:10:00+08:00"
+      })
+    ]
+  : [];
+
+export const sampleWorkbenchArtifacts = sampleXixiProfile
+  ? [
+      createPlaceInspectorArtifact({
+        profile: sampleXixiProfile,
+        claims: sampleModelClaims,
+        feedbackEvents: sampleFeedbackEvents,
+        now: "2026-05-10T10:00:00+08:00"
+      })
+    ]
+  : [];
+
+export const sampleSnapshot = {
+  ...sampleSnapshotBase,
+  feedbackEvents: sampleFeedbackEvents,
+  reflections: sampleReflections,
+  skills: sampleSkills,
+  workbenchArtifacts: sampleWorkbenchArtifacts
+};
 
 export const profiles = sampleSnapshot.profiles;
 export const worldNodes = sampleSnapshot.worldNodes;
