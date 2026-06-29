@@ -1,0 +1,718 @@
+{
+  "version": "hangzhou-v1",
+  "generator": "scripts/pixel_island_pipeline.py",
+  "sourceRaw": "/assets/generated/v2/hangzhou-atlas-raw.png",
+  "sourceTransparent": "/assets/generated/v2/hangzhou-atlas.png",
+  "preview": "/assets/generated/v2/hangzhou-sprites-preview.png",
+  "backgroundKey": "#FF00FF family, removed by RGB threshold",
+  "spriteCount": 35,
+  "rows": [
+    6,
+    7,
+    5,
+    10,
+    7
+  ],
+  "sprites": {
+    "home-island": {
+      "src": "/assets/generated/v2/hangzhou-sprites/home-island.png",
+      "role": "main-building",
+      "sourceBox": [
+        23,
+        12,
+        281,
+        285
+      ],
+      "cropBox": [
+        15,
+        4,
+        289,
+        293
+      ],
+      "width": 274,
+      "height": 289,
+      "area": 41703,
+      "anchor": "bottom-center"
+    },
+    "office-tower-island": {
+      "src": "/assets/generated/v2/hangzhou-sprites/office-tower-island.png",
+      "role": "main-building",
+      "sourceBox": [
+        304,
+        37,
+        545,
+        289
+      ],
+      "cropBox": [
+        296,
+        29,
+        553,
+        297
+      ],
+      "width": 257,
+      "height": 268,
+      "area": 37208,
+      "anchor": "bottom-center"
+    },
+    "memory-museum-island": {
+      "src": "/assets/generated/v2/hangzhou-sprites/memory-museum-island.png",
+      "role": "main-building",
+      "sourceBox": [
+        568,
+        58,
+        824,
+        292
+      ],
+      "cropBox": [
+        560,
+        50,
+        832,
+        300
+      ],
+      "width": 272,
+      "height": 250,
+      "area": 41218,
+      "anchor": "bottom-center"
+    },
+    "finance-tower-island": {
+      "src": "/assets/generated/v2/hangzhou-sprites/finance-tower-island.png",
+      "role": "main-building",
+      "sourceBox": [
+        846,
+        22,
+        1065,
+        298
+      ],
+      "cropBox": [
+        838,
+        14,
+        1073,
+        306
+      ],
+      "width": 235,
+      "height": 292,
+      "area": 37612,
+      "anchor": "bottom-center"
+    },
+    "life-sports-island": {
+      "src": "/assets/generated/v2/hangzhou-sprites/life-sports-island.png",
+      "role": "main-building",
+      "sourceBox": [
+        1084,
+        64,
+        1349,
+        292
+      ],
+      "cropBox": [
+        1076,
+        56,
+        1357,
+        300
+      ],
+      "width": 281,
+      "height": 244,
+      "area": 40306,
+      "anchor": "bottom-center"
+    },
+    "ai-lab-island": {
+      "src": "/assets/generated/v2/hangzhou-sprites/ai-lab-island.png",
+      "role": "main-building",
+      "sourceBox": [
+        1379,
+        44,
+        1638,
+        291
+      ],
+      "cropBox": [
+        1371,
+        36,
+        1646,
+        299
+      ],
+      "width": 275,
+      "height": 263,
+      "area": 43279,
+      "anchor": "bottom-center"
+    },
+    "pagoda-island": {
+      "src": "/assets/generated/v2/hangzhou-sprites/pagoda-island.png",
+      "role": "landmark-or-bridge",
+      "sourceBox": [
+        18,
+        294,
+        196,
+        507
+      ],
+      "cropBox": [
+        10,
+        286,
+        204,
+        515
+      ],
+      "width": 194,
+      "height": 229,
+      "area": 20712,
+      "anchor": "bottom-center"
+    },
+    "lighthouse-island": {
+      "src": "/assets/generated/v2/hangzhou-sprites/lighthouse-island.png",
+      "role": "landmark-or-bridge",
+      "sourceBox": [
+        216,
+        287,
+        376,
+        499
+      ],
+      "cropBox": [
+        208,
+        279,
+        384,
+        507
+      ],
+      "width": 176,
+      "height": 228,
+      "area": 17666,
+      "anchor": "bottom-center"
+    },
+    "wood-pier-large": {
+      "src": "/assets/generated/v2/hangzhou-sprites/wood-pier-large.png",
+      "role": "landmark-or-bridge",
+      "sourceBox": [
+        432,
+        324,
+        623,
+        483
+      ],
+      "cropBox": [
+        424,
+        316,
+        631,
+        491
+      ],
+      "width": 207,
+      "height": 175,
+      "area": 15295,
+      "anchor": "bottom-center"
+    },
+    "stone-arch-bridge": {
+      "src": "/assets/generated/v2/hangzhou-sprites/stone-arch-bridge.png",
+      "role": "landmark-or-bridge",
+      "sourceBox": [
+        701,
+        330,
+        907,
+        484
+      ],
+      "cropBox": [
+        693,
+        322,
+        915,
+        492
+      ],
+      "width": 222,
+      "height": 170,
+      "area": 19358,
+      "anchor": "bottom-center"
+    },
+    "scenic-stone-bridge": {
+      "src": "/assets/generated/v2/hangzhou-sprites/scenic-stone-bridge.png",
+      "role": "landmark-or-bridge",
+      "sourceBox": [
+        967,
+        310,
+        1231,
+        491
+      ],
+      "cropBox": [
+        959,
+        302,
+        1239,
+        499
+      ],
+      "width": 280,
+      "height": 197,
+      "area": 25981,
+      "anchor": "bottom-center"
+    },
+    "wood-footbridge": {
+      "src": "/assets/generated/v2/hangzhou-sprites/wood-footbridge.png",
+      "role": "landmark-or-bridge",
+      "sourceBox": [
+        1273,
+        341,
+        1433,
+        481
+      ],
+      "cropBox": [
+        1265,
+        333,
+        1441,
+        489
+      ],
+      "width": 176,
+      "height": 156,
+      "area": 11094,
+      "anchor": "bottom-center"
+    },
+    "wood-dock": {
+      "src": "/assets/generated/v2/hangzhou-sprites/wood-dock.png",
+      "role": "landmark-or-bridge",
+      "sourceBox": [
+        1484,
+        355,
+        1638,
+        476
+      ],
+      "cropBox": [
+        1476,
+        347,
+        1646,
+        484
+      ],
+      "width": 170,
+      "height": 137,
+      "area": 9733,
+      "anchor": "bottom-center"
+    },
+    "ferry-boat": {
+      "src": "/assets/generated/v2/hangzhou-sprites/ferry-boat.png",
+      "role": "boat",
+      "sourceBox": [
+        54,
+        517,
+        210,
+        625
+      ],
+      "cropBox": [
+        46,
+        509,
+        218,
+        633
+      ],
+      "width": 172,
+      "height": 124,
+      "area": 9912,
+      "anchor": "bottom-center"
+    },
+    "sailboat": {
+      "src": "/assets/generated/v2/hangzhou-sprites/sailboat.png",
+      "role": "boat",
+      "sourceBox": [
+        403,
+        503,
+        521,
+        629
+      ],
+      "cropBox": [
+        395,
+        495,
+        529,
+        637
+      ],
+      "width": 134,
+      "height": 142,
+      "area": 7535,
+      "anchor": "bottom-center"
+    },
+    "rowboat": {
+      "src": "/assets/generated/v2/hangzhou-sprites/rowboat.png",
+      "role": "boat",
+      "sourceBox": [
+        626,
+        545,
+        759,
+        623
+      ],
+      "cropBox": [
+        618,
+        537,
+        767,
+        631
+      ],
+      "width": 149,
+      "height": 94,
+      "area": 6610,
+      "anchor": "bottom-center"
+    },
+    "tour-boat": {
+      "src": "/assets/generated/v2/hangzhou-sprites/tour-boat.png",
+      "role": "boat",
+      "sourceBox": [
+        857,
+        533,
+        996,
+        625
+      ],
+      "cropBox": [
+        849,
+        525,
+        1004,
+        633
+      ],
+      "width": 155,
+      "height": 108,
+      "area": 7830,
+      "anchor": "bottom-center"
+    },
+    "white-yacht": {
+      "src": "/assets/generated/v2/hangzhou-sprites/white-yacht.png",
+      "role": "boat",
+      "sourceBox": [
+        1062,
+        515,
+        1241,
+        625
+      ],
+      "cropBox": [
+        1054,
+        507,
+        1249,
+        633
+      ],
+      "width": 195,
+      "height": 126,
+      "area": 11705,
+      "anchor": "bottom-center"
+    },
+    "tree-broadleaf": {
+      "src": "/assets/generated/v2/hangzhou-sprites/tree-broadleaf.png",
+      "role": "nature-or-tile",
+      "sourceBox": [
+        33,
+        646,
+        150,
+        780
+      ],
+      "cropBox": [
+        25,
+        638,
+        158,
+        788
+      ],
+      "width": 133,
+      "height": 150,
+      "area": 9893,
+      "anchor": "bottom-center"
+    },
+    "tree-pine": {
+      "src": "/assets/generated/v2/hangzhou-sprites/tree-pine.png",
+      "role": "nature-or-tile",
+      "sourceBox": [
+        183,
+        645,
+        262,
+        778
+      ],
+      "cropBox": [
+        175,
+        637,
+        270,
+        786
+      ],
+      "width": 95,
+      "height": 149,
+      "area": 5846,
+      "anchor": "bottom-center"
+    },
+    "tree-cherry": {
+      "src": "/assets/generated/v2/hangzhou-sprites/tree-cherry.png",
+      "role": "nature-or-tile",
+      "sourceBox": [
+        293,
+        642,
+        422,
+        778
+      ],
+      "cropBox": [
+        285,
+        634,
+        430,
+        786
+      ],
+      "width": 145,
+      "height": 152,
+      "area": 10618,
+      "anchor": "bottom-center"
+    },
+    "bamboo-patch": {
+      "src": "/assets/generated/v2/hangzhou-sprites/bamboo-patch.png",
+      "role": "nature-or-tile",
+      "sourceBox": [
+        469,
+        649,
+        567,
+        778
+      ],
+      "cropBox": [
+        461,
+        641,
+        575,
+        786
+      ],
+      "width": 114,
+      "height": 145,
+      "area": 8040,
+      "anchor": "bottom-center"
+    },
+    "reed-patch": {
+      "src": "/assets/generated/v2/hangzhou-sprites/reed-patch.png",
+      "role": "nature-or-tile",
+      "sourceBox": [
+        626,
+        649,
+        730,
+        781
+      ],
+      "cropBox": [
+        618,
+        641,
+        738,
+        789
+      ],
+      "width": 120,
+      "height": 148,
+      "area": 7078,
+      "anchor": "bottom-center"
+    },
+    "flower-bed": {
+      "src": "/assets/generated/v2/hangzhou-sprites/flower-bed.png",
+      "role": "nature-or-tile",
+      "sourceBox": [
+        781,
+        681,
+        918,
+        778
+      ],
+      "cropBox": [
+        773,
+        673,
+        926,
+        786
+      ],
+      "width": 153,
+      "height": 113,
+      "area": 9159,
+      "anchor": "bottom-center"
+    },
+    "tree-palm": {
+      "src": "/assets/generated/v2/hangzhou-sprites/tree-palm.png",
+      "role": "nature-or-tile",
+      "sourceBox": [
+        984,
+        649,
+        1090,
+        782
+      ],
+      "cropBox": [
+        976,
+        641,
+        1098,
+        790
+      ],
+      "width": 122,
+      "height": 149,
+      "area": 7403,
+      "anchor": "bottom-center"
+    },
+    "grass-island-tile": {
+      "src": "/assets/generated/v2/hangzhou-sprites/grass-island-tile.png",
+      "role": "nature-or-tile",
+      "sourceBox": [
+        1120,
+        685,
+        1272,
+        785
+      ],
+      "cropBox": [
+        1112,
+        677,
+        1280,
+        793
+      ],
+      "width": 168,
+      "height": 116,
+      "area": 10049,
+      "anchor": "bottom-center"
+    },
+    "cliff-island-tile": {
+      "src": "/assets/generated/v2/hangzhou-sprites/cliff-island-tile.png",
+      "role": "nature-or-tile",
+      "sourceBox": [
+        1301,
+        675,
+        1448,
+        785
+      ],
+      "cropBox": [
+        1293,
+        667,
+        1456,
+        793
+      ],
+      "width": 163,
+      "height": 126,
+      "area": 11115,
+      "anchor": "bottom-center"
+    },
+    "lake-island-tile": {
+      "src": "/assets/generated/v2/hangzhou-sprites/lake-island-tile.png",
+      "role": "nature-or-tile",
+      "sourceBox": [
+        1473,
+        682,
+        1634,
+        792
+      ],
+      "cropBox": [
+        1465,
+        674,
+        1642,
+        800
+      ],
+      "width": 177,
+      "height": 126,
+      "area": 11696,
+      "anchor": "bottom-center"
+    },
+    "bench": {
+      "src": "/assets/generated/v2/hangzhou-sprites/bench.png",
+      "role": "prop-or-character",
+      "sourceBox": [
+        57,
+        827,
+        193,
+        934
+      ],
+      "cropBox": [
+        49,
+        819,
+        201,
+        942
+      ],
+      "width": 152,
+      "height": 123,
+      "area": 7440,
+      "anchor": "bottom-center"
+    },
+    "streetlamp": {
+      "src": "/assets/generated/v2/hangzhou-sprites/streetlamp.png",
+      "role": "prop-or-character",
+      "sourceBox": [
+        243,
+        786,
+        289,
+        923
+      ],
+      "cropBox": [
+        235,
+        778,
+        297,
+        931
+      ],
+      "width": 62,
+      "height": 153,
+      "area": 3101,
+      "anchor": "bottom-center"
+    },
+    "signpost": {
+      "src": "/assets/generated/v2/hangzhou-sprites/signpost.png",
+      "role": "prop-or-character",
+      "sourceBox": [
+        385,
+        805,
+        454,
+        924
+      ],
+      "cropBox": [
+        377,
+        797,
+        462,
+        932
+      ],
+      "width": 85,
+      "height": 135,
+      "area": 4628,
+      "anchor": "bottom-center"
+    },
+    "avatar-male": {
+      "src": "/assets/generated/v2/hangzhou-sprites/avatar-male.png",
+      "role": "prop-or-character",
+      "sourceBox": [
+        555,
+        807,
+        622,
+        933
+      ],
+      "cropBox": [
+        547,
+        799,
+        630,
+        941
+      ],
+      "width": 83,
+      "height": 142,
+      "area": 6204,
+      "anchor": "bottom-center"
+    },
+    "avatar-female": {
+      "src": "/assets/generated/v2/hangzhou-sprites/avatar-female.png",
+      "role": "prop-or-character",
+      "sourceBox": [
+        690,
+        811,
+        763,
+        932
+      ],
+      "cropBox": [
+        682,
+        803,
+        771,
+        940
+      ],
+      "width": 89,
+      "height": 137,
+      "area": 5991,
+      "anchor": "bottom-center"
+    },
+    "avatar-researcher": {
+      "src": "/assets/generated/v2/hangzhou-sprites/avatar-researcher.png",
+      "role": "prop-or-character",
+      "sourceBox": [
+        844,
+        802,
+        910,
+        930
+      ],
+      "cropBox": [
+        836,
+        794,
+        918,
+        938
+      ],
+      "width": 82,
+      "height": 144,
+      "area": 6372,
+      "anchor": "bottom-center"
+    },
+    "ai-robot": {
+      "src": "/assets/generated/v2/hangzhou-sprites/ai-robot.png",
+      "role": "prop-or-character",
+      "sourceBox": [
+        983,
+        803,
+        1065,
+        925
+      ],
+      "cropBox": [
+        975,
+        795,
+        1073,
+        933
+      ],
+      "width": 98,
+      "height": 138,
+      "area": 6792,
+      "anchor": "bottom-center"
+    }
+  }
+}

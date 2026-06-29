@@ -1,0 +1,6 @@
+Use case: stylized-concept.
+Asset type: baked raster base background for a 2D isometric memory room game scene.
+Primary request: Generate a complex modern minimalist 记忆室 interior background for Memory Map, visually unified with the Hangzhou pixel-island style but calmer and more premium.
+Layout: clean base room only; reserve six anchor zones for bookshelf/books, notes desk/notes, map wall/geographic location, photo album/photos, audio machine/audio, and timeline table/replay + AI summary.
+Style: pale oak, white/cream walls, warm natural wood floor, glass railing, Hangzhou West Lake daylight view, indoor plants, thin brass details, muted teal-blue accent lights, soft shadows.
+Constraints: background only; leave empty platforms/blank wall zones for interactive sprites; no UI overlay, purple numbered markers, labels, readable text, icons, character portraits, watermark, or object sheet layout.

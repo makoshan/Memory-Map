@@ -1,0 +1,54 @@
+{
+  "user_id": "alex-chen",
+  "asset_id": "memory-door-open",
+  "kind": "door_animation",
+  "layer1": {
+    "place_profile_id": "memory-museum",
+    "role": "memory",
+    "semantic_tags": ["memory-rich", "room-entry", "transition"],
+    "summary": "The memory museum door opens as a short transition before entering the dedicated memory room."
+  },
+  "door": {
+    "name": "Memory Museum Door",
+    "style": "2.5D isometric pixel art, bright personal AI company world",
+    "identity_markers": [
+      "memory museum facade",
+      "warm lit doorway",
+      "small readable door frame",
+      "stable isometric angle"
+    ]
+  },
+  "first_frame": {
+    "source_transparent_image": "public/assets/generated/v2/sprites/memory-lv3.png",
+    "prepared_image": "source_images/memory-door-open-first-frame.png",
+    "prepare_command": "python tools/prepare_chroma_first_frame.py --input public/assets/generated/v2/sprites/memory-lv3.png --output source_images/memory-door-open-first-frame.png --canvas-size 1024x1024 --layout-mode fit-foreground --padding 64 --report work/runs/memory-door-open-first-frame-report.json"
+  },
+  "animation": {
+    "name": "door_open",
+    "frame_count": 8,
+    "fps": 12,
+    "prompt": "Use the uploaded image as the exact first frame. Animate a tiny 2.5D isometric pixel-art memory museum door opening for a game transition. Keep the same building facade, same door frame, same isometric angle, same scale, same colors, and same pixel-art design. Only the door opens inward with a small warm light appearing from inside. The building does not move. The asset stays centered and does not travel. Locked camera. No zoom, no pan, no rotation, no cuts, no camera shake. Flat #00FF00 background stays unchanged. No shadows, no floor, no extra props, no characters, no UI, no text, no watermark, no blur, no redesign."
+  },
+  "generation": {
+    "provider": "dreamina_cli",
+    "mode": "image2video",
+    "first_frame_provider": "tools/prepare_chroma_first_frame.py",
+    "first_frame_image": "source_images/memory-door-open-first-frame.png",
+    "model_version": "seedance2.0fast",
+    "duration": 4,
+    "video_resolution": "720p",
+    "initial_poll_seconds": 0
+  },
+  "pipeline": {
+    "frame_size": 256,
+    "background_mode": "chroma",
+    "chroma_key": "#00FF00",
+    "layout_mode": "preserve-canvas",
+    "frame_indices": [],
+    "promote_to_final_sprites": true,
+    "copy_to_godot": true,
+    "contact_sheet_cols": 12,
+    "contact_sheet_cell_size": 128,
+    "contact_sheet_image_size": 112
+  }
+}

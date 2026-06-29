@@ -1,0 +1,6 @@
+Use case: stylized-concept.
+Asset type: production sprite atlas for a React/Godot pixel-island UI game.
+Primary request: Generate a clean isometric pixel-art sprite sheet for a Hangzhou personal island world for personal AI company.
+Canvas/layout requirements: wide atlas, perfectly flat solid #FF00FF chroma-key background, generous #FF00FF space between every object, no overlap, no cropped edges, no text.
+Sprites requested: home island, office tower island, memory museum island, finance tower island, life/sports island, AI lab island, landmarks, bridges, boats, nature props, street props, avatars, and friendly AI robot.
+Quality: each sprite must be visually distinct and cutout-ready for automated connected-component extraction.

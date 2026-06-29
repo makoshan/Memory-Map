@@ -1,0 +1,13 @@
+Use case: stylized-concept.
+Asset type: production sprite atlas for cutting transparent PNG props for a 2D isometric memory room game.
+Primary request: Generate separated interactive memory-room objects matching the modern minimalist natural-oak 记忆室.
+Canvas/layout: one wide atlas on a perfectly flat solid #FF00FF chroma-key background; generous padding; no overlap; no cropped edges.
+Objects in exact left-to-right order:
+1) Bookshelf / books
+2) Notes desk / notebooks and loose notes
+3) Map wall / geographic location
+4) Photo album / pictures
+5) Audio machine / voice recordings
+6) Timeline table / replay and AI summary
+Style: pale oak furniture, clean white/cream surfaces, glass details, small teal-blue glow accents, premium mobile game isometric rendering.
+Constraints: no labels, readable text, numbers, UI panels, purple markers, watermark, or #FF00FF inside objects.

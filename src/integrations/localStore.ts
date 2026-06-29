@@ -1,10 +1,22 @@
-import type { EventRecord, HermesAnalysisJob, MediaAsset } from "../domain/types";
+import type {
+  EventRecord,
+  FeedbackEvent,
+  HermesAnalysisJob,
+  MediaAsset,
+  Reflection,
+  Skill,
+  WorkbenchArtifact
+} from "../domain/types";
 import type { MemoryItem } from "../domain/memoryRoom";
 
 const EVENTS_STORAGE_KEY = "memory-map.events";
 const MEDIA_ASSETS_STORAGE_KEY = "memory-map.media-assets";
 const MEMORY_ITEMS_STORAGE_KEY = "memory-map.memory-items";
 const HERMES_JOBS_STORAGE_KEY = "memory-map.hermes-jobs";
+const FEEDBACK_EVENTS_STORAGE_KEY = "memory-map.feedback-events";
+const REFLECTIONS_STORAGE_KEY = "memory-map.reflections";
+const SKILLS_STORAGE_KEY = "memory-map.skills";
+const WORKBENCH_ARTIFACTS_STORAGE_KEY = "memory-map.workbench-artifacts";
 
 export type LocalSnapshotStatus = {
   status: "ready" | "web-preview" | "error";
@@ -126,6 +138,60 @@ export function saveStoredHermesJobs(jobs: HermesAnalysisJob[]) {
     return;
   }
   window.localStorage.setItem(HERMES_JOBS_STORAGE_KEY, JSON.stringify(jobs.slice(0, 50)));
+}
+
+function loadStoredArray<T>(key: string, fallback: T[]): T[] {
+  if (typeof window === "undefined" || !window.localStorage) {
+    return fallback;
+  }
+
+  try {
+    const raw = window.localStorage.getItem(key);
+    if (!raw) return fallback;
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? (parsed as T[]) : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+function saveStoredArray<T>(key: string, records: T[], limit = 100) {
+  if (typeof window === "undefined" || !window.localStorage) {
+    return;
+  }
+  window.localStorage.setItem(key, JSON.stringify(records.slice(0, limit)));
+}
+
+export function loadStoredFeedbackEvents(fallback: FeedbackEvent[]): FeedbackEvent[] {
+  return loadStoredArray(FEEDBACK_EVENTS_STORAGE_KEY, fallback);
+}
+
+export function saveStoredFeedbackEvents(events: FeedbackEvent[]) {
+  saveStoredArray(FEEDBACK_EVENTS_STORAGE_KEY, events, 200);
+}
+
+export function loadStoredReflections(fallback: Reflection[]): Reflection[] {
+  return loadStoredArray(REFLECTIONS_STORAGE_KEY, fallback);
+}
+
+export function saveStoredReflections(reflections: Reflection[]) {
+  saveStoredArray(REFLECTIONS_STORAGE_KEY, reflections, 100);
+}
+
+export function loadStoredSkills(fallback: Skill[]): Skill[] {
+  return loadStoredArray(SKILLS_STORAGE_KEY, fallback);
+}
+
+export function saveStoredSkills(skills: Skill[]) {
+  saveStoredArray(SKILLS_STORAGE_KEY, skills, 100);
+}
+
+export function loadStoredWorkbenchArtifacts(fallback: WorkbenchArtifact[]): WorkbenchArtifact[] {
+  return loadStoredArray(WORKBENCH_ARTIFACTS_STORAGE_KEY, fallback);
+}
+
+export function saveStoredWorkbenchArtifacts(artifacts: WorkbenchArtifact[]) {
+  saveStoredArray(WORKBENCH_ARTIFACTS_STORAGE_KEY, artifacts, 100);
 }
 
 export async function initializeLocalStore(): Promise<LocalSnapshotStatus> {

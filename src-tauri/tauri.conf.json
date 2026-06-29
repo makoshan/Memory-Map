@@ -5,7 +5,7 @@
   "identifier": "ai.memorymap.desktop",
   "build": {
     "beforeDevCommand": "npm run dev",
-    "beforeBuildCommand": "npm run build",
+    "beforeBuildCommand": "npm run build:godot-web && npm run build",
     "devUrl": "http://localhost:5173",
     "frontendDist": "../dist"
   },

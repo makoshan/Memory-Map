@@ -4,6 +4,8 @@ import { describe, expect, it } from "vitest";
 import App, {
   buildImageImportProgressSteps,
   createArchiveProcessingFile,
+  GodotWebGamePage,
+  getGameRoomFromSearch,
   getPathForView,
   getViewFromPathname,
   MemoryCreatePage,
@@ -16,7 +18,8 @@ describe("App", () => {
     const html = renderToStaticMarkup(<App />);
 
     expect(html).toContain("app-shell world-dashboard");
-    expect(html).toContain("top-bar");
+    expect(html).not.toContain("top-bar");
+    expect(html).toContain("side-profile");
     expect(html).toContain("side-nav");
     expect(html).toContain("right-rail");
     expect(html).toContain("main-stage world-stage");
@@ -24,24 +27,30 @@ describe("App", () => {
     expect(html).toContain("我的世界");
     expect(html).toContain("世界地图");
     expect(html).toContain("城市状态");
-    expect(html).toContain("/assets/game/sprites/office-island.png");
-    expect(html).toContain("/assets/game/sprites/memory-museum-island.png");
-    expect(html).toContain("/assets/game/sprites/finance-tower-island.png");
-    expect(html).toContain("/assets/game/sprites/recovery-garden-island.png");
-    expect(html).toContain("/assets/game/sprites/home-base-island.png");
-    expect(html).toContain("/assets/game/sprites/ai-research-lab-island.png");
-    expect(html).toContain("/assets/game/sprites/lighthouse-island.png");
-    expect(html).toContain("/assets/game/sprites/wood-bridge.png");
-    expect(html).toContain("/assets/game/sprites/player-alex.png");
+    expect(html).toContain("data-mapbox-world-map");
+    expect(html).toContain('data-mapbox-variant="rail"');
+    expect(html).toContain("Mapbox 杭州地图");
+    expect(html).toContain("默认杭州");
+    expect(html).toContain("切换到世界地图");
+    expect(html).toContain("杭州像素岛屿");
+    expect(html).toContain('data-pixel-island-pack="hangzhou"');
+    expect(html).toContain('data-scene-image="/assets/generated/v2/hangzhou-island-composite-preview.png"');
+    expect(html).toContain('data-sprites-manifest="/assets/generated/v2/hangzhou-sprites/manifest.json"');
+    expect(html).toContain("/assets/generated/v2/hangzhou-background.png");
+    expect(html).toContain("/assets/generated/v2/hangzhou-island-composite-preview.png");
+    expect(html).toContain("pixel-stage-hud");
+    expect(html).toContain("今日状态");
+    expect(html).toContain("8.2h / 12h");
     expect(html).toContain("/assets/ai-company/office.png");
     expect(html).toContain("/assets/ai-company/memory.png");
     expect(html).toContain("/assets/ai-company/finance.png");
     expect(html).toContain("/assets/ai-company/daily.png");
-    expect(html).toContain("/assets/ai-company/worldmap.png");
     expect(html).toContain("/assets/ai-company/timeline.png");
     expect(html).toContain("24°C");
     expect(html).toContain("晴 · 空气优 28");
     expect(html).toContain("世界地图");
+    expect(html).toContain("进入杭州像素岛");
+    expect(html).toContain('data-godot-session-entry="hangzhou"');
     expect(html).toContain("进入办公室");
     expect(html).toContain("进入记忆馆");
     expect(html).toContain('href="/office"');
@@ -106,6 +115,7 @@ describe("App", () => {
     expect(html).toContain("城市分布");
     expect(html).toContain("导入记忆");
     expect(html).toContain('href="/memory/import"');
+    expect(html).toContain('href="/game?room=memory"');
     expect(html).toContain("返回岛屿");
     expect(html).toContain('href="/"');
     expect(html).toContain('href="/office"');
@@ -226,12 +236,47 @@ describe("App", () => {
     expect(getPathForView("office")).toBe("/office");
     expect(getPathForView("memory")).toBe("/memory");
     expect(getPathForView("memoryImport")).toBe("/memory/import");
+    expect(getPathForView("game")).toBe("/game");
     expect(getViewFromPathname("/")).toBe("world");
     expect(getViewFromPathname("/office")).toBe("office");
     expect(getViewFromPathname("/memory")).toBe("memory");
     expect(getViewFromPathname("/memory/")).toBe("memory");
     expect(getViewFromPathname("/memory/import")).toBe("memoryImport");
     expect(getViewFromPathname("/memory/import/")).toBe("memoryImport");
+    expect(getViewFromPathname("/game")).toBe("game");
     expect(getViewFromPathname("/unknown")).toBe("world");
+    expect(getGameRoomFromSearch("?room=memory")).toBe("memory");
+    expect(getGameRoomFromSearch("?room=world")).toBe("world");
+    expect(getGameRoomFromSearch("")).toBe("world");
+  });
+
+  it("renders the Godot iframe as a focusable game surface for keyboard walking", () => {
+    const html = renderToStaticMarkup(<GodotWebGamePage onNavigate={() => undefined} />);
+
+    expect(html).toContain("app-shell godot-game-shell");
+    expect(html).toContain("side-profile");
+    expect(html).toContain("godot-game-card");
+    expect(html).toContain("godot-game-toolbar");
+    expect(html).not.toContain("godot-web-topbar");
+    expect(html).not.toContain("Godot Web");
+    expect(html).toContain('src="/godot-web/index.html?boot=');
+    expect(html).toContain('title="杭州像素岛 Godot 游戏"');
+    expect(html).toContain('tabindex="0"');
+  });
+
+  it("opens the memory game link directly into the Godot memory room map", () => {
+    const html = renderToStaticMarkup(<GodotWebGamePage room="memory" onNavigate={() => undefined} />);
+
+    expect(html).toContain("app-shell godot-game-shell memory-game-shell");
+    expect(html).toContain("记忆室");
+    expect(html).toContain("Memory Room");
+    expect(html).toContain('aria-label="记忆室 Godot 游戏"');
+    expect(html).toContain('data-memory-game-map="/assets/generated/v2/memory-room-map.json"');
+    expect(html).toContain('src="/godot-web/index.html?room=memory&amp;boot=');
+    expect(html).toContain('title="记忆室 Godot 游戏"');
+    expect(html).toContain('tabindex="0"');
+    expect(html).not.toContain('src="/assets/generated/v2/memory-room-scene-preview.png"');
+    expect(html).not.toContain("打开书库");
+    expect(html).not.toContain('src="/godot-web/index.html"');
   });
 });

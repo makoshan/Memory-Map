@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { ChangeEvent, DragEvent } from "react";
 import { DesignCard, type NavigateHandler } from "./AppShell";
 import { gameAssets } from "../data/gameAssets";
+import { hangzhouPixelIslandPack } from "../data/pixelIslandPacks";
 import {
   buildAgentContext,
   buildMediaAsset,
@@ -27,7 +28,13 @@ type HermesJobView = HermesAnalysisJob & {
   payloadPreview: string;
 };
 
-const memoryScene = "/assets/memory-room/scene.jpg";
+const memoryRoomMap = "/assets/generated/v2/memory-room-map.json";
+const memoryRoomToolFlow = "/assets/generated/v2/memory-room-tool-flow.json";
+const memoryRoomSpritesManifest = "/assets/generated/v2/memory-room-sprites/manifest.json";
+const memoryScene = "/assets/generated/v2/memory-room-scene-preview.png";
+const memoryMuseumSprite =
+  hangzhouPixelIslandPack.layers.find((layer) => layer.key === "memory")?.sprite ??
+  "/assets/generated/v2/hangzhou-sprites/memory-museum-island.png";
 
 const ACCEPTED_TYPES = "image/*,audio/*,text/plain,text/markdown,.md,.txt";
 
@@ -134,8 +141,14 @@ export async function fileToProcessingFile(file: File, options: ProcessingFileOp
 
 function MemoryHeroCard() {
   return (
-    <DesignCard className="scene-card memory-scene-card">
-      <img className="memory-scene" src={memoryScene} alt="记忆馆像素风场景" />
+    <DesignCard
+      className="scene-card memory-scene-card memory-museum-game-stage"
+      data-memory-room-map={memoryRoomMap}
+      data-memory-tool-flow={memoryRoomToolFlow}
+      data-memory-sprites-manifest={memoryRoomSpritesManifest}
+      data-godot-room-entry="memory"
+    >
+      <img className="memory-scene" src={memoryScene} alt="记忆室组合地图" />
       <article className="scene-info">
         <header>
           <h1>记忆馆</h1>
@@ -146,6 +159,24 @@ function MemoryHeroCard() {
         <div className="progress-track"><i style={{ width: "70%" }} /></div>
         <p>存放你人生重要的记忆。AI 会从照片、笔记和音频里提炼成事件，并把它们放回城市地图。</p>
       </article>
+      <aside
+        className="memory-museum-entry"
+        aria-label="记忆馆游戏入口"
+        data-memory-room-map={memoryRoomMap}
+        data-memory-tool-flow={memoryRoomToolFlow}
+        data-memory-sprites-manifest={memoryRoomSpritesManifest}
+        data-godot-room-entry="memory"
+      >
+        <img src={memoryMuseumSprite} alt="" />
+        <div>
+          <span>组合地图</span>
+          <strong>记忆室工具流</strong>
+          <small>{memoryRoomToolFlow}</small>
+        </div>
+        <a className="button-primary memory-game-link" href="/game?room=memory">
+          进入记忆馆游戏
+        </a>
+      </aside>
     </DesignCard>
   );
 }

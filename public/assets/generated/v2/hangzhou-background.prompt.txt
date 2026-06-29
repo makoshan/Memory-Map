@@ -1,0 +1,6 @@
+Use case: stylized-concept.
+Asset type: baked raster background map for a layered pixel-island world UI.
+Primary request: Generate a Hangzhou pixel-island background map for personal AI company.
+Scene: bright daytime city bay, blue water, distant skyline, soft hills, white clouds, landmark hill/pagoda silhouette, and empty isometric island pads for later sprite placement.
+Strict exclusions: no UI overlay, no labels, no icons, no text, no numbers, no buttons, no character portraits, no large foreground building that blocks sprite overlays.
+Quality: clean pixel-art-inspired game illustration, crisp for a 16:9 web app stage, with safe negative space at top-left and bottom-left.

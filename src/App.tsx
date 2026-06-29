@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import type { ChangeEvent, DragEvent, ReactNode } from "react";
+import type { CSSProperties, ChangeEvent, DragEvent, ReactNode } from "react";
 import { AppShell, DesignCard, type NavigateHandler } from "./components/AppShell";
 import { fileToProcessingFile, MemoryLibraryDashboard } from "./components/MemoryRoom";
 import { gameAssets } from "./data/gameAssets";
+import { hangzhouPixelIslandPack, type PixelIslandLayer } from "./data/pixelIslandPacks";
 import {
   buildAgentContext,
   buildMediaAsset,
@@ -55,25 +56,59 @@ const aiCompanyAssets = {
   timeline: "/assets/ai-company/timeline.png"
 } as const;
 
-type IslandSpot = {
-  key: string;
-  label: string;
-  level: string;
-  icon: string;
-  sprite: string;
-  view?: ViewKey;
-  className: string;
-  ariaLabel?: string;
+type WorldStageMode = "island" | "map";
+type MapboxWorldMapVariant = "rail" | "stage";
+type GodotWebSessionResult = {
+  sessionId?: string;
+  status?: string;
+  worldSlug?: string;
+  completedTasks?: string[];
+  visitedRooms?: string[];
 };
 
-const islandSpots: IslandSpot[] = [
-  { key: "office", label: "办公室", level: "Lv.8", icon: gameAssets.icons.office, sprite: gameAssets.cut.office, view: "office", className: "spot-office", ariaLabel: "进入办公室" },
-  { key: "memory", label: "记忆馆", level: "Lv.7", icon: gameAssets.icons.memory, sprite: gameAssets.cut.memory, view: "memory", className: "spot-memory", ariaLabel: "进入记忆馆" },
-  { key: "finance", label: "财务楼", level: "Lv.6", icon: gameAssets.icons.finance, sprite: gameAssets.cut.finance, className: "spot-finance" },
-  { key: "ai", label: "AI 研究所", level: "Lv.7", icon: gameAssets.icons.ai, sprite: gameAssets.cut.aiLab, className: "spot-ai" },
-  { key: "home", label: "家", level: "Lv.10", icon: gameAssets.icons.home, sprite: gameAssets.cut.home, className: "spot-home" },
-  { key: "life", label: "生活区", level: "Lv.5", icon: gameAssets.icons.life, sprite: gameAssets.cut.recovery, className: "spot-life" }
-];
+type GodotWebSessionMessage = {
+  type: "memory-map:godot-session";
+  session?: GodotWebSessionResult;
+  returnToApp?: boolean;
+};
+type GameRoom = "world" | "memory";
+
+const memoryRoomGameMap = {
+  map: "/assets/generated/v2/memory-room-map.json",
+  toolFlow: "/assets/generated/v2/memory-room-tool-flow.json",
+} as const;
+
+function createGodotWebSrc(room: GameRoom) {
+  const params = new URLSearchParams();
+  if (room === "memory") {
+    params.set("room", "memory");
+  }
+  params.set("boot", String(Date.now()));
+  return `/godot-web/index.html?${params.toString()}`;
+}
+
+const hangzhouMap = {
+  city: "杭州",
+  english: "Hangzhou",
+  level: "Lv.10",
+  coordinates: [120.1551, 30.2741] as [number, number],
+  railZoom: 7.4,
+  stageZoom: 10.2
+};
+
+function isGodotWebSessionMessage(value: unknown): value is GodotWebSessionMessage {
+  if (typeof value !== "object" || value === null) {
+    return false;
+  }
+
+  const record = value as Record<string, unknown>;
+  return record.type === "memory-map:godot-session";
+}
+
+export function getGameRoomFromSearch(search: string): GameRoom {
+  const room = new URLSearchParams(search).get("room");
+  return room === "memory" ? "memory" : "world";
+}
 
 const tasks = [
   ["10:00", "产品设计评审", true],
@@ -120,63 +155,306 @@ function EvidenceCard({
   );
 }
 
-function WorldSceneCard({ onNavigate }: { onNavigate: NavigateHandler }) {
+function MapboxHangzhouMap({ variant }: { variant: MapboxWorldMapVariant }) {
+  const mapContainerRef = useRef<HTMLDivElement>(null);
+  const mapRef = useRef<import("mapbox-gl").Map | null>(null);
+  const markerRef = useRef<import("mapbox-gl").Marker | null>(null);
+  const [mapStatus, setMapStatus] = useState<"loading" | "ready" | "needs-token" | "error">("loading");
+
+  useEffect(() => {
+    if (!mapContainerRef.current || typeof window === "undefined") return;
+
+    const token = (import.meta.env.VITE_MAPBOX_TOKEN as string | undefined)?.trim();
+    if (!token || token.includes("your_mapbox_public_token")) {
+      setMapStatus("needs-token");
+      return;
+    }
+
+    let disposed = false;
+    setMapStatus("loading");
+
+    import("mapbox-gl")
+      .then(({ default: mapboxgl }) => {
+        if (disposed || !mapContainerRef.current) return;
+
+        mapboxgl.accessToken = token;
+        const map = new mapboxgl.Map({
+          container: mapContainerRef.current,
+          style: "mapbox://styles/mapbox/streets-v12",
+          center: hangzhouMap.coordinates,
+          zoom: variant === "stage" ? hangzhouMap.stageZoom : hangzhouMap.railZoom,
+          minZoom: 1,
+          maxZoom: 15,
+          attributionControl: false,
+          cooperativeGestures: false
+        });
+
+        const markerElement = document.createElement("button");
+        markerElement.type = "button";
+        markerElement.className = `mapbox-hangzhou-marker mapbox-hangzhou-marker--${variant}`;
+        markerElement.setAttribute("aria-label", "杭州像素岛屿");
+        markerElement.innerHTML = `<span>${hangzhouMap.city}</span><small>${hangzhouMap.level}</small>`;
+        markerElement.addEventListener("click", () => {
+          map.flyTo({
+            center: hangzhouMap.coordinates,
+            zoom: variant === "stage" ? hangzhouMap.stageZoom : hangzhouMap.railZoom,
+            duration: 700,
+            essential: true
+          });
+        });
+
+        mapRef.current = map;
+        markerRef.current = new mapboxgl.Marker({ element: markerElement, anchor: "bottom" })
+          .setLngLat(hangzhouMap.coordinates)
+          .addTo(map);
+
+        if (variant === "stage") {
+          map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), "top-right");
+        }
+        map.addControl(new mapboxgl.AttributionControl({ compact: true }), "bottom-right");
+        map.once("load", () => {
+          if (!disposed) setMapStatus("ready");
+        });
+        map.on("error", () => {
+          if (!disposed) setMapStatus("error");
+        });
+      })
+      .catch(() => {
+        if (!disposed) setMapStatus("error");
+      });
+
+    return () => {
+      disposed = true;
+      markerRef.current?.remove();
+      markerRef.current = null;
+      mapRef.current?.remove();
+      mapRef.current = null;
+    };
+  }, [variant]);
+
+  const statusLabel =
+    mapStatus === "ready"
+      ? "Mapbox 已连接"
+      : mapStatus === "needs-token"
+      ? "等待 VITE_MAPBOX_TOKEN"
+      : mapStatus === "error"
+      ? "Mapbox 加载失败"
+      : "正在连接 Mapbox";
+
+  return (
+    <div className={`mapbox-hangzhou-map mapbox-hangzhou-map--${variant}`} aria-label="Mapbox 杭州地图">
+      <div
+        ref={mapContainerRef}
+        className="mapbox-hangzhou-canvas"
+        data-mapbox-world-map
+        data-mapbox-variant={variant}
+        role="application"
+        aria-label="Mapbox 杭州地图"
+      />
+      <div className={`mapbox-hangzhou-fallback${mapStatus === "ready" ? " is-hidden" : ""}`} aria-hidden={mapStatus === "ready"}>
+        <span>Mapbox 杭州地图</span>
+        <strong>默认杭州</strong>
+        <small>{statusLabel}</small>
+      </div>
+    </div>
+  );
+}
+
+function getPixelIslandLayerStyle(layer: PixelIslandLayer): CSSProperties {
+  return {
+    left: layer.position.left,
+    top: layer.position.top,
+    width: layer.position.width,
+    height: layer.position.height,
+    zIndex: layer.position.zIndex,
+    transform: layer.position.rotate ? `rotate(${layer.position.rotate})` : undefined
+  };
+}
+
+function getPixelIslandLabelStyle(layer: PixelIslandLayer): CSSProperties {
+  return {
+    left: layer.labelPosition?.left ?? layer.position.left,
+    top: layer.labelPosition?.top ?? layer.position.top,
+    zIndex: layer.labelPosition?.zIndex ?? layer.position.zIndex
+  };
+}
+
+function PixelIslandLayerView({
+  layer,
+  onNavigate,
+  visualMode
+}: {
+  layer: PixelIslandLayer;
+  onNavigate: NavigateHandler;
+  visualMode: "layered" | "composite";
+}) {
+  const style = visualMode === "composite" && layer.kind === "spot"
+    ? getPixelIslandLabelStyle(layer)
+    : getPixelIslandLayerStyle(layer);
+
+  if (layer.kind !== "spot") {
+    if (visualMode === "composite") return null;
+
+    return (
+      <img
+        className={`ai-world-layer ai-world-layer--${layer.kind}`}
+        src={layer.sprite}
+        alt=""
+        aria-hidden="true"
+        style={style}
+      />
+    );
+  }
+
+  const content = (
+    <>
+      {visualMode === "layered" ? <img className="ai-spot-sprite" src={layer.sprite} alt="" /> : null}
+      <span className="ai-spot-label">
+        {layer.icon ? <img src={layer.icon} alt="" /> : null}
+        <strong>{layer.label}</strong>
+        <em>{layer.level}</em>
+      </span>
+    </>
+  );
+
+  if (layer.view) {
+    return (
+      <a
+        className={`ai-world-spot ai-world-layer${visualMode === "composite" ? " ai-world-label-anchor" : ""}`}
+        href={getPathForView(layer.view)}
+        onClick={(event) => onNavigate(layer.view!, event)}
+        aria-label={layer.ariaLabel ?? layer.label}
+        style={style}
+      >
+        {content}
+      </a>
+    );
+  }
+
+  return (
+    <div className={`ai-world-spot ai-world-layer${visualMode === "composite" ? " ai-world-label-anchor" : ""}`} style={style}>
+      {content}
+    </div>
+  );
+}
+
+function PixelStageHud() {
+  return (
+    <>
+      <div className="pixel-stage-hud" aria-label="杭州舞台状态栏">
+        <div className="pixel-stage-pill pixel-stage-location">
+          <img src={gameAssets.icons.mapPin} alt="" />
+          <strong>杭州</strong>
+          <span>Hangzhou</span>
+          <b>⌄</b>
+        </div>
+        <div className="pixel-stage-pill pixel-stage-weather">
+          <img src={gameAssets.addon.icons.energy} alt="" />
+          <strong>24°C</strong>
+          <span>晴 · 空气优 28</span>
+        </div>
+      </div>
+      <div className="pixel-stage-tools" aria-label="快捷状态">
+        <button type="button" aria-label="日历"><img src={gameAssets.addon.icons.calendar} alt="" /></button>
+        <button type="button" aria-label="消息"><img src={gameAssets.addon.icons.bell} alt="" /><i>3</i></button>
+        <button type="button" aria-label="设置"><img src={gameAssets.addon.icons.settings} alt="" /></button>
+        <button type="button" aria-label="玩家"><img src={gameAssets.player} alt="" /></button>
+      </div>
+    </>
+  );
+}
+
+function PixelStageStatusCard() {
+  const rows = [
+    ["时间", "68%", "8.2h / 12h", "time"],
+    ["精力", "75%", "良好", "energy"],
+    ["心情", "82%", "愉悦", "mood"],
+  ] as const;
+
+  return (
+    <aside className="pixel-stage-status-card" aria-label="今日状态">
+      <h2>今日状态</h2>
+      {rows.map(([label, value, note, key]) => (
+        <p key={key} className={`pixel-status-row pixel-status-row--${key}`}>
+          <span>{label}</span>
+          <strong>{value}</strong>
+          <i><em style={{ width: value }} /></i>
+          <small>{note}</small>
+        </p>
+      ))}
+    </aside>
+  );
+}
+
+function WorldSceneCard({
+  onNavigate,
+  onShowMap
+}: {
+  onNavigate: NavigateHandler;
+  onShowMap: () => void;
+}) {
+  const pack = hangzhouPixelIslandPack;
+  const visualMode: "composite" = "composite";
+
   return (
     <DesignCard className="scene-card world-scene-card">
-      <div className="ai-world-scene" role="img" aria-label="像素风岛屿世界地图">
-        <div className="ai-world-skyline" aria-hidden="true" />
-        <img className="ai-world-bridge ai-bridge-home-life" src={gameAssets.cut.woodBridge} alt="" aria-hidden="true" />
-        <img className="ai-world-bridge ai-bridge-home-ai" src={gameAssets.cut.woodBridge} alt="" aria-hidden="true" />
-        <img className="ai-world-bridge ai-bridge-memory-home" src={gameAssets.cut.woodBridge} alt="" aria-hidden="true" />
-        {islandSpots.map((spot) => {
-          const content = (
-            <>
-              <img className="ai-spot-sprite" src={spot.sprite} alt="" />
-              <span className="ai-spot-label">
-                <img src={spot.icon} alt="" />
-                <strong>{spot.label}</strong>
-                <em>{spot.level}</em>
-              </span>
-            </>
-          );
-
-          if (spot.view) {
-            return (
-              <a
-                key={spot.key}
-                className={`ai-world-spot ${spot.className}`}
-                href={getPathForView(spot.view)}
-                onClick={(event) => onNavigate(spot.view!, event)}
-                aria-label={spot.ariaLabel ?? spot.label}
-              >
-                {content}
-              </a>
-            );
-          }
-
-          return (
-            <div key={spot.key} className={`ai-world-spot ${spot.className}`}>
-              {content}
-            </div>
-          );
-        })}
-        <img className="ai-world-prop ai-world-lighthouse" src={gameAssets.cut.lighthouse} alt="" aria-hidden="true" />
-        <img className="ai-world-prop ai-world-reed" src={gameAssets.cut.reedPatch} alt="" aria-hidden="true" />
-        <img className="ai-world-prop ai-world-flower" src={gameAssets.cut.flowerPatch} alt="" aria-hidden="true" />
-        <img className="ai-world-character ai-world-player" src={gameAssets.cut.playerAlex} alt="" aria-hidden="true" />
-        <img className="ai-world-character ai-world-agent-1" src={gameAssets.cut.agents.researcher} alt="" aria-hidden="true" />
-        <img className="ai-world-character ai-world-agent-2" src={gameAssets.cut.agents.analyst} alt="" aria-hidden="true" />
+      <div
+        className="ai-world-scene ai-world-scene--generated"
+        data-pixel-island-pack={pack.slug}
+        data-scene-image={pack.sceneImage}
+        data-background-source={pack.background}
+        data-sprites-manifest={pack.spritesManifest}
+        role="img"
+        aria-label={pack.title}
+        style={{ backgroundImage: `url(${pack.sceneImage})` }}
+      >
+        <PixelStageHud />
+        {pack.layers.map((layer) => (
+          <PixelIslandLayerView key={layer.key} layer={layer} onNavigate={onNavigate} visualMode={visualMode} />
+        ))}
+        <PixelStageStatusCard />
       </div>
-      <article className="scene-info world-scene-info">
-        <header>
-          <h1>我的世界</h1>
-          <span>城市 Lv.10</span>
-        </header>
-        <p className="scene-progress">Day 10,532</p>
-        <div className="progress-track"><i style={{ width: "68%" }} /></div>
-        <p>一个人的 AI 公司在白天的岛屿城市里运转。点击办公室或记忆馆进入真实空间。</p>
+      <article className="world-scene-meta visually-hidden">
+        <h1>我的世界</h1>
+        <p>{pack.level}</p>
+        <p>Day 10,532</p>
+        <p>{pack.city} 的像素岛屿由背景、切图素材和摆放数据拼接而成。</p>
       </article>
-      <a className="button-primary world-office-entry" href="/office" onClick={(event) => onNavigate("office", event)}>进入办公室</a>
+      <div className="world-stage-actions world-stage-actions--map-only">
+        <a
+          className="world-map-chip world-game-chip"
+          href={getPathForView("game")}
+          onClick={(event) => onNavigate("game", event)}
+          data-godot-session-entry={pack.slug}
+        >
+          <img src={gameAssets.player} alt="" />
+          <span>进入杭州像素岛</span>
+          <b>›</b>
+        </a>
+        <button className="world-map-chip" type="button" onClick={onShowMap}>
+          <img src={gameAssets.icons.mapPin} alt="" />
+          <span>世界地图</span>
+          <b>›</b>
+        </button>
+      </div>
+    </DesignCard>
+  );
+}
+
+function WorldMapStageCard({ onShowIsland }: { onShowIsland: () => void }) {
+  return (
+    <DesignCard className="scene-card world-scene-card world-map-stage-card">
+      <MapboxHangzhouMap variant="stage" />
+      <article className="scene-info world-scene-info world-map-stage-info">
+        <header>
+          <h1>世界地图</h1>
+          <span>默认杭州</span>
+        </header>
+        <p className="scene-progress">{hangzhouMap.city} · {hangzhouMap.english}</p>
+        <div className="progress-track"><i style={{ width: "68%" }} /></div>
+        <p>真实 Mapbox 地图默认缩放到杭州；需要回到游戏感空间时，切回杭州像素岛屿。</p>
+      </article>
+      <button className="button-primary world-island-entry" type="button" onClick={onShowIsland}>杭州像素岛屿</button>
     </DesignCard>
   );
 }
@@ -212,7 +490,13 @@ function WorldBottomGrid({ onNavigate }: { onNavigate: NavigateHandler }) {
   );
 }
 
-function WorldInfoRail() {
+function WorldInfoRail({
+  onShowIsland,
+  onShowMap
+}: {
+  onShowIsland: () => void;
+  onShowMap: () => void;
+}) {
   return (
     <>
       <DesignCard className="stats-card world-stats-card">
@@ -224,10 +508,14 @@ function WorldInfoRail() {
           <dt>心情</dt><dd>82%</dd>
         </dl>
       </DesignCard>
-      <DesignCard className="upgrade-card world-map-card">
-        <h2>世界地图</h2>
-        <img src={aiCompanyAssets.worldmap} alt="世界地图概览" />
-        <button className="button-secondary" type="button">切换城市</button>
+      <DesignCard className="upgrade-card world-map-card world-mapbox-card">
+        <header className="world-mapbox-card-header">
+          <h2>世界地图</h2>
+          <span>默认杭州</span>
+        </header>
+        <MapboxHangzhouMap variant="rail" />
+        <button className="button-secondary" type="button" onClick={onShowMap}>切换到世界地图</button>
+        <button className="world-mapbox-text-button" type="button" onClick={onShowIsland}>杭州像素岛屿</button>
       </DesignCard>
       <DesignCard className="upgrade-card world-map-card">
         <h2>人生轨迹</h2>
@@ -239,17 +527,166 @@ function WorldInfoRail() {
 }
 
 function IslandHomePage({ onNavigate }: { onNavigate: NavigateHandler }) {
+  const [stageMode, setStageMode] = useState<WorldStageMode>("island");
+  const showIsland = () => setStageMode("island");
+  const showMap = () => setStageMode("map");
+
   return (
     <AppShell
       active="世界地图"
       className="world-dashboard"
       contentClassName="main-stage world-stage"
       onNavigate={onNavigate}
-      rightRail={<WorldInfoRail />}
+      rightRail={<WorldInfoRail onShowIsland={showIsland} onShowMap={showMap} />}
+      showTopBar={false}
     >
-      <WorldSceneCard onNavigate={onNavigate} />
+      {stageMode === "map" ? (
+        <WorldMapStageCard onShowIsland={showIsland} />
+      ) : (
+        <WorldSceneCard onNavigate={onNavigate} onShowMap={showMap} />
+      )}
       <WorldBottomGrid onNavigate={onNavigate} />
     </AppShell>
+  );
+}
+
+function focusGodotFrame(frame: HTMLIFrameElement | null) {
+  if (!frame) {
+    return;
+  }
+
+  frame.focus();
+  frame.contentWindow?.focus();
+  const canvas = frame.contentDocument?.getElementById("canvas");
+  if (canvas instanceof HTMLCanvasElement) {
+    canvas.focus();
+  }
+}
+
+function MemoryGameMapPage({ onNavigate }: { onNavigate: NavigateHandler }) {
+  const frameRef = useRef<HTMLIFrameElement>(null);
+  const godotWebSrc = useMemo(() => createGodotWebSrc("memory"), []);
+  const focusMemoryFrame = () => focusGodotFrame(frameRef.current);
+
+  return (
+    <AppShell
+      active="记忆馆"
+      className="godot-game-shell memory-game-shell"
+      contentClassName="godot-game-stage memory-game-stage"
+      onNavigate={onNavigate}
+      showTopBar={false}
+    >
+      <section
+        className="godot-game-card memory-game-card"
+        aria-label="记忆室 Godot 游戏"
+        data-memory-game-map={memoryRoomGameMap.map}
+        data-memory-tool-flow={memoryRoomGameMap.toolFlow}
+      >
+        <header className="godot-game-toolbar memory-game-toolbar">
+          <div className="godot-game-pill godot-game-city">
+            <img src={gameAssets.icons.memory} alt="" />
+            <strong>记忆室</strong>
+            <span>Memory Room</span>
+          </div>
+          <div className="godot-game-pill godot-game-weather">
+            <img src={gameAssets.addon.icons.camera} alt="" />
+            <strong>Godot 可玩模式</strong>
+            <span>WASD · 点击物件</span>
+          </div>
+          <p className="godot-game-session-pill">Session 运行中 · 记忆室</p>
+        </header>
+        <iframe
+          ref={frameRef}
+          className="godot-web-frame"
+          src={godotWebSrc}
+          title="记忆室 Godot 游戏"
+          allow="autoplay; fullscreen; gamepad; clipboard-read; clipboard-write"
+          tabIndex={0}
+          onLoad={focusMemoryFrame}
+          onPointerDown={focusMemoryFrame}
+        />
+      </section>
+    </AppShell>
+  );
+}
+
+function GodotWorldGamePage({ onNavigate }: { onNavigate: NavigateHandler }) {
+  const frameRef = useRef<HTMLIFrameElement>(null);
+  const [sessionResult, setSessionResult] = useState<GodotWebSessionResult | null>(null);
+  const godotWebSrc = useMemo(() => createGodotWebSrc("world"), []);
+  const visitedRooms = sessionResult?.visitedRooms?.length ?? 0;
+  const completedTasks = sessionResult?.completedTasks?.length ?? 0;
+  const focusWorldFrame = () => focusGodotFrame(frameRef.current);
+
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      if (!isGodotWebSessionMessage(event.data)) {
+        return;
+      }
+
+      const godotWindow = frameRef.current?.contentWindow;
+      if (godotWindow && event.source !== godotWindow) {
+        return;
+      }
+
+      if (event.data.session) {
+        setSessionResult(event.data.session);
+        window.sessionStorage.setItem("memory-map:last-godot-session", JSON.stringify(event.data.session));
+      }
+
+      if (event.data.returnToApp) {
+        onNavigate("world");
+      }
+    };
+
+    window.addEventListener("message", handleMessage);
+    return () => window.removeEventListener("message", handleMessage);
+  }, [onNavigate]);
+
+  return (
+    <AppShell
+      active="世界地图"
+      className="godot-game-shell"
+      contentClassName="godot-game-stage"
+      onNavigate={onNavigate}
+      showTopBar={false}
+    >
+      <section className="godot-game-card" aria-label="杭州像素岛">
+        <header className="godot-game-toolbar">
+          <div className="godot-game-pill godot-game-city">
+            <img src={gameAssets.icons.mapPin} alt="" />
+            <strong>杭州</strong>
+            <span>Hangzhou</span>
+          </div>
+          <div className="godot-game-pill godot-game-weather">
+            <img src={gameAssets.addon.icons.energy} alt="" />
+            <strong>24°C</strong>
+            <span>晴 · 空气优 28</span>
+          </div>
+          <p className="godot-game-session-pill">
+            {sessionResult ? `Session 已同步 · ${visitedRooms} 房间 · ${completedTasks} 任务` : "Session 运行中"}
+          </p>
+        </header>
+        <iframe
+          ref={frameRef}
+          className="godot-web-frame"
+          src={godotWebSrc}
+          title="杭州像素岛 Godot 游戏"
+          allow="autoplay; fullscreen; gamepad; clipboard-read; clipboard-write"
+          tabIndex={0}
+          onLoad={focusWorldFrame}
+          onPointerDown={focusWorldFrame}
+        />
+      </section>
+    </AppShell>
+  );
+}
+
+export function GodotWebGamePage({ onNavigate, room = "world" }: { onNavigate: NavigateHandler; room?: GameRoom }) {
+  return room === "memory" ? (
+    <MemoryGameMapPage onNavigate={onNavigate} />
+  ) : (
+    <GodotWorldGamePage onNavigate={onNavigate} />
   );
 }
 
@@ -1554,6 +1991,11 @@ export default function App() {
 
   if (view === "memoryImport") {
     return <MemoryCreatePage onNavigate={navigate} />;
+  }
+
+  if (view === "game") {
+    const room = typeof window === "undefined" ? "world" : getGameRoomFromSearch(window.location.search);
+    return <GodotWebGamePage room={room} onNavigate={navigate} />;
   }
 
   return <IslandHomePage onNavigate={navigate} />;

@@ -296,6 +296,12 @@
   overflow: hidden;
 }
 
+.ai-world-scene--generated {
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+
 .ai-world-scene::before {
   content: "";
   position: absolute;
@@ -310,6 +316,177 @@
     );
   pointer-events: none;
 }
+
+.ai-world-scene--generated::before {
+  content: none;
+}
+
+.pixel-stage-hud {
+  position: absolute;
+  left: 50%;
+  top: 22px;
+  z-index: 90;
+  display: flex;
+  align-items: center;
+  gap: 0;
+  transform: translateX(-50%);
+}
+
+.pixel-stage-pill {
+  min-height: 54px;
+  display: grid;
+  align-items: center;
+  border: 1px solid rgba(120, 154, 190, 0.36);
+  background: rgba(245, 250, 255, 0.88);
+  box-shadow: 0 10px 26px rgba(15, 23, 42, 0.12);
+  backdrop-filter: blur(10px);
+}
+
+.pixel-stage-location {
+  min-width: 318px;
+  grid-template-columns: 34px auto 1fr 16px;
+  gap: 8px;
+  padding: 0 16px;
+  border-radius: 14px 0 0 14px;
+}
+
+.pixel-stage-weather {
+  min-width: 380px;
+  grid-template-columns: 34px auto 1fr;
+  gap: 9px;
+  padding: 0 18px;
+  border-left: 0;
+  border-radius: 0 14px 14px 0;
+}
+
+.pixel-stage-pill img {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+}
+
+.pixel-stage-pill strong {
+  color: #172033;
+  font-size: 17px;
+  line-height: 1;
+}
+
+.pixel-stage-pill span {
+  color: #273448;
+  font-size: 15px;
+  white-space: nowrap;
+}
+
+.pixel-stage-pill b {
+  color: #64748b;
+  font-size: 18px;
+}
+
+.pixel-stage-tools {
+  position: absolute;
+  z-index: 90;
+  right: 24px;
+  top: 22px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.pixel-stage-tools button {
+  position: relative;
+  width: 50px;
+  height: 50px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(120, 154, 190, 0.36);
+  border-radius: 14px;
+  background: rgba(245, 250, 255, 0.9);
+  box-shadow: 0 10px 26px rgba(15, 23, 42, 0.12);
+}
+
+.pixel-stage-tools img {
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+}
+
+.pixel-stage-tools i {
+  position: absolute;
+  right: -5px;
+  top: -7px;
+  min-width: 21px;
+  height: 21px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: #ef4444;
+  color: #fff;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 900;
+}
+
+.pixel-stage-status-card {
+  position: absolute;
+  right: 24px;
+  bottom: 24px;
+  z-index: 88;
+  width: 318px;
+  padding: 18px 20px;
+  border: 1px solid rgba(120, 154, 190, 0.34);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.16);
+  backdrop-filter: blur(10px);
+}
+
+.pixel-stage-status-card h2 {
+  margin: 0 0 14px;
+  color: #172033;
+  font-size: 20px;
+  letter-spacing: 0;
+}
+
+.pixel-status-row {
+  min-height: 30px;
+  display: grid;
+  grid-template-columns: 48px 42px 1fr auto;
+  align-items: center;
+  gap: 8px;
+  color: #334155;
+  font-size: 13px;
+}
+
+.pixel-status-row span {
+  font-weight: 700;
+}
+
+.pixel-status-row strong {
+  color: #172033;
+  font-size: 13px;
+}
+
+.pixel-status-row i {
+  height: 5px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #e7edf4;
+}
+
+.pixel-status-row em {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+}
+
+.pixel-status-row small {
+  color: #5f6d7f;
+  font-size: 12px;
+}
+
+.pixel-status-row--time em { background: #4ba3f5; }
+.pixel-status-row--energy em { background: #f0a53a; }
+.pixel-status-row--mood em { background: #35b56c; }
 
 .ai-world-skyline {
   position: absolute;
@@ -375,6 +552,33 @@
   color: inherit;
 }
 
+.ai-world-layer {
+  position: absolute;
+}
+
+.ai-world-label-anchor {
+  width: max-content;
+  height: auto;
+  transform: translate(-50%, -50%);
+}
+
+.ai-world-layer--prop,
+.ai-world-layer--character {
+  object-fit: contain;
+  pointer-events: none;
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
+}
+
+.ai-world-layer--prop {
+  filter: drop-shadow(0 4px 6px rgba(20, 50, 80, 0.18));
+}
+
+.ai-world-layer--character {
+  filter: drop-shadow(0 3px 4px rgba(20, 50, 80, 0.22));
+}
+
 .ai-spot-sprite {
   position: absolute;
   inset: 0;
@@ -405,6 +609,24 @@
   pointer-events: none;
 }
 
+.ai-world-label-anchor .ai-spot-label {
+  position: static;
+  left: auto;
+  top: auto;
+  transform: none;
+  display: grid;
+  grid-template-columns: 28px max-content;
+  grid-template-rows: auto auto;
+  column-gap: 8px;
+  row-gap: 0;
+  align-items: center;
+  min-width: 108px;
+  padding: 8px 12px 8px 9px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 8px 18px rgba(18, 44, 75, 0.16);
+}
+
 .ai-spot-label::after {
   content: "";
   position: absolute;
@@ -424,10 +646,21 @@
   object-fit: contain;
 }
 
+.ai-world-label-anchor .ai-spot-label img {
+  grid-row: 1 / 3;
+  width: 28px;
+  height: 28px;
+}
+
 .ai-spot-label strong {
   font-size: 12px;
   font-weight: 700;
   color: #1f2937;
+}
+
+.ai-world-label-anchor .ai-spot-label strong {
+  font-size: 15px;
+  line-height: 1.08;
 }
 
 .ai-spot-label em {
@@ -435,6 +668,11 @@
   font-size: 11px;
   font-weight: 700;
   color: #2768a8;
+}
+
+.ai-world-label-anchor .ai-spot-label em {
+  font-size: 13px;
+  line-height: 1.15;
 }
 
 a.ai-world-spot {
@@ -1981,6 +2219,18 @@ img {
   display: block;
 }
 
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
 .app-shell {
   min-height: 100vh;
   padding: var(--space-page);
@@ -2021,6 +2271,23 @@ img {
   grid-column: 2 / 4;
   grid-row: 2;
   min-width: 0;
+}
+
+.app-shell--no-topbar {
+  grid-template-rows: minmax(0, 1fr);
+}
+
+.app-shell--no-topbar > .side-nav,
+.app-shell--no-topbar > .main-stage,
+.app-shell--no-topbar > .right-rail,
+.app-shell--no-topbar > .memory-child-stage {
+  grid-row: 1;
+}
+
+@media (min-width: 1181px) {
+  .world-dashboard.app-shell--no-topbar {
+    grid-template-columns: 188px minmax(0, 1fr) var(--right-rail-width);
+  }
 }
 
 .design-card {
@@ -2285,6 +2552,72 @@ img {
   align-self: stretch;
 }
 
+.side-profile {
+  padding: 4px 8px 16px;
+  display: grid;
+  grid-template-columns: 58px minmax(0, 1fr);
+  gap: 8px 10px;
+  border-bottom: 1px solid #e6edf6;
+  margin-bottom: 16px;
+  color: #172033;
+}
+
+.side-profile > div {
+  min-width: 0;
+}
+
+.side-profile-avatar {
+  width: 58px;
+  height: 58px;
+  object-fit: contain;
+}
+
+.side-profile strong,
+.side-profile span,
+.side-profile p {
+  display: block;
+}
+
+.side-profile strong {
+  margin-top: 4px;
+  font-size: 15px;
+  line-height: 1.15;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.side-profile span,
+.side-profile p,
+.side-profile em {
+  color: #334155;
+  font-size: 12px;
+  font-style: normal;
+}
+
+.side-profile > div span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.side-profile p {
+  grid-column: 1 / -1;
+  margin: 2px 0 0;
+}
+
+.side-profile-progress {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+}
+
+.side-profile-progress .xp-track {
+  height: 6px;
+}
+
 .side-nav nav {
   display: flex;
   flex-direction: column;
@@ -2348,7 +2681,7 @@ img {
 }
 
 .world-stage {
-  grid-template-rows: minmax(420px, 520px) minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr);
 }
 
 .scene-card {
@@ -2358,8 +2691,9 @@ img {
 }
 
 .world-scene-card {
-  height: min(520px, 58vh);
-  min-height: 420px;
+  height: auto;
+  min-height: 680px;
+  aspect-ratio: 16 / 9;
 }
 
 .office-scene {
@@ -2452,6 +2786,411 @@ img {
   left: 26px;
   bottom: 24px;
   z-index: 2;
+}
+
+.world-stage-actions {
+  position: absolute;
+  left: 26px;
+  bottom: 24px;
+  z-index: 3;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.world-stage-actions .button-primary,
+.world-stage-actions .button-secondary {
+  min-height: 46px;
+  padding-inline: 18px;
+  text-decoration: none;
+}
+
+.world-stage-actions--map-only {
+  left: 24px;
+  bottom: 24px;
+}
+
+.world-map-chip {
+  min-height: 54px;
+  padding: 0 18px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid rgba(114, 151, 191, 0.34);
+  border-radius: 12px;
+  background: rgba(241, 247, 255, 0.9);
+  color: #172033;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.12);
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.world-map-chip img {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+
+.world-map-chip b {
+  color: #64748b;
+  font-size: 20px;
+}
+
+.world-game-chip {
+  background: rgba(23, 32, 51, 0.9);
+  color: #fff;
+}
+
+.world-game-chip b {
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.godot-game-shell {
+  min-height: 100vh;
+}
+
+.godot-game-stage {
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+}
+
+.godot-game-card {
+  position: relative;
+  width: 100%;
+  min-height: calc(100vh - var(--space-page) * 2);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--bg-card);
+  box-shadow: var(--shadow-card);
+}
+
+.godot-game-toolbar {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  right: 20px;
+  z-index: 2;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  pointer-events: none;
+}
+
+.godot-game-toolbar > * {
+  pointer-events: auto;
+}
+
+.godot-game-pill,
+.godot-game-session-pill {
+  min-height: 48px;
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid rgba(226, 232, 240, 0.92);
+  border-radius: var(--radius-lg);
+  background: rgba(255, 255, 255, 0.88);
+  color: var(--text-main);
+  box-shadow: 0 8px 30px rgba(15, 23, 42, 0.08);
+  backdrop-filter: blur(12px);
+}
+
+.godot-game-pill {
+  gap: 10px;
+  padding: 0 16px 0 12px;
+}
+
+.godot-game-pill img {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+}
+
+.godot-game-pill strong {
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.godot-game-pill span {
+  color: var(--text-sub);
+  font-weight: 700;
+}
+
+.godot-game-city {
+  min-width: 250px;
+}
+
+.godot-game-weather {
+  min-width: 248px;
+}
+
+.godot-game-session-pill {
+  margin: 0 0 0 auto;
+  padding: 0 16px;
+  color: var(--primary-strong);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.godot-web-frame {
+  width: 100%;
+  height: calc(100vh - var(--space-page) * 2);
+  display: block;
+  border: 0;
+  background: var(--bg-soft);
+}
+
+.memory-game-stage {
+  align-items: stretch;
+}
+
+.memory-game-card {
+  background: #f5efe3;
+}
+
+.memory-game-map {
+  position: relative;
+  width: 100%;
+  height: calc(100vh - var(--space-page) * 2);
+  overflow: hidden;
+  background: #eadcc4;
+}
+
+.memory-game-map > img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.memory-game-hotspot {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: transparent;
+  color: #17324d;
+}
+
+.memory-game-hotspot::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: rgba(75, 156, 255, 0);
+  box-shadow: inset 0 0 0 1px rgba(75, 156, 255, 0);
+  transition: background 160ms ease, box-shadow 160ms ease;
+}
+
+.memory-game-hotspot span,
+.memory-game-hotspot small {
+  position: relative;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 160ms ease, transform 160ms ease;
+}
+
+.memory-game-hotspot span {
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.92);
+  font-size: 14px;
+  font-weight: 900;
+  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.14);
+}
+
+.memory-game-hotspot small {
+  margin-top: 6px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: rgba(23, 50, 77, 0.82);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.memory-game-hotspot:hover::before,
+.memory-game-hotspot:focus-visible::before,
+.memory-game-hotspot.is-active::before {
+  background: rgba(75, 156, 255, 0.16);
+  box-shadow: inset 0 0 0 2px rgba(75, 156, 255, 0.72), 0 12px 34px rgba(75, 156, 255, 0.18);
+}
+
+.memory-game-hotspot:hover span,
+.memory-game-hotspot:hover small,
+.memory-game-hotspot:focus-visible span,
+.memory-game-hotspot:focus-visible small,
+.memory-game-hotspot.is-active span,
+.memory-game-hotspot.is-active small {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.world-map-stage-card {
+  background: #dceaf1;
+}
+
+.world-map-stage-info {
+  z-index: 3;
+  width: 314px;
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  border-radius: 0 0 16px 0;
+  box-shadow: 0 14px 32px rgba(15, 23, 42, 0.12);
+  backdrop-filter: blur(14px);
+}
+
+.world-island-entry {
+  position: absolute;
+  left: 26px;
+  bottom: 24px;
+  z-index: 3;
+}
+
+.mapbox-hangzhou-map {
+  position: relative;
+  width: 100%;
+  height: 132px;
+  overflow: hidden;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-control);
+  background: #dceaf1;
+}
+
+.mapbox-hangzhou-map--stage {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  height: 100%;
+  border: 0;
+  border-radius: 0;
+}
+
+.mapbox-hangzhou-canvas {
+  width: 100%;
+  height: 100%;
+}
+
+.mapbox-hangzhou-fallback {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: grid;
+  place-content: center;
+  gap: 4px;
+  padding: 14px;
+  background:
+    linear-gradient(90deg, rgba(30, 73, 103, 0.08) 1px, transparent 1px),
+    linear-gradient(180deg, rgba(30, 73, 103, 0.08) 1px, transparent 1px),
+    #dceaf1;
+  background-size: 32px 32px;
+  color: #172033;
+  text-align: center;
+  pointer-events: none;
+  transition: opacity 160ms ease, visibility 160ms ease;
+}
+
+.mapbox-hangzhou-fallback.is-hidden {
+  visibility: hidden;
+  opacity: 0;
+}
+
+.mapbox-hangzhou-fallback span {
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.mapbox-hangzhou-fallback strong {
+  color: var(--primary-hover);
+  font-size: 14px;
+}
+
+.mapbox-hangzhou-fallback small {
+  color: var(--text-sub);
+  font-size: 11px;
+}
+
+.mapbox-hangzhou-marker {
+  position: relative;
+  min-height: 34px;
+  display: grid;
+  gap: 1px;
+  padding: 5px 10px;
+  border: 1px solid rgba(37, 99, 235, 0.26);
+  border-radius: var(--radius-control);
+  background: rgba(255, 255, 255, 0.94);
+  color: #172033;
+  box-shadow: 0 10px 20px rgba(15, 23, 42, 0.18);
+  text-align: center;
+  transform: translateY(-4px);
+}
+
+.mapbox-hangzhou-marker::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -5px;
+  width: 9px;
+  height: 9px;
+  border-right: 1px solid rgba(37, 99, 235, 0.26);
+  border-bottom: 1px solid rgba(37, 99, 235, 0.26);
+  background: inherit;
+  transform: translateX(-50%) rotate(45deg);
+}
+
+.mapbox-hangzhou-marker span {
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.mapbox-hangzhou-marker small {
+  color: #2768a8;
+  font-size: 10px;
+  font-weight: 900;
+}
+
+.mapbox-hangzhou-marker--rail {
+  min-height: 28px;
+  padding: 4px 8px;
+}
+
+.world-mapbox-card {
+  gap: 12px;
+}
+
+.world-mapbox-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.world-mapbox-card-header span {
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: var(--primary-light);
+  color: var(--primary-hover);
+  font-size: 11px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.world-mapbox-card .button-secondary {
+  width: 100%;
+  margin-top: 2px;
+}
+
+.world-mapbox-text-button {
+  min-height: 34px;
+  background: transparent;
+  color: var(--primary-hover);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.world-mapbox-text-button:hover {
+  color: var(--primary-strong);
 }
 
 .right-rail {
@@ -2986,6 +3725,22 @@ img {
     flex-wrap: wrap;
   }
 
+  .world-stage-actions {
+    left: 16px;
+    right: 16px;
+    bottom: 16px;
+  }
+
+  .world-stage-actions .button-primary,
+  .world-stage-actions .button-secondary {
+    flex: 1 1 150px;
+  }
+
+  .world-island-entry {
+    left: 16px;
+    bottom: 16px;
+  }
+
   .side-nav button,
   .side-nav a {
     grid-template-columns: 32px 1fr;
@@ -3017,6 +3772,61 @@ img {
 
 .memory-scene-card {
   height: 320px;
+}
+
+.memory-museum-entry {
+  position: absolute;
+  right: 22px;
+  bottom: 22px;
+  width: min(332px, calc(100% - 44px));
+  display: grid;
+  grid-template-columns: 82px minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+  padding: 14px;
+  border: 1px solid rgba(215, 226, 241, 0.9);
+  border-radius: var(--radius-card);
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 18px 42px rgba(15, 23, 42, 0.16);
+  backdrop-filter: blur(12px);
+}
+
+.memory-museum-entry img {
+  width: 82px;
+  height: 82px;
+  object-fit: contain;
+  image-rendering: pixelated;
+  filter: drop-shadow(0 8px 12px rgba(15, 23, 42, 0.18));
+}
+
+.memory-museum-entry div {
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.memory-museum-entry span {
+  color: var(--primary);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.memory-museum-entry strong {
+  color: var(--text-main);
+  font-size: 17px;
+  line-height: 1.25;
+}
+
+.memory-museum-entry small {
+  overflow: hidden;
+  color: var(--text-muted);
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.memory-game-link {
+  grid-column: 1 / -1;
 }
 
 .memory-scene {

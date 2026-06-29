@@ -7,7 +7,21 @@ import {
   generateUnlocks,
   generateWorldNode
 } from "./worldEngine";
-import type { AgentContextSnapshot, EventRecord, EventTag, GameUnlock, MediaAsset, Opportunity, Place, PlaceProfile, WorldNode } from "./types";
+import type {
+  AgentContextSnapshot,
+  EventRecord,
+  EventTag,
+  FeedbackEvent,
+  GameUnlock,
+  MediaAsset,
+  Opportunity,
+  Place,
+  PlaceProfile,
+  Reflection,
+  Skill,
+  WorkbenchArtifact,
+  WorldNode
+} from "./types";
 
 export type AiSuggestion = {
   conclusion: string;
@@ -93,6 +107,10 @@ export type WorldSnapshot = {
   agentContext: AgentContextSnapshot;
   aiSuggestion: AiSuggestion;
   godotWorldState: GodotWorldState;
+  feedbackEvents: FeedbackEvent[];
+  reflections: Reflection[];
+  skills: Skill[];
+  workbenchArtifacts: WorkbenchArtifact[];
 };
 
 export function appendEventRecord(events: EventRecord[], draft: EventDraft): EventRecord[] {
@@ -153,6 +171,10 @@ export function createWorldSnapshot(input: {
   userId: string;
   timeline: Array<{ year: string; title: string; note: string }>;
   generatedAt?: string;
+  feedbackEvents?: FeedbackEvent[];
+  reflections?: Reflection[];
+  skills?: Skill[];
+  workbenchArtifacts?: WorkbenchArtifact[];
 }): WorldSnapshot {
   const profiles = input.places.map((place) => buildPlaceProfile(place, input.events));
   const worldNodes = profiles.map((profile) => generateWorldNode(profile, input.generatedAt));
@@ -190,6 +212,10 @@ export function createWorldSnapshot(input: {
     opportunities,
     agentContext,
     aiSuggestion,
-    godotWorldState
+    godotWorldState,
+    feedbackEvents: input.feedbackEvents ?? [],
+    reflections: input.reflections ?? [],
+    skills: input.skills ?? [],
+    workbenchArtifacts: input.workbenchArtifacts ?? []
   };
 }

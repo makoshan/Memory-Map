@@ -1,0 +1,198 @@
+{
+  "slug": "hangzhou",
+  "city": "Hangzhou",
+  "theme": "personal AI company",
+  "background": "/assets/generated/v2/hangzhou-background.png",
+  "backgroundPrompt": "/assets/generated/v2/hangzhou-background.prompt.txt",
+  "sceneImage": "/assets/generated/v2/hangzhou-island-composite-preview.png",
+  "atlas": "/assets/generated/v2/hangzhou-atlas.png",
+  "spritesManifest": "/assets/generated/v2/hangzhou-sprites/manifest.json",
+  "spriteCount": 35,
+  "compositePreview": "/assets/generated/v2/hangzhou-island-composite-preview.png",
+  "layers": [
+    {
+      "key": "office",
+      "kind": "spot",
+      "label": "Office",
+      "level": "Lv.8",
+      "view": "office",
+      "position": {
+        "left": "6.5%",
+        "top": "32%",
+        "width": "20%",
+        "height": "31%",
+        "zIndex": 24
+      },
+      "sprite": "/assets/generated/v2/hangzhou-sprites/office-tower-island.png"
+    },
+    {
+      "key": "memory",
+      "kind": "spot",
+      "label": "Memory",
+      "level": "Lv.7",
+      "view": "memory",
+      "position": {
+        "left": "39%",
+        "top": "28%",
+        "width": "20%",
+        "height": "29%",
+        "zIndex": 26
+      },
+      "sprite": "/assets/generated/v2/hangzhou-sprites/memory-museum-island.png"
+    },
+    {
+      "key": "finance",
+      "kind": "spot",
+      "label": "Finance",
+      "level": "Lv.6",
+      "position": {
+        "left": "70%",
+        "top": "34%",
+        "width": "19%",
+        "height": "31%",
+        "zIndex": 25
+      },
+      "sprite": "/assets/generated/v2/hangzhou-sprites/finance-tower-island.png"
+    },
+    {
+      "key": "life",
+      "kind": "spot",
+      "label": "Life",
+      "level": "Lv.5",
+      "position": {
+        "left": "5%",
+        "top": "57%",
+        "width": "23%",
+        "height": "28%",
+        "zIndex": 28
+      },
+      "sprite": "/assets/generated/v2/hangzhou-sprites/life-sports-island.png"
+    },
+    {
+      "key": "home",
+      "kind": "spot",
+      "label": "Home",
+      "level": "Lv.10",
+      "position": {
+        "left": "40%",
+        "top": "55%",
+        "width": "21%",
+        "height": "32%",
+        "zIndex": 34
+      },
+      "sprite": "/assets/generated/v2/hangzhou-sprites/home-island.png"
+    },
+    {
+      "key": "ai",
+      "kind": "spot",
+      "label": "AI Lab",
+      "level": "Lv.7",
+      "position": {
+        "left": "73%",
+        "top": "61%",
+        "width": "19%",
+        "height": "27%",
+        "zIndex": 32
+      },
+      "sprite": "/assets/generated/v2/hangzhou-sprites/ai-lab-island.png"
+    },
+    {
+      "key": "bridge-home-ai",
+      "kind": "prop",
+      "position": {
+        "left": "61%",
+        "top": "66%",
+        "width": "12%",
+        "height": "10%",
+        "rotate": "8deg",
+        "zIndex": 29
+      },
+      "sprite": "/assets/generated/v2/hangzhou-sprites/wood-footbridge.png"
+    },
+    {
+      "key": "bridge-home-life",
+      "kind": "prop",
+      "position": {
+        "left": "28%",
+        "top": "63%",
+        "width": "15%",
+        "height": "12%",
+        "rotate": "-4deg",
+        "zIndex": 27
+      },
+      "sprite": "/assets/generated/v2/hangzhou-sprites/stone-arch-bridge.png"
+    },
+    {
+      "key": "lighthouse",
+      "kind": "prop",
+      "position": {
+        "left": "64%",
+        "top": "73%",
+        "width": "12%",
+        "height": "22%",
+        "zIndex": 36
+      },
+      "sprite": "/assets/generated/v2/hangzhou-sprites/lighthouse-island.png"
+    },
+    {
+      "key": "sailboat",
+      "kind": "prop",
+      "position": {
+        "left": "29%",
+        "top": "81%",
+        "width": "8%",
+        "height": "10%",
+        "zIndex": 38
+      },
+      "sprite": "/assets/generated/v2/hangzhou-sprites/sailboat.png"
+    },
+    {
+      "key": "tour-boat",
+      "kind": "prop",
+      "position": {
+        "left": "91%",
+        "top": "48%",
+        "width": "7.5%",
+        "height": "8%",
+        "zIndex": 18
+      },
+      "sprite": "/assets/generated/v2/hangzhou-sprites/tour-boat.png"
+    },
+    {
+      "key": "player",
+      "kind": "character",
+      "position": {
+        "left": "50%",
+        "top": "64%",
+        "width": "4.2%",
+        "height": "13%",
+        "zIndex": 48
+      },
+      "sprite": "/assets/generated/v2/hangzhou-sprites/avatar-male.png"
+    },
+    {
+      "key": "researcher",
+      "kind": "character",
+      "position": {
+        "left": "17%",
+        "top": "42%",
+        "width": "4.1%",
+        "height": "12.5%",
+        "zIndex": 46
+      },
+      "sprite": "/assets/generated/v2/hangzhou-sprites/avatar-researcher.png"
+    },
+    {
+      "key": "robot",
+      "kind": "character",
+      "position": {
+        "left": "82%",
+        "top": "65%",
+        "width": "4.7%",
+        "height": "13%",
+        "zIndex": 47
+      },
+      "sprite": "/assets/generated/v2/hangzhou-sprites/ai-robot.png"
+    }
+  ]
+}
